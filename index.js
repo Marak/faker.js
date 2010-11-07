@@ -18,6 +18,7 @@
 */
 
 exports.Name = require('./lib/name');
+exports.Person = require('./lib/person');
 exports.Address = require('./lib/address');
 exports.PhoneNumber = require('./lib/phone_number');
 exports.Internet = require('./lib/internet');
