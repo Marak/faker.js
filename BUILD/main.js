@@ -53,4 +53,4 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 var Faker = {};
 
-Faker.version = "0.2.0";
+Faker.version = "0.5.0";
