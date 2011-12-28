@@ -1,8 +1,8 @@
 var sys = require('sys')
    , fs = require('fs')
    , M = require('./Mustache');
-   
-   
+
+
 
 
 var code = '';
@@ -11,7 +11,7 @@ var docs = {};
 docs.main = '';
 docs.API = '';
 
-// read in the the main.js file as our main boilerplate code 
+// read in the the main.js file as our main boilerplate code
 code += fs.readFileSync('./main.js', encoding='utf8');
 code = M.Mustache.to_html(code, {"today":new Date().getTime()});
 

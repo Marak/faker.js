@@ -12,7 +12,7 @@ fs.writeFile('../examples/dataSet.json',  JSON.stringify(Faker.Helpers.userCard(
 var bigSet = [];
 
 for(i = 20; i >= 0; i--){
-	bigSet.push(Faker.Helpers.userCard());
+  bigSet.push(Faker.Helpers.userCard());
 };
 
 fs.writeFile('../examples/bigDataSet.json',  JSON.stringify(bigSet), function() {

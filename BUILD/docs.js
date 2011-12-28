@@ -5,8 +5,8 @@
 
 ## USAGE
 
-### browser - 
-  
+### browser -
+
       <script src = "Faker.js" type = "text/javascript"></script>
       <script>
         var randomName = Faker.Name.findName(); // Caitlyn Kerluke
@@ -14,7 +14,7 @@
         var randomCard = Faker.Helpers.createCard(); // random contact card containing many properties
       </script>
 
-### node.js - 
+### node.js -
 
 ### usage
 
@@ -23,7 +23,7 @@
       var randomName = Faker.Name.findName(); // Rowan Nikolaus
       var randomEmail = Faker.Internet.email(); // Kassandra.Haley@erich.biz
       var randomCard = Faker.Helpers.createCard(); // random contact card containing many properties
-      
+
 
 ## API
 
@@ -31,7 +31,7 @@
 
 ## Authors
 
-####Matthew Bergman & Marak Squires 
+####Matthew Bergman & Marak Squires
 
 Heavily inspired by Benjamin Curtis's Ruby Gem [Faker](http://faker.rubyforge.org/) and Perl's [Data::Faker](http://search.cpan.org/~jasonk/Data-Faker-0.07/lib/Data/Faker.pm)
 
