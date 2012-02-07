@@ -1,4 +1,4 @@
-var sys = require('sys')
+var sys = require('util')
    , fs = require('fs')
    , M = require('./Mustache');
    
