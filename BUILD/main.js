@@ -50,6 +50,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           var randomCard = Faker.Helpers.createCard(); // random contact card containing many properties
 
 */
+'use strict'
 
 var Faker = {};
 
