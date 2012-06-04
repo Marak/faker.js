@@ -1,10 +1,10 @@
-var sys = require('sys');
+var util = require('util');
 
 var Faker = require('../Faker');
 
 var card = Faker.Helpers.createCard();
 
-sys.puts(JSON.stringify(card));
+util.puts(JSON.stringify(card));
 
 
 

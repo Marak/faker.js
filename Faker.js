@@ -254,12 +254,12 @@ Faker.Lorem.paragraphs = function (paragraphCount){
 
 Faker.Helpers = {};
 Faker.Helpers.randomNumber = function (range) {
-    r = Math.floor(Math.random()*range);
+    var r = Math.floor(Math.random()*range);
     return r;
 };
 
 Faker.Helpers.randomize = function (array) {
-    r = Math.floor(Math.random()*array.length);
+    var r = Math.floor(Math.random()*array.length);
     return array[r];
 };
 
