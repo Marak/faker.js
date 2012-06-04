@@ -12,13 +12,13 @@ docs.main = '';
 docs.API = '';
 
 // read in the the main.js file as our main boilerplate code
-code += fs.readFileSync('./main.js', encoding='utf8');
+code += fs.readFileSync('./BUILD/main.js', encoding='utf8');
 code = M.Mustache.to_html(code, {"today":new Date().getTime()});
 
-docs.main += fs.readFileSync('./docs.js', encoding='utf8');
+docs.main += fs.readFileSync('./BUILD/docs.js', encoding='utf8');
 
 // parse entire lib directory and concat it into one file for the browser
-var lib = paths('./lib');
+var lib = paths('./BUILD/lib');
 
 
 var Faker= require('../index');
@@ -55,12 +55,12 @@ code += 'var Helpers = Faker.Helpers; \n';
 code += 'if(typeof exports != "undefined"){for(var prop in Faker){exports[prop] = Faker[prop];}}';
 
 // generate core library
-fs.writeFile('../Faker.js', code, function() {
+fs.writeFile('./Faker.js', code, function() {
   sys.puts("Faker.js generated successfully!");
 });
 
 // generate example js file as well
-fs.writeFile('../examples/js/Faker.js', code, function() {
+fs.writeFile('./examples/js/Faker.js', code, function() {
   sys.puts("Faker.js generated successfully!");
 });
 
@@ -68,7 +68,7 @@ fs.writeFile('../examples/js/Faker.js', code, function() {
 var docOutput = M.Mustache.to_html(docs.main, {"API":docs.API});
 
 // generate some samples sets (move this code to another section)
-fs.writeFile('../Readme.md', docOutput, function() {
+fs.writeFile('./Readme.md', docOutput, function() {
   sys.puts("Docs generated successfully!");
 });
 
