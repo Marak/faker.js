@@ -1,4 +1,4 @@
-var sys = require('sys');
+var util = require('util');
 
 var definitions = require('../lib/definitions');
 
@@ -6,4 +6,4 @@ var Faker = require('../index');
 
 var card = Faker.Helpers.createCard();
 
-sys.puts(JSON.stringify(card));
+util.puts(JSON.stringify(card));

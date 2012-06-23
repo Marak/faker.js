@@ -1,4 +1,4 @@
-var sys = require('sys')
+var util = require('util')
    , fs = require('fs')
    , M = require('./Mustache');
 
@@ -56,12 +56,12 @@ code += 'if(typeof exports != "undefined"){for(var prop in Faker){exports[prop] 
 
 // generate core library
 fs.writeFile('../Faker.js', code, function() {
-  sys.puts("Faker.js generated successfully!");
+  util.puts("Faker.js generated successfully!");
 });
 
 // generate example js file as well
 fs.writeFile('../examples/js/Faker.js', code, function() {
-  sys.puts("Faker.js generated successfully!");
+  util.puts("Faker.js generated successfully!");
 });
 
 
@@ -69,7 +69,7 @@ var docOutput = M.Mustache.to_html(docs.main, {"API":docs.API});
 
 // generate some samples sets (move this code to another section)
 fs.writeFile('../Readme.md', docOutput, function() {
-  sys.puts("Docs generated successfully!");
+  util.puts("Docs generated successfully!");
 });
 
 /*********************** BUILD HELPER METHODS *********************/
