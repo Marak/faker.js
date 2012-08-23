@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/Marak/Faker.js.png)](http://travis-ci.org/Marak/Faker.js)
 # Faker.js - generate massive amounts of fake data in the browser and node.js
 <img src = "https://github.com/Marak/Faker.js/raw/master/logo.png" border = "0"/>
 ### online demo @ <a href = "http://maraksquires.com/Faker.js/">http://maraksquires.com/Faker.js/</a>
