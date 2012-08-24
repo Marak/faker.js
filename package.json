@@ -5,10 +5,10 @@
     "author": "Marak Squires <marak.squires@gmail.com>",
     "repository": {
         "type": "git",
-        "url": "http://github.com/Marak/Faker.js.git" 
+        "url": "http://github.com/aratak/Faker.js.git"
     },
     "engine": [
-        "node >=0.1.90" 
+        "node >=0.1.90"
     ],
-    "main": "Faker" 
+    "main": "Faker"
 }
