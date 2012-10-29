@@ -50,7 +50,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           var randomCard = Faker.Helpers.createCard(); // random contact card containing many properties
 
 */
+!(function(){
 
+'use strict';
+
+// exported module
 var Faker = {};
 
 Faker.version = "0.5.5";

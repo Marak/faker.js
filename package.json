@@ -10,5 +10,6 @@
     "engine": [
         "node >=0.1.90" 
     ],
-    "main": "Faker" 
+    "main": "Faker",
+	"test": "
 }
