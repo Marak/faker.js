@@ -7,8 +7,13 @@
         "type": "git",
         "url": "http://github.com/Marak/Faker.js.git"
     },
-     "devDependencies": {
-        "node-minify": "*"
+    "devDependencies": {
+        "jshint": "0.9.0",
+        "istanbul": "0.1.25",
+        "mocha": "1.7.4",
+        "node-minify": "*",
+        "optimist" : "0.3.5",
+        "sinon": "1.4.2"
     },
     "engine": [
         "node >=0.1.90"

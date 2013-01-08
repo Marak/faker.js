@@ -27,6 +27,12 @@
 
 {{{API}}}
 
+## Tests
+       npm install .
+       make test
+
+You can view a code coverage report generated in coverage/lcov-report/index.html.
+
 ## Authors
 
 ####Matthew Bergman & Marak Squires

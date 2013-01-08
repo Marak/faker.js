@@ -47,8 +47,8 @@ for (var module in Faker) {
 docs.API += '</ul>';
 
 // definitions hack
-code += 'var definitions = Faker.definitions; \n';
-code += 'var Helpers = Faker.Helpers; \n';
+code += 'var definitions = Faker.definitions;\n';
+code += 'var Helpers = Faker.Helpers;\n';
 
 // if we are running in a CommonJS env, export everything out
 code +=["\nif (typeof define == 'function'){",
@@ -129,4 +129,3 @@ function paths(dir) {
 
 	return paths;
 }
-

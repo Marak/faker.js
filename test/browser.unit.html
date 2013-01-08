@@ -1,0 +1,28 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+  <script src="../node_modules/mocha/mocha.js"></script>
+  <script src="../Faker.js"></script>
+  <script src="./support/chai.js"></script>
+  <script src="./support/sinon-1.5.2.js"></script>
+  <script>assert = chai.assert;</script>
+  <script>mocha.setup('bdd');</script>
+  <script src="all.functional.js"></script>
+  <script src="address.unit.js"></script>
+  <script src="company.unit.js"></script>
+  <script src="helpers.unit.js"></script>
+  <script src="internet.unit.js"></script>
+  <script src="lorem.unit.js"></script>
+  <script src="name.unit.js"></script>
+  <script src="phone_number.unit.js"></script>
+  <script>
+    mocha.run();
+  </script>
+</body>
+</html>
+
