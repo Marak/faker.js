@@ -26,3 +26,4 @@ exports.Lorem = require('./lib/lorem');
 exports.Helpers =  require('./lib/helpers');
 exports.random = require('./lib/random');
 exports.definitions = require('./lib/definitions');
+exports.Token = require('./lib/token');
