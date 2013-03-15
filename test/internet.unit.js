@@ -7,11 +7,11 @@ if (typeof module !== 'undefined') {
 describe("internet.js", function () {
     describe("email()", function () {
         it("returns a userName@domainName", function () {
-            sinon.stub(Faker.Internet, 'userName').returns('foo');
-            sinon.stub(Faker.Internet, 'domainName').returns('bar.com');
+            sinon.stub(Faker.Internet, 'userName').returns('Aiden.Harªann');
+            sinon.stub(Faker.Internet, 'domainName').returns("ex'ample.net");
             var email = Faker.Internet.email();
 
-            assert.equal(email, 'foo@bar.com');
+            assert.equal(email, 'Aiden.Harann@example.net');
 
             Faker.Internet.userName.restore();
             Faker.Internet.domainName.restore();

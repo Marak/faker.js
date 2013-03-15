@@ -21,6 +21,13 @@ describe("helpers.js", function() {
         });
     });
 
+    describe("slugify()", function () {
+        it("removes unwanted characters from URI string", function () {
+            assert.equal(Faker.Helpers.slugify("Aiden.Harªann"), "Aiden.Harann");
+            assert.equal(Faker.Helpers.slugify("d'angelo.net"), "dangelo.net");
+        });
+    });
+
     describe("createCard()", function() {
         it("returns an object", function() {
             var card = Faker.Helpers.createCard();
