@@ -4,17 +4,17 @@ if (typeof module !== 'undefined') {
     var Faker = require('../index');
 }
 
-describe("helpers.js", function() {
-    describe("replaceSymbolWithNumber()", function() {
-        context("when no symbol passed in", function() {
-            it("uses '#' by default", function() {
+describe("helpers.js", function () {
+    describe("replaceSymbolWithNumber()", function () {
+        context("when no symbol passed in", function () {
+            it("uses '#' by default", function () {
                 var num = Faker.Helpers.replaceSymbolWithNumber('#AB');
                 assert.ok(num.match(/\dAB/));
             });
         });
 
-        context("when symbol passed in", function() {
-            it("replaces that symbol with integers", function() {
+        context("when symbol passed in", function () {
+            it("replaces that symbol with integers", function () {
                 var num = Faker.Helpers.replaceSymbolWithNumber('#AB', 'A');
                 assert.ok(num.match(/#\dB/));
             });
@@ -28,31 +28,31 @@ describe("helpers.js", function() {
         });
     });
 
-    describe("createCard()", function() {
-        it("returns an object", function() {
+    describe("createCard()", function () {
+        it("returns an object", function () {
             var card = Faker.Helpers.createCard();
             assert.ok(typeof card === 'object');
         });
     });
 
-    describe("userCard()", function() {
-        it("returns an object", function() {
+    describe("userCard()", function () {
+        it("returns an object", function () {
             var card = Faker.Helpers.userCard();
             assert.ok(typeof card === 'object');
         });
     });
 
     // Make sure we keep this function for backward-compatibility.
-    describe("randomNumber()", function() {
-        it("returns an integer", function() {
+    describe("randomNumber()", function () {
+        it("returns an integer", function () {
             var num = Faker.Helpers.randomNumber();
             assert.ok(typeof num === 'number');
         });
     });
 
     // Make sure we keep this function for backward-compatibility.
-    describe("randomize()", function() {
-        it("returns a random element from an array", function() {
+    describe("randomize()", function () {
+        it("returns a random element from an array", function () {
             var arr = ['a', 'b', 'c'];
             var elem = Faker.Helpers.randomize(arr);
             assert.ok(elem);

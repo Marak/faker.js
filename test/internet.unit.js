@@ -49,8 +49,8 @@ describe("internet.js", function () {
         });
     });
 
-    describe("domainName()", function() {
-        it("returns a domainWord plus a random suffix", function() {
+    describe("domainName()", function () {
+        it("returns a domainWord plus a random suffix", function () {
             sinon.stub(Faker.Internet, 'domainWord').returns('bar');
             sinon.stub(Faker.random, 'domain_suffix').returns('net');
 
@@ -63,8 +63,8 @@ describe("internet.js", function () {
         });
     });
 
-    describe("domainWord()", function() {
-        it("returns a lower-case firstName", function() {
+    describe("domainWord()", function () {
+        it("returns a lower-case firstName", function () {
             sinon.stub(Faker.random, 'first_name').returns('FOO');
             var domain_word = Faker.Internet.domainWord();
 
@@ -75,8 +75,8 @@ describe("internet.js", function () {
         });
     });
 
-    describe("ip()", function() {
-        it("returns a random IP address with four parts", function() {
+    describe("ip()", function () {
+        it("returns a random IP address with four parts", function () {
             var ip = Faker.Internet.ip();
             var parts = ip.split('.');
             assert.equal(parts.length, 4);
