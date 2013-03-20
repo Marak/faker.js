@@ -21,16 +21,16 @@ describe("helpers.js", function() {
         });
     });
 
-    describe("randomPostalCode()", function() {
-        context("when no format is passed", function() {
-            it("uses the default format of LLD DLL", function() {
+    describe("randomPostalCode()", function () {
+        context("when no format is passed", function () {
+            it("uses the default format of LLD DLL", function () {
                 var postalCode = Faker.Helpers.randomPostalCode();
                 assert.ok(postalCode.match(/[A-Z]{2}\d{1}\s\d[A-Z]{2}/));
             });
         });
 
-        context("when a format is passed", function() {
-            it("uses the format to generate the postal code", function() {
+        context("when a format is passed", function () {
+            it("uses the format to generate the postal code", function () {
                 var postalCode = Faker.Helpers.randomPostalCode('LLDD DLL');
                 assert.ok(postalCode.match(/[A-Z]{2}\d{2}\s\d[A-Z]{2}/));
             });
