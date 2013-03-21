@@ -208,6 +208,38 @@ describe("address.js", function () {
         });
     });
 
+    describe("nlProvince()", function () {
+        beforeEach(function () {
+            sinon.spy(Faker.random, 'nl_province_abbr');
+            sinon.spy(Faker.random, 'nl_province');
+        });
+
+        afterEach(function () {
+            Faker.random.nl_province_abbr.restore();
+            Faker.random.nl_province.restore();
+        });
+
+        context("when useAbbr is true", function () {
+            it("returns a nl_province_abbr", function () {
+                var state = Faker.Address.nlProvince(true);
+
+                assert.ok(state);
+                assert.ok(Faker.random.nl_province_abbr.called);
+                assert.ok(!Faker.random.nl_province.called);
+            });
+        });
+
+        context("when useAbbr is not set", function () {
+            it("returns a nl_province", function () {
+                var state = Faker.Address.nlProvince();
+
+                assert.ok(state);
+                assert.ok(!Faker.random.nl_province_abbr.called);
+                assert.ok(Faker.random.nl_province.called);
+            });
+        });
+    });
+
     describe("ukCounty()", function () {
         it("returns random uk_county", function () {
             sinon.spy(Faker.random, 'uk_county');
