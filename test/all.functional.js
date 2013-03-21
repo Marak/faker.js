@@ -9,7 +9,8 @@ if (typeof module !== 'undefined') {
 var modules = {
     Address: [
         'city', 'streetName', 'streetAddress', 'secondaryAddress',
-        'brState', 'ukCountry', 'ukCounty', 'usState', 'zipCode'
+        'brState', 'nlProvince', 'ukCountry', 'ukCounty', 'usState',
+        'zipCode'
     ],
 
     Company: ['companyName', 'companySuffix', 'catchPhrase', 'bs'],
