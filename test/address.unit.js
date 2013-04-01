@@ -164,12 +164,12 @@ describe("address.js", function () {
             sinon.spy(Faker.random, 'array_element');
 
             var address = Faker.Address.secondaryAddress();
-            
+
             var expected_array = [
                 'Apt. ###',
                 'Suite ###'
             ];
-            
+
             assert.ok(address);
             assert.ok(Faker.random.array_element.calledWith(expected_array));
             Faker.random.array_element.restore();
@@ -259,4 +259,35 @@ describe("address.js", function () {
             });
         });
     });
+
+    describe("latitude()", function () {
+        it("returns random latitude", function () {
+            for (var i = 0; i < 100; i++) {
+                sinon.spy(Faker.random, 'number');
+                var latitude = Faker.Address.latitude();
+                assert.ok(typeof latitude === 'string');
+                var latitude_float = parseFloat(latitude);
+                assert.ok(latitude_float >= -90.0);
+                assert.ok(latitude_float <= 90.0);
+                assert.ok(Faker.random.number.called);
+                Faker.random.number.restore();
+            }
+        });
+    });
+
+    describe("longitude()", function () {
+        it("returns random longitude", function () {
+            for (var i = 0; i < 100; i++) {
+                sinon.spy(Faker.random, 'number');
+                var longitude = Faker.Address.longitude();
+                assert.ok(typeof longitude === 'string');
+                var longitude_float = parseFloat(longitude);
+                assert.ok(longitude_float >= -180.0);
+                assert.ok(longitude_float <= 180.0);
+                assert.ok(Faker.random.number.called);
+                Faker.random.number.restore();
+            }
+        });
+    });
+
 });

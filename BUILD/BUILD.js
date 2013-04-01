@@ -29,7 +29,14 @@ for (var module in Faker) {
 	for (var method in Faker[module]) {
 		code += ( '\n' + 'Faker.' + module);
 		code += ( '.' + method + ' = ');
-		code += (Faker[module][method].toString() + ';\n');
+
+		// serialize arrays as JSON, otherwise use simple string conversion
+		var methodValue = Faker[module][method];
+		if (Array.isArray(methodValue)) {
+			code += JSON.stringify(methodValue) + ';\n';
+		} else {
+			code += (methodValue.toString() + ';\n');	
+		}
 	}
 }
 

@@ -8,12 +8,10 @@ describe("lorem.js", function () {
     describe("words()", function () {
         beforeEach(function () {
             sinon.spy(Faker.Helpers, 'shuffle');
-            sinon.spy(Faker.definitions, 'lorem');
         });
 
         afterEach(function () {
             Faker.Helpers.shuffle.restore();
-            Faker.definitions.lorem.restore();
         });
 
         context("when no 'num' param passed in", function () {
@@ -23,7 +21,6 @@ describe("lorem.js", function () {
                 assert.ok(Array.isArray(words));
                 assert.equal(words.length, 3);
                 assert.ok(Faker.Helpers.shuffle.called);
-                assert.ok(Faker.definitions.lorem.called);
             });
         });
 
