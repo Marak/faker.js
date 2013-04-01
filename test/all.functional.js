@@ -9,7 +9,7 @@ if (typeof module !== 'undefined') {
 var modules = {
     Address: [
         'city', 'streetName', 'streetAddress', 'secondaryAddress',
-        'brState', 'ukCountry', 'ukCounty', 'usState', 'zipCode', 'postalCode'
+        'brState', 'ukCountry', 'ukCounty', 'usState', 'zipCode', 'ukPostalCode'
     ],
 
     Company: ['companyName', 'companySuffix', 'catchPhrase', 'bs'],
@@ -44,12 +44,12 @@ describe("functional tests", function () {
             assert.ok(result.match(/-/));
         });
 
-        it("postalCode()", function () {
-            var postalCode = Faker.Address.postalCode();
-            assert.ok(postalCode.match(/[A-Z]{2}\d{1}\s\d[A-Z]{2}/));
+        it("ukPostalCode()", function () {
+            var ukPostalCode = Faker.Address.ukPostalCode();
+            assert.ok(ukPostalCode.match(/[A-Z]{2}\d{1}\s\d[A-Z]{2}/));
 
-            postalCode  = Faker.Address.postalCode('LLDD DLL');
-            assert.ok(postalCode.match(/[A-Z]{2}\d{2}\s\d[A-Z]{2}/));
+            ukPostalCode  = Faker.Address.ukPostalCode('LLDD DLL');
+            assert.ok(ukPostalCode.match(/[A-Z]{2}\d{2}\s\d[A-Z]{2}/));
         });
     });
 });
