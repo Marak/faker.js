@@ -35,7 +35,7 @@ describe("lorem.js", function () {
     });
 
     describe("sentence()", function () {
-        context("when no 'wordCount' param passed in", function () {
+        context("when no 'wordCount' or 'range' param passed in", function () {
             it("returns a string of at least three words", function () {
                 sinon.spy(Faker.Lorem, 'words');
                 sinon.stub(Faker.random, 'number').returns(2);
@@ -61,6 +61,22 @@ describe("lorem.js", function () {
                 var parts = sentence.split(' ');
                 assert.equal(parts.length, 12); // requested 10 plus stubbed 2.
                 assert.ok(Faker.Lorem.words.calledWith(12));
+
+                Faker.Lorem.words.restore();
+                Faker.random.number.restore();
+            });
+        });
+
+        context("when 'wordCount' and 'range' params passed in", function () {
+            it("returns a string of at least the requested number of words", function () {
+                sinon.spy(Faker.Lorem, 'words');
+                sinon.stub(Faker.random, 'number').returns(4);
+                var sentence = Faker.Lorem.sentence(10, 4);
+
+                assert.ok(typeof sentence === 'string');
+                var parts = sentence.split(' ');
+                assert.equal(parts.length, 14); // requested 10 plus stubbed 4.
+                assert.ok(Faker.Lorem.words.calledWith(14));
 
                 Faker.Lorem.words.restore();
                 Faker.random.number.restore();
