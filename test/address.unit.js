@@ -228,6 +228,16 @@ describe("address.js", function () {
         });
     });
 
+    describe("isoCountry()", function() {
+      it("returns random iso_country", function() {
+        sinon.spy(Faker.random, 'iso_country');
+        var country = Faker.Address.isoCountry();
+        assert.ok(country);
+        assert.ok(Faker.random.iso_country.called);
+        Faker.random.iso_country.restore();
+      });
+    });
+
     describe("usState()", function () {
         beforeEach(function () {
             sinon.spy(Faker.random, 'us_state_abbr');
