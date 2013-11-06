@@ -1,11 +1,11 @@
 {
     "name": "Faker",
     "description": "Generate massive amounts of fake contextual data",
-    "version": "0.5.11",
+    "version": "0.5.121",
     "author": "Marak Squires <marak.squires@gmail.com>",
     "repository": {
         "type": "git",
-        "url": "http://github.com/Marak/Faker.js.git"
+        "url": "https://github.com/cyanos/Faker.js.git"
     },
     "scripts": {
         "test": "node_modules/.bin/mocha test/*.*.js"
@@ -15,7 +15,7 @@
         "istanbul": "0.1.25",
         "mocha": "1.7.4",
         "node-minify": "*",
-        "optimist" : "0.3.5",
+        "optimist": "0.3.5",
         "sinon": "1.4.2"
     },
     "engine": [

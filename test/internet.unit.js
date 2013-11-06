@@ -82,4 +82,11 @@ describe("internet.js", function () {
             assert.equal(parts.length, 4);
         });
     });
+
+    describe("color()", function () {
+        it("returns a valid hex value (like #ffffff)", function () {
+            var color = Faker.Internet.color(100, 100, 100);
+            assert.ok(color.match(/^#[a-f0-9]{6}$/));
+        });
+    });
 });

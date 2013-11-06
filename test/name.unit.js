@@ -2,6 +2,7 @@ if (typeof module !== 'undefined') {
     var assert = require('assert');
     var sinon = require('sinon');
     var Faker = require('../index');
+
 }
 
 describe("name.js", function () {
@@ -13,6 +14,33 @@ describe("name.js", function () {
             assert.equal(first_name, 'foo');
 
             Faker.random.first_name.restore();
+        });
+    });
+
+    describe("firstNameMale()", function () {
+        it("returns a random male name", function () {
+            var first_name = Faker.Name.firstNameMale();
+            console.log(first_name);
+            assert.ok(first_name);
+        });
+    });
+
+
+    describe("firstNameFemale()", function () {
+        it("returns a random female name", function () {
+            var first_name = Faker.Name.firstNameFemale();
+            console.log(first_name);
+            assert.ok(first_name);
+
+        });
+    });
+
+
+    describe("gender()", function () {
+        it("returns a random gender", function () {
+            var gender = Faker.Name.gender();
+            assert.ok(gender === 'male' || gender === 'female');
+
         });
     });
 
