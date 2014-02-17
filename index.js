@@ -22,6 +22,7 @@ exports.Address = require('./lib/address');
 exports.PhoneNumber = require('./lib/phone_number');
 exports.Internet = require('./lib/internet');
 exports.Company = require('./lib/company');
+exports.Image = require('./lib/image');
 exports.Lorem = require('./lib/lorem');
 exports.Helpers =  require('./lib/helpers');
 exports.random = require('./lib/random');
