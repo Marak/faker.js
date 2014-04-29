@@ -44,9 +44,16 @@ describe("helpers.js", function () {
 
     // Make sure we keep this function for backward-compatibility.
     describe("randomNumber()", function () {
-        it("returns an integer", function () {
+        it("returns an integer between 1 and 100", function () {
             var num = Faker.Helpers.randomNumber();
             assert.ok(typeof num === 'number');
+            assert.ok(num.toString() !== "NaN");
+            assert.ok(num < 100);
+        });
+
+        it("returns an integer between 1 and given range", function () {
+            var num = Faker.Helpers.randomNumber(2);
+            assert.ok(num < 3);
         });
     });
 
