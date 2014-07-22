@@ -54,7 +54,7 @@ describe("lorem.js", function () {
         context("when 'wordCount' param passed in", function () {
             it("returns a string of at least the requested number of words", function () {
                 sinon.spy(Faker.Lorem, 'words');
-                sinon.stub(Faker.random, 'number').returns(2);
+                sinon.stub(Faker.random, 'number').withArgs(7).returns(2);
                 var sentence = Faker.Lorem.sentence(10);
 
                 assert.ok(typeof sentence === 'string');
@@ -70,7 +70,7 @@ describe("lorem.js", function () {
         context("when 'wordCount' and 'range' params passed in", function () {
             it("returns a string of at least the requested number of words", function () {
                 sinon.spy(Faker.Lorem, 'words');
-                sinon.stub(Faker.random, 'number').returns(4);
+                sinon.stub(Faker.random, 'number').withArgs(4).returns(4);
                 var sentence = Faker.Lorem.sentence(10, 4);
 
                 assert.ok(typeof sentence === 'string');
