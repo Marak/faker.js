@@ -1,9 +1,9 @@
 <html>
   <head>
-     <title>Faker.js - generate massive amounts of fake data in Node.js and the browser</title>
+     <title>faker.js - generate massive amounts of fake data in Node.js and the browser</title>
      <script src = "js/jquery.js" type = "text/javascript"></script>
      <script src = "js/prettyPrint.js" type = "text/javascript"></script>
-     <script src = "js/Faker.js" type = "text/javascript"></script>
+     <script src = "js/faker.js" type = "text/javascript"></script>
 
       <script>
 
@@ -35,11 +35,11 @@
 
           $(document).ready(function(e){
 
-            var card = Faker.Helpers.createCard();
+            var card = faker.Helpers.createCard();
             $('#output').html(prettyPrint(card));
 
             $('#generate').click(function(){
-              var card = Faker.Helpers.createCard();
+              var card = faker.Helpers.createCard();
               $('#output').html(prettyPrint(card));
             });
 
@@ -48,7 +48,7 @@
               setTimeout(function(){
                 var cards = [];
                 for(var i = 0; i < $('#cardCount').val(); i++){
-                  var card = Faker.Helpers.createCard();
+                  var card = faker.Helpers.createCard();
                   cards.push(card);
                 }
                 $('#output').html('<textarea cols = "100" rows = "100">'+JSON.stringify(cards)+'</textarea>');
@@ -61,12 +61,12 @@
       </script>
   </head>
   <body>
-    <h1>Faker.js - generate massive amounts of fake data in Node.js and the browser</h1>
-    <a href="http://github.com/marak/Faker.js/"><img style="position:absolute;  z-index:10; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
+    <h1>faker.js - generate massive amounts of fake data in Node.js and the browser</h1>
+    <a href="http://github.com/marak/faker.js/"><img style="position:absolute;  z-index:10; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
     <input id = "generate" type = "button" value = "generate one random card as HTML" />
     <input id = "generateSet" type = "button" value = "generate an assosative array of random cards as JSON" />
     card count : <input id = "cardCount" type = "text" size = "3" value = "5" /><br/><br/>
-    <strong>protip</strong>: open your console on this page and run: <code>console.log(Faker); var randomName = Faker.Name.findName(); console.log(randomName);</code><hr/>
+    <strong>protip</strong>: open your console on this page and run: <code>console.log(faker); var randomName = faker.Name.findName(); console.log(randomName);</code><hr/>
     <div id = "output"></div>
   </body>
 </html>

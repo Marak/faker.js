@@ -2,8 +2,8 @@
 
 var util = require('util');
 
-var Faker = require('../Faker');
+var faker = require('../faker');
 
-var card = Faker.Helpers.createCard();
+var card = faker.Helpers.createCard();
 
 util.puts(JSON.stringify(card));

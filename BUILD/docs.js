@@ -1,26 +1,26 @@
-# Faker.js - generate massive amounts of fake data in the browser and node.js
+# faker.js - generate massive amounts of fake data in the browser and node.js
 <img src = "http://imgur.com/KiinQ.png" border = "0">
 
 ## USAGE
 
 ### browser -
 
-      <script src = "Faker.js" type = "text/javascript"></script>
+      <script src = "faker.js" type = "text/javascript"></script>
       <script>
-        var randomName = Faker.Name.findName(); // Caitlyn Kerluke
-        var randomEmail = Faker.Internet.email(); // Rusty@arne.info
-        var randomCard = Faker.Helpers.createCard(); // random contact card containing many properties
+        var randomName = faker.Name.findName(); // Caitlyn Kerluke
+        var randomEmail = faker.Internet.email(); // Rusty@arne.info
+        var randomCard = faker.Helpers.createCard(); // random contact card containing many properties
       </script>
 
 ### node.js -
 
 ### usage
 
-      var Faker = require('./Faker');
+      var faker = require('./faker');
 
-      var randomName = Faker.Name.findName(); // Rowan Nikolaus
-      var randomEmail = Faker.Internet.email(); // Kassandra.Haley@erich.biz
-      var randomCard = Faker.Helpers.createCard(); // random contact card containing many properties
+      var randomName = faker.Name.findName(); // Rowan Nikolaus
+      var randomEmail = faker.Internet.email(); // Kassandra.Haley@erich.biz
+      var randomCard = faker.Helpers.createCard(); // random contact card containing many properties
 
 
 ## API
@@ -37,10 +37,10 @@ You can view a code coverage report generated in coverage/lcov-report/index.html
 
 ####Matthew Bergman & Marak Squires
 
-Heavily inspired by Benjamin Curtis's Ruby Gem [Faker](http://faker.rubyforge.org/) and Perl's [Data::Faker](http://search.cpan.org/~jasonk/Data-Faker-0.07/lib/Data/Faker.pm)
+Heavily inspired by Benjamin Curtis's Ruby Gem [faker](http://faker.rubyforge.org/) and Perl's [Data::faker](http://search.cpan.org/~jasonk/Data-faker-0.07/lib/Data/faker.pm)
 
 <br/>
-Copyright (c) {{copyrightYear}} Matthew Bergman & Marak Squires http://github.com/marak/Faker.js/
+Copyright (c) {{copyrightYear}} Matthew Bergman & Marak Squires http://github.com/marak/faker.js/
 <br/>
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

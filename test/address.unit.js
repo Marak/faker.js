@@ -1,169 +1,169 @@
 if (typeof module !== 'undefined') {
     var assert = require('assert');
     var sinon = require('sinon');
-    var Faker = require('../index');
+    var faker = require('../index');
 }
 
 describe("address.js", function () {
     describe("city()", function () {
         beforeEach(function () {
-            sinon.spy(Faker.random, 'city_prefix');
-            sinon.spy(Faker.random, 'first_name');
-            sinon.spy(Faker.random, 'last_name');
-            sinon.spy(Faker.random, 'city_suffix');
+            sinon.spy(faker.random, 'city_prefix');
+            sinon.spy(faker.random, 'first_name');
+            sinon.spy(faker.random, 'last_name');
+            sinon.spy(faker.random, 'city_suffix');
         });
 
         afterEach(function () {
-            Faker.random.number.restore();
-            Faker.random.city_prefix.restore();
-            Faker.random.first_name.restore();
-            Faker.random.last_name.restore();
-            Faker.random.city_suffix.restore();
+            faker.random.number.restore();
+            faker.random.city_prefix.restore();
+            faker.random.first_name.restore();
+            faker.random.last_name.restore();
+            faker.random.city_suffix.restore();
         });
 
         it("occasionally returns prefix + first name + suffix", function () {
-            sinon.stub(Faker.random, 'number').returns(0);
+            sinon.stub(faker.random, 'number').returns(0);
 
-            var city = Faker.Address.city();
+            var city = faker.Address.city();
             assert.ok(city);
 
-            assert.ok(Faker.random.city_prefix.calledOnce);
-            assert.ok(Faker.random.first_name.calledOnce);
-            assert.ok(Faker.random.city_suffix.calledOnce);
+            assert.ok(faker.random.city_prefix.calledOnce);
+            assert.ok(faker.random.first_name.calledOnce);
+            assert.ok(faker.random.city_suffix.calledOnce);
         });
 
         it("occasionally returns prefix + first name", function () {
-            sinon.stub(Faker.random, 'number').returns(1);
+            sinon.stub(faker.random, 'number').returns(1);
 
-            var city = Faker.Address.city();
+            var city = faker.Address.city();
             assert.ok(city);
 
-            assert.ok(Faker.random.city_prefix.calledOnce);
-            assert.ok(Faker.random.first_name.calledOnce);
-            assert.ok(!Faker.random.city_suffix.called);
+            assert.ok(faker.random.city_prefix.calledOnce);
+            assert.ok(faker.random.first_name.calledOnce);
+            assert.ok(!faker.random.city_suffix.called);
         });
 
         it("occasionally returns first name + suffix", function () {
-            sinon.stub(Faker.random, 'number').returns(2);
+            sinon.stub(faker.random, 'number').returns(2);
 
-            var city = Faker.Address.city();
+            var city = faker.Address.city();
             assert.ok(city);
 
-            assert.ok(!Faker.random.city_prefix.called);
-            assert.ok(Faker.random.first_name.calledOnce);
-            assert.ok(Faker.random.city_suffix.calledOnce);
+            assert.ok(!faker.random.city_prefix.called);
+            assert.ok(faker.random.first_name.calledOnce);
+            assert.ok(faker.random.city_suffix.calledOnce);
         });
 
         it("occasionally returns last name + suffix", function () {
-            sinon.stub(Faker.random, 'number').returns(3);
+            sinon.stub(faker.random, 'number').returns(3);
 
-            var city = Faker.Address.city();
+            var city = faker.Address.city();
             assert.ok(city);
 
-            assert.ok(!Faker.random.city_prefix.called);
-            assert.ok(!Faker.random.first_name.called);
-            assert.ok(Faker.random.last_name.calledOnce);
-            assert.ok(Faker.random.city_suffix.calledOnce);
+            assert.ok(!faker.random.city_prefix.called);
+            assert.ok(!faker.random.first_name.called);
+            assert.ok(faker.random.last_name.calledOnce);
+            assert.ok(faker.random.city_suffix.calledOnce);
         });
     });
 
     describe("streetName()", function () {
         beforeEach(function () {
-            sinon.spy(Faker.random, 'first_name');
-            sinon.spy(Faker.random, 'last_name');
-            sinon.spy(Faker.random, 'street_suffix');
+            sinon.spy(faker.random, 'first_name');
+            sinon.spy(faker.random, 'last_name');
+            sinon.spy(faker.random, 'street_suffix');
         });
 
         afterEach(function () {
-            Faker.random.number.restore();
-            Faker.random.first_name.restore();
-            Faker.random.last_name.restore();
-            Faker.random.street_suffix.restore();
+            faker.random.number.restore();
+            faker.random.first_name.restore();
+            faker.random.last_name.restore();
+            faker.random.street_suffix.restore();
         });
 
         it("occasionally returns last name + suffix", function () {
-            sinon.stub(Faker.random, 'number').returns(0);
+            sinon.stub(faker.random, 'number').returns(0);
 
-            var street_name = Faker.Address.streetName();
+            var street_name = faker.Address.streetName();
             assert.ok(street_name);
 
-            assert.ok(!Faker.random.first_name.called);
-            assert.ok(Faker.random.last_name.calledOnce);
-            assert.ok(Faker.random.street_suffix.calledOnce);
+            assert.ok(!faker.random.first_name.called);
+            assert.ok(faker.random.last_name.calledOnce);
+            assert.ok(faker.random.street_suffix.calledOnce);
         });
 
         it("occasionally returns first name + suffix", function () {
-            sinon.stub(Faker.random, 'number').returns(1);
+            sinon.stub(faker.random, 'number').returns(1);
 
-            var street_name = Faker.Address.streetName();
+            var street_name = faker.Address.streetName();
             assert.ok(street_name);
 
-            assert.ok(Faker.random.first_name.calledOnce);
-            assert.ok(!Faker.random.last_name.called);
-            assert.ok(Faker.random.street_suffix.calledOnce);
+            assert.ok(faker.random.first_name.calledOnce);
+            assert.ok(!faker.random.last_name.called);
+            assert.ok(faker.random.street_suffix.calledOnce);
         });
     });
 
     describe("streetAddress()", function () {
         beforeEach(function () {
-            sinon.spy(Faker.Address, 'streetName');
-            sinon.spy(Faker.Address, 'secondaryAddress');
+            sinon.spy(faker.Address, 'streetName');
+            sinon.spy(faker.Address, 'secondaryAddress');
         });
 
         afterEach(function () {
-            Faker.Address.streetName.restore();
-            Faker.Address.secondaryAddress.restore();
+            faker.Address.streetName.restore();
+            faker.Address.secondaryAddress.restore();
         });
 
         it("occasionally returns a 5-digit street number", function () {
-            sinon.stub(Faker.random, 'number').returns(0);
-            var address = Faker.Address.streetAddress();
+            sinon.stub(faker.random, 'number').returns(0);
+            var address = faker.Address.streetAddress();
             var parts = address.split(' ');
 
             assert.equal(parts[0].length, 5);
-            assert.ok(Faker.Address.streetName.called);
+            assert.ok(faker.Address.streetName.called);
 
-            Faker.random.number.restore();
+            faker.random.number.restore();
         });
 
         it("occasionally returns a 4-digit street number", function () {
-            sinon.stub(Faker.random, 'number').returns(1);
-            var address = Faker.Address.streetAddress();
+            sinon.stub(faker.random, 'number').returns(1);
+            var address = faker.Address.streetAddress();
             var parts = address.split(' ');
 
             assert.equal(parts[0].length, 4);
-            assert.ok(Faker.Address.streetName.called);
+            assert.ok(faker.Address.streetName.called);
 
-            Faker.random.number.restore();
+            faker.random.number.restore();
         });
 
         it("occasionally returns a 3-digit street number", function () {
-            sinon.stub(Faker.random, 'number').returns(2);
-            var address = Faker.Address.streetAddress();
+            sinon.stub(faker.random, 'number').returns(2);
+            var address = faker.Address.streetAddress();
             var parts = address.split(' ');
 
             assert.equal(parts[0].length, 3);
-            assert.ok(Faker.Address.streetName.called);
-            assert.ok(!Faker.Address.secondaryAddress.called);
+            assert.ok(faker.Address.streetName.called);
+            assert.ok(!faker.Address.secondaryAddress.called);
 
-            Faker.random.number.restore();
+            faker.random.number.restore();
         });
 
         context("when useFulladdress is true", function () {
             it("adds a secondary address to the result", function () {
-                var address = Faker.Address.streetAddress(true);
+                var address = faker.Address.streetAddress(true);
                 var parts = address.split(' ');
 
-                assert.ok(Faker.Address.secondaryAddress.called);
+                assert.ok(faker.Address.secondaryAddress.called);
             });
         });
     });
 
     describe("secondaryAddress()", function () {
         it("randomly chooses an Apt or Suite number", function () {
-            sinon.spy(Faker.random, 'array_element');
+            sinon.spy(faker.random, 'array_element');
 
-            var address = Faker.Address.secondaryAddress();
+            var address = faker.Address.secondaryAddress();
 
             var expected_array = [
                 'Apt. ###',
@@ -171,91 +171,91 @@ describe("address.js", function () {
             ];
 
             assert.ok(address);
-            assert.ok(Faker.random.array_element.calledWith(expected_array));
-            Faker.random.array_element.restore();
+            assert.ok(faker.random.array_element.calledWith(expected_array));
+            faker.random.array_element.restore();
         });
     });
 
     describe("brState()", function () {
         beforeEach(function () {
-            sinon.spy(Faker.random, 'br_state_abbr');
-            sinon.spy(Faker.random, 'br_state');
+            sinon.spy(faker.random, 'br_state_abbr');
+            sinon.spy(faker.random, 'br_state');
         });
 
         afterEach(function () {
-            Faker.random.br_state_abbr.restore();
-            Faker.random.br_state.restore();
+            faker.random.br_state_abbr.restore();
+            faker.random.br_state.restore();
         });
 
         context("when useAbbr is true", function () {
             it("returns a br_state_abbr", function () {
-                var state = Faker.Address.brState(true);
+                var state = faker.Address.brState(true);
 
                 assert.ok(state);
-                assert.ok(Faker.random.br_state_abbr.called);
-                assert.ok(!Faker.random.br_state.called);
+                assert.ok(faker.random.br_state_abbr.called);
+                assert.ok(!faker.random.br_state.called);
             });
         });
 
         context("when useAbbr is not set", function () {
             it("returns a br_state", function () {
-                var state = Faker.Address.brState();
+                var state = faker.Address.brState();
 
                 assert.ok(state);
-                assert.ok(!Faker.random.br_state_abbr.called);
-                assert.ok(Faker.random.br_state.called);
+                assert.ok(!faker.random.br_state_abbr.called);
+                assert.ok(faker.random.br_state.called);
             });
         });
     });
 
     describe("ukCounty()", function () {
         it("returns random uk_county", function () {
-            sinon.spy(Faker.random, 'uk_county');
-            var county = Faker.Address.ukCounty();
+            sinon.spy(faker.random, 'uk_county');
+            var county = faker.Address.ukCounty();
             assert.ok(county);
-            assert.ok(Faker.random.uk_county.called);
-            Faker.random.uk_county.restore();
+            assert.ok(faker.random.uk_county.called);
+            faker.random.uk_county.restore();
         });
     });
 
     describe("ukCountry()", function () {
         it("returns random uk_country", function () {
-            sinon.spy(Faker.random, 'uk_country');
-            var country = Faker.Address.ukCountry();
+            sinon.spy(faker.random, 'uk_country');
+            var country = faker.Address.ukCountry();
             assert.ok(country);
-            assert.ok(Faker.random.uk_country.called);
-            Faker.random.uk_country.restore();
+            assert.ok(faker.random.uk_country.called);
+            faker.random.uk_country.restore();
         });
     });
 
     describe("usState()", function () {
         beforeEach(function () {
-            sinon.spy(Faker.random, 'us_state_abbr');
-            sinon.spy(Faker.random, 'us_state');
+            sinon.spy(faker.random, 'us_state_abbr');
+            sinon.spy(faker.random, 'us_state');
         });
 
         afterEach(function () {
-            Faker.random.us_state_abbr.restore();
-            Faker.random.us_state.restore();
+            faker.random.us_state_abbr.restore();
+            faker.random.us_state.restore();
         });
 
         context("when useAbus is true", function () {
             it("returns a us_state_abbr", function () {
-                var state = Faker.Address.usState(true);
+                var state = faker.Address.usState(true);
 
                 assert.ok(state);
-                assert.ok(Faker.random.us_state_abbr.called);
-                assert.ok(!Faker.random.us_state.called);
+                assert.ok(faker.random.us_state_abbr.called);
+                assert.ok(!faker.random.us_state.called);
             });
         });
 
         context("when useAbus is not set", function () {
             it("returns a us_state", function () {
-                var state = Faker.Address.usState();
+                var state = faker.Address.usState();
 
                 assert.ok(state);
-                assert.ok(!Faker.random.us_state_abbr.called);
-                assert.ok(Faker.random.us_state.called);
+                assert.ok(!faker.random.us_state_abbr.called);
+                assert.ok(faker.random.us_state.called);
             });
         });
     });
@@ -263,14 +263,14 @@ describe("address.js", function () {
     describe("latitude()", function () {
         it("returns random latitude", function () {
             for (var i = 0; i < 100; i++) {
-                sinon.spy(Faker.random, 'number');
-                var latitude = Faker.Address.latitude();
+                sinon.spy(faker.random, 'number');
+                var latitude = faker.Address.latitude();
                 assert.ok(typeof latitude === 'string');
                 var latitude_float = parseFloat(latitude);
                 assert.ok(latitude_float >= -90.0);
                 assert.ok(latitude_float <= 90.0);
-                assert.ok(Faker.random.number.called);
-                Faker.random.number.restore();
+                assert.ok(faker.random.number.called);
+                faker.random.number.restore();
             }
         });
     });
@@ -278,14 +278,14 @@ describe("address.js", function () {
     describe("longitude()", function () {
         it("returns random longitude", function () {
             for (var i = 0; i < 100; i++) {
-                sinon.spy(Faker.random, 'number');
-                var longitude = Faker.Address.longitude();
+                sinon.spy(faker.random, 'number');
+                var longitude = faker.Address.longitude();
                 assert.ok(typeof longitude === 'string');
                 var longitude_float = parseFloat(longitude);
                 assert.ok(longitude_float >= -180.0);
                 assert.ok(longitude_float <= 180.0);
-                assert.ok(Faker.random.number.called);
-                Faker.random.number.restore();
+                assert.ok(faker.random.number.called);
+                faker.random.number.restore();
             }
         });
     });
