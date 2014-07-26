@@ -47,6 +47,17 @@ describe("internet.js", function () {
             faker.random.first_name.restore();
             faker.random.last_name.restore();
         });
+
+        it("accepts boolean option to lower case output",function(){
+            sinon.stub(faker.random, 'number').returns(0);
+            sinon.spy(faker.random, 'first_name');
+            var username = faker.Internet.userName(true);
+
+            assert.ok(username === username.toLowerCase());
+
+            faker.random.number.restore();
+            faker.random.first_name.restore();
+        });
     });
 
     describe("domainName()", function () {
