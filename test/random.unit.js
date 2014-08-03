@@ -11,10 +11,9 @@ describe("random.js", function () {
       assert.ok(faker.random.number(max) < max);
     });
     it("returns a random number between a range", function() {
-      var range = [1, 10];
-      var min = range[0];
-      var max = range[1]
-      var randomNumber = faker.random.number(range);
+      var min = 1;
+      var max = 10;
+      var randomNumber = faker.random.number(min, max);
       assert.ok( randomNumber >= min);
       assert.ok( randomNumber <= max);
     });
