@@ -1,21 +1,21 @@
 if (typeof module !== 'undefined') {
     var assert = require('assert');
     var sinon = require('sinon');
-    var Faker = require('../index');
+    var faker = require('../index');
 }
 
 describe("helpers.js", function () {
     describe("replaceSymbolWithNumber()", function () {
         context("when no symbol passed in", function () {
             it("uses '#' by default", function () {
-                var num = Faker.Helpers.replaceSymbolWithNumber('#AB');
+                var num = faker.Helpers.replaceSymbolWithNumber('#AB');
                 assert.ok(num.match(/\dAB/));
             });
         });
 
         context("when symbol passed in", function () {
             it("replaces that symbol with integers", function () {
-                var num = Faker.Helpers.replaceSymbolWithNumber('#AB', 'A');
+                var num = faker.Helpers.replaceSymbolWithNumber('#AB', 'A');
                 assert.ok(num.match(/#\dB/));
             });
         });
@@ -23,21 +23,21 @@ describe("helpers.js", function () {
 
     describe("slugify()", function () {
         it("removes unwanted characters from URI string", function () {
-            assert.equal(Faker.Helpers.slugify("Aiden.Harªann"), "Aiden.Harann");
-            assert.equal(Faker.Helpers.slugify("d'angelo.net"), "dangelo.net");
+            assert.equal(faker.Helpers.slugify("Aiden.Harªann"), "Aiden.Harann");
+            assert.equal(faker.Helpers.slugify("d'angelo.net"), "dangelo.net");
         });
     });
 
     describe("createCard()", function () {
         it("returns an object", function () {
-            var card = Faker.Helpers.createCard();
+            var card = faker.Helpers.createCard();
             assert.ok(typeof card === 'object');
         });
     });
 
     describe("userCard()", function () {
         it("returns an object", function () {
-            var card = Faker.Helpers.userCard();
+            var card = faker.Helpers.userCard();
             assert.ok(typeof card === 'object');
         });
     });
@@ -45,14 +45,14 @@ describe("helpers.js", function () {
     // Make sure we keep this function for backward-compatibility.
     describe("randomNumber()", function () {
         it("returns an integer between 1 and 100", function () {
-            var num = Faker.Helpers.randomNumber();
+            var num = faker.Helpers.randomNumber();
             assert.ok(typeof num === 'number');
             assert.ok(num.toString() !== "NaN");
             assert.ok(num < 100);
         });
 
         it("returns an integer between 1 and given range", function () {
-            var num = Faker.Helpers.randomNumber(2);
+            var num = faker.Helpers.randomNumber(2);
             assert.ok(num < 3);
         });
     });
@@ -61,7 +61,7 @@ describe("helpers.js", function () {
     describe("randomize()", function () {
         it("returns a random element from an array", function () {
             var arr = ['a', 'b', 'c'];
-            var elem = Faker.Helpers.randomize(arr);
+            var elem = faker.Helpers.randomize(arr);
             assert.ok(elem);
             assert.ok(arr.indexOf(elem) !== -1);
         });

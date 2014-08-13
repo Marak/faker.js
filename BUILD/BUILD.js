@@ -5,33 +5,34 @@ var sys = require('sys')
 	, M = require('./Mustache')
 	, compressor = require('node-minify');
 
-
+var package = require('../package.json');
 var code = '';
 var docs = {};
 
 docs.main = '';
 docs.API = '';
+docs.copyrightYear = new Date().getFullYear();
 
 // read in the the main.js file as our main boilerplate code
 code += fs.readFileSync('./main.js', encoding = 'utf8');
-code = M.Mustache.to_html(code, {"today": new Date().getTime()});
+code = M.Mustache.to_html(code, {'today': new Date().getTime(), 'version': package.version});
 
 docs.main += fs.readFileSync('./docs.js', encoding = 'utf8');
 
 // parse entire lib directory and concat it into one file for the browser
 var lib = paths('./lib');
 
-var Faker = require('../index');
+var faker = require('../index');
 
 // generate bundle for code on the browser
-for (var module in Faker) {
-	code += ( '\n' + 'Faker.' + module + ' = {};');
-	for (var method in Faker[module]) {
-		code += ( '\n' + 'Faker.' + module);
+for (var module in faker) {
+	code += ( '\n' + 'faker.' + module + ' = {};');
+	for (var method in faker[module]) {
+		code += ( '\n' + 'faker.' + module);
 		code += ( '.' + method + ' = ');
 
 		// serialize arrays as JSON, otherwise use simple string conversion
-		var methodValue = Faker[module][method];
+		var methodValue = faker[module][method];
 		if (Array.isArray(methodValue)) {
 			code += JSON.stringify(methodValue) + ';\n';
 		} else {
@@ -42,10 +43,10 @@ for (var module in Faker) {
 
 // generate nice tree of api for docs
 docs.API += '<ul>';
-for (var module in Faker) {
+for (var module in faker) {
 	docs.API += '<li>' + module;
 	docs.API += '<ul>';
-	for (var method in Faker[module]) {
+	for (var method in faker[module]) {
 		docs.API += '<li>' + method + '</li>';
 	}
 	docs.API += '</ul>';
@@ -54,35 +55,42 @@ for (var module in Faker) {
 docs.API += '</ul>';
 
 // definitions hack
-code += 'var definitions = Faker.definitions;\n';
-code += 'var Helpers = Faker.Helpers;\n';
+code += 'var definitions = faker.definitions;\n';
+code += 'var Helpers = faker.Helpers;\n';
 
 // if we are running in a CommonJS env, export everything out
-code +=["\nif (typeof define == 'function'){",
-"   define('Faker', [], function(){",
-"		return Faker;",
-"   });",
+code += ["\n",
+"if (typeof exports === 'object') {",
+"  // CommonJS",
+"  module.exports = faker;",
 "}",
-"else if(typeof module !== 'undefined' && module.exports) {",
-"	module.exports = Faker;",
+"else if (typeof define === 'function' && define.amd) {",
+"  // AMD",
+"  define(function () {",
+"    return faker;",
+"  });",
 "}",
 "else {",
-"	window.Faker = Faker;",
+"  // Global Variables",
+"if (!window && this){ ",
+"		window = this;",
+"	}",
+"  window.faker = faker;",
 "}",
 "",
-"}()); // end Faker closure"].join('\n');
+"}()); // end faker closure"].join('\n');
 
 // generate core library
-fs.writeFile('../Faker.js', code, function() {
-	sys.puts("Faker.js generated successfully!");
+fs.writeFile('../faker.js', code, function() {
+	sys.puts("faker.js generated successfully!");
 });
 
 // generate example js file as well
-fs.writeFile('../examples/js/Faker.js', code, function() {
-	sys.puts("Faker.js generated successfully!");
+fs.writeFile('../examples/js/faker.js', code, function() {
+	sys.puts("faker.js generated successfully!");
 });
 
-var docOutput = M.Mustache.to_html(docs.main, {"API": docs.API});
+var docOutput = M.Mustache.to_html(docs.main, {"API": docs.API, "copyrightYear": docs.copyrightYear});
 
 // generate some samples sets (move this code to another section)
 fs.writeFile('../Readme.md', docOutput, function() {
@@ -92,8 +100,8 @@ fs.writeFile('../Readme.md', docOutput, function() {
 // generates minified version Using Google Closure
 new compressor.minify({
     type: 'gcc',
-    fileIn: '../Faker.js',
-    fileOut: '../MinFaker.js',
+    fileIn: '../faker.js',
+    fileOut: '../minfaker.js',
     callback: function(err){
 			if(err) {
         console.log(err);

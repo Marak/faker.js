@@ -1,19 +1,19 @@
 /*
 
-   this index.js file is used for including the Faker library as a CommonJS module, instead of a bundle
+   this index.js file is used for including the faker library as a CommonJS module, instead of a bundle
 
-   you can include the Faker library into your existing node.js application by requiring the entire /Faker directory
+   you can include the faker library into your existing node.js application by requiring the entire /faker directory
 
     var faker = require(./faker);
-    var randomName = Faker.Name.findName();
+    var randomName = faker.Name.findName();
 
-   you can also simply include the "Faker.js" file which is the auto-generated bundled version of the Faker library
+   you can also simply include the "faker.js" file which is the auto-generated bundled version of the faker library
 
-    var Faker = require(./customAppPath/Faker);
-    var randomName = Faker.Name.findName();
+    var faker = require(./customAppPath/faker);
+    var randomName = faker.Name.findName();
 
 
-  if you plan on modifying the Faker library you should be performing your changes in the /lib/ directory
+  if you plan on modifying the faker library you should be performing your changes in the /lib/ directory
 
 */
 

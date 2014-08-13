@@ -1,7 +1,7 @@
 if (typeof module !== 'undefined') {
     var assert = require('assert');
     var sinon = require('sinon');
-    var Faker = require('../index');
+    var faker = require('../index');
 }
 
 // Basic smoke tests to make sure each method is at least implemented and returns a string.
@@ -28,7 +28,7 @@ describe("functional tests", function () {
         describe(module, function () {
             modules[module].forEach(function (meth) {
                 it(meth + "()", function () {
-                    var result = Faker[module][meth]();
+                    var result = faker[module][meth]();
                     assert.ok(result);
                 });
             });
@@ -37,10 +37,10 @@ describe("functional tests", function () {
 
     describe("Address", function () {
         it("zipCodeFormat()", function () {
-            var result = Faker.Address.zipCodeFormat(0);
+            var result = faker.Address.zipCodeFormat(0);
             assert.ok(!result.match(/-/));
 
-            result = Faker.Address.zipCodeFormat(1);
+            result = faker.Address.zipCodeFormat(1);
             assert.ok(result.match(/-/));
         });
     });

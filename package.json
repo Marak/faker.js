@@ -1,14 +1,14 @@
 {
-    "name": "Faker",
+    "name": "faker",
     "description": "Generate massive amounts of fake contextual data",
-    "version": "0.6.5",
+    "version": "1.1.0",
     "contributors": [
         "Marak Squires <marak.squires@gmail.com>",
         "Matthew Bergman <matt@novafabrica.com>"
         ],
     "repository": {
         "type": "git",
-        "url": "http://github.com/FotoVerite/Faker.js.git"
+        "url": "http://github.com/FotoVerite/faker.js.git"
     },
     "scripts": {
         "test": "node_modules/.bin/mocha test/*.*.js"
