@@ -17,5 +17,10 @@ describe("random.js", function () {
       assert.ok( randomNumber >= min);
       assert.ok( randomNumber <= max);
     });
+    it("returns zero when given a max of zero.", function() {
+      var max = 0;
+      var randomNumber = faker.random.number(max);
+      assert.ok( randomNumber === 0 );
+    });
   });
 });

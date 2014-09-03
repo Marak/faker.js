@@ -70,16 +70,26 @@ describe("lorem.js", function () {
         context("when 'wordCount' and 'range' params passed in", function () {
             it("returns a string of at least the requested number of words", function () {
                 sinon.spy(faker.Lorem, 'words');
-                sinon.stub(faker.random, 'number').returns(4);
+                sinon.stub(faker.random, 'number').returnsArg(0); // it echos back its maximum possible value.
+
                 var sentence = faker.Lorem.sentence(10, 4);
 
                 assert.ok(typeof sentence === 'string');
                 var parts = sentence.split(' ');
                 assert.equal(parts.length, 14); // requested 10 plus stubbed 4.
+                assert.ok(faker.random.number.calledWith(4)); // random.number should be called with the 'range' we passed. 
                 assert.ok(faker.Lorem.words.calledWith(14));
 
                 faker.Lorem.words.restore();
                 faker.random.number.restore();
+            });
+
+            it("returns a string of exactly 'wordCount' length when 'range' is zero", function () {
+                var sentence = faker.Lorem.sentence(10, 0);
+
+                assert.ok(typeof sentence === 'string');
+                var parts = sentence.split(' ');
+                assert.equal(parts.length, 10); // requested 10 exactly.
             });
         });
     });
