@@ -26,4 +26,11 @@ describe("phone_number.js", function () {
             assert.ok(phone_number.match(/\(\d\d\d\)\d\d\d-\d\d\d\d/));
         });
     });
+
+    describe("phoneCode()", function () {
+        it("returns a phone code with a format +xx", function () {
+            var phone_code = faker.PhoneNumber.phoneCode();
+            assert.ok(phone_code.match(/^\+\d{1,3}$/));
+        });
+    });
 });
