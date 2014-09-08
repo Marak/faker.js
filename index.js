@@ -28,4 +28,5 @@ exports.Helpers =  require('./lib/helpers');
 exports.Tree = require('./lib/tree');
 exports.Date = require('./lib/date');
 exports.random = require('./lib/random');
+exports.Currency = require('./lib/currency');
 exports.definitions = require('./lib/definitions');
