@@ -1,0 +1,25 @@
+{
+  "name": "Faker.js",
+  "main": "Faker.js",
+  "version": "0.6.5",
+  "homepage": "https://github.com/Marak/Faker.js",
+  "authors": [
+    "Marak Squires <marak.squires@gmail.com>",
+    "Matthew Bergman <matt@novafabrica.com>"
+  ],
+  "description": "Generate massive amounts of fake contextual data",
+  "keywords": [
+    "faker",
+    "fake",
+    "dummy",
+    "identity",
+    "test"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ]
+}

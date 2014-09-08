@@ -732,7 +732,7 @@ else if (typeof define === 'function' && define.amd) {
 }
 else {
   // Global Variables
-if (!window && this){ 
+if (!window && this){
 		window = this;
 	}
   window.faker = faker;
