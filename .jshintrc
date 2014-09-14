@@ -20,11 +20,11 @@
 
     "predef"        : [  // Extra globals.
         "__dirname",
-        "Buffer", 
+        "Buffer",
         "event",
         "exports",
         "global",
-        "logger", 
+        "logger",
         "module",
         "process",
         "require",
@@ -56,7 +56,7 @@
     "curly"         : true,   // Require {} for every new block or scope.
     "eqeqeq"        : false,  // Require triple equals i.e. `===`.
     "eqnull"        : false,  // Tolerate use of `== null`.
-    "evil"          : false,  // Tolerate use of `eval`.
+    "evil"          : true,  // Tolerate use of `eval`.
     "expr"          : false,  // Tolerate `ExpressionStatement` as Programs.
     "forin"         : false,  // Tolerate `for in` loops without `hasOwnProperty`.
     "immed"         : true,   // Require immediate invocations to be wrapped in parens e.g. `( function(){}() );`
