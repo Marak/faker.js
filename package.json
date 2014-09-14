@@ -16,10 +16,10 @@
     "devDependencies": {
         "jshint": "0.9.0",
         "istanbul": "0.1.25",
-        "mocha": "1.7.4",
+        "mocha": "1.21.4",
         "node-minify": "*",
         "optimist" : "0.3.5",
-        "sinon": "1.4.2",
+        "sinon": "1.10.3",
         "gulp": "3.8.8",
         "browserify": "5.11.1",
         "gulp-uglify": "1.0.1",

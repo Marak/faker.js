@@ -74,17 +74,17 @@ describe('finance.js', function () {
         it("should set a specified length", function () {
 
             var expected = faker.random.number(20);
-            
+
             expected = (expected == 0 || !expected || typeof expected == 'undefined') ? 4 : expected;
-            
+
             var mask = faker.Finance.mask(expected, false, false);
 
             var actual = mask.length; //picks 4 if the random number generator picks 0
-            
+
             assert.equal(actual, expected, 'The expected default mask length is ' + expected + ' but it was ' + actual);
 
         });
-        
+
         it("should set a default length of 4 for a zero value", function () {
 
             var expected = 4;
@@ -92,11 +92,11 @@ describe('finance.js', function () {
             var mask = faker.Finance.mask(0, false, false);
 
             var actual = 4; //picks 4 if the random number generator picks 0
-            
+
             assert.equal(actual, expected, 'The expected default mask length is ' + expected + ' but it was ' + actual);
 
         });
-        
+
 
         it("should by default include parentheses around a partial account number", function () {
 
@@ -194,4 +194,11 @@ describe('finance.js', function () {
             assert.ok(transactionType);
         });
     });
+
+    describe("currencyCode()", function () {
+        it("returns a random currency code with a format", function () {
+            var currencyCode = faker.Finance.currencyCode();
+            assert.ok(currencyCode.match(/[A-Z]{3}/));
+        });
+    })
 });
