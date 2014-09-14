@@ -6,15 +6,6 @@ if (typeof module !== 'undefined') {
 
 describe("company.js", function () {
     describe("companyName()", function () {
-        it("lets you specify the type of name to return", function () {
-            sinon.spy(faker.random, 'number');
-            var name = faker.Company.companyName(1);
-
-            assert.ok(name.match(/-/));
-
-            assert.ok(!faker.random.number.called);
-            faker.random.number.restore();
-        });
 
         it("sometimes returns three last names", function () {
             sinon.spy(faker.random, 'last_name');

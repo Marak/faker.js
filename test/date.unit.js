@@ -9,14 +9,14 @@ describe("date.js", function () {
         it("returns a date N years into the past", function () {
 
             var date = faker.Date.past(75);
-            assert.ok(Date.parse(date) < new Date());
+            assert.ok(date < new Date());
         });
 
         it("returns a date N years before the date given", function () {
 
             var refDate = new Date(2120, 11, 9, 10, 0, 0, 0); // set the date beyond the usual calculation (to make sure this is working correctly)
 
-            var date = Date.parse(faker.Date.past(75, refDate.toJSON()));
+            var date = faker.Date.past(75, refDate.toJSON());
 
             assert.ok(date < refDate && date > new Date()); // date should be before date given but after the current time
         });
@@ -28,13 +28,13 @@ describe("date.js", function () {
 
             var date = faker.Date.future(75);
 
-            assert.ok(Date.parse(date) > new Date());
+            assert.ok(date > new Date());
         });
 
         it("returns a future date when N = 0", function () {
 
             var refDate = new Date();
-            var date = Date.parse(faker.Date.future(0), refDate.toJSON());
+            var date = faker.Date.future(0, refDate.toJSON());
 
             assert.ok(date > refDate); // date should be after the date given, but before the current time
         });
@@ -43,7 +43,7 @@ describe("date.js", function () {
 
             var refDate = new Date(1880, 11, 9, 10, 0, 0, 0); // set the date beyond the usual calculation (to make sure this is working correctly)
 
-            var date = Date.parse(faker.Date.future(75, refDate.toJSON()));
+            var date = faker.Date.future(75, refDate.toJSON());
 
             assert.ok(date > refDate && date < new Date()); // date should be after the date given, but before the current time
         });
@@ -54,7 +54,7 @@ describe("date.js", function () {
 
             var date = faker.Date.recent(30);
 
-            assert.ok(Date.parse(date) <= new Date());
+            assert.ok(date <= new Date());
         });
 
     });
@@ -65,7 +65,7 @@ describe("date.js", function () {
             var from = new Date(1990, 5, 7, 9, 11, 0, 0);
             var to = new Date(2000, 6, 8, 10, 12, 0, 0);
 
-            var date = Date.parse(faker.Date.between(from, to));
+            var date = faker.Date.between(from, to);
 
             assert.ok(date > from && date < to);
         });

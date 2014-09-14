@@ -83,6 +83,13 @@ describe("internet.js", function () {
         });
     });
 
+    describe("userAgent()", function () {
+        it("returns a valid user-agent", function () {
+            var ua = faker.Internet.userAgent();
+            assert.ok(ua);
+        });
+    });
+
     describe("color()", function () {
         it("returns a valid hex value (like #ffffff)", function () {
             var color = faker.Internet.color(100, 100, 100);

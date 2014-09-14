@@ -1,4 +1,12 @@
-Copyright (c) 2014 Matthew Bergman & Marak Squires http://github.com/marak/faker.js/
+Faker.js - Copyright (c) 2014 Matthew Bergman & Marak Squires http://github.com/marak/faker.js/
+
+Faker.js was inspired by and has used data definitions from
+
+  https://github.com/stympy/faker/ - Copyright (c) 2007-2010 Benjamin Curtis
+  http://search.cpan.org/~jasonk/Data-Faker-0.07/ - Copyright 2004-2005 by Jason Kohles
+
+This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

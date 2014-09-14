@@ -22,8 +22,17 @@ describe("phone_number.js", function () {
 
     describe("phoneNumberFormat()", function () {
         it("returns phone number with requested format (Array index)", function () {
-            var phone_number = faker.PhoneNumber.phoneNumberFormat(5);
-            assert.ok(phone_number.match(/\(\d\d\d\)\d\d\d-\d\d\d\d/));
+            for (var i = 0; i < 10; i++) {
+              var phone_number = faker.PhoneNumber.phoneNumberFormat(5);
+              assert.ok(phone_number.match(/\(\d\d\d\)\d\d\d-\d\d\d\d/));
+            }
+        });
+    });
+
+    describe("phoneCode()", function () {
+        it("returns a phone code with a format +xx", function () {
+            var phone_code = faker.PhoneNumber.phoneCode();
+            assert.ok(phone_code.match(/^\+\d{1,3}$/));
         });
     });
 });

@@ -59,4 +59,17 @@ describe("helpers.js", function () {
             assert.ok(arr.indexOf(elem) !== -1);
         });
     });
+
+  describe("createTransaction()", function() {
+    it("should create a random transaction", function() {
+      var transaction = faker.Helpers.createTransaction();
+      assert.ok(transaction);
+      assert.ok(transaction.amount);
+      assert.ok(transaction.date);
+      assert.ok(transaction.business);
+      assert.ok(transaction.name);
+      assert.ok(transaction.type);
+      assert.ok(transaction.account);
+    });
+  });
 });

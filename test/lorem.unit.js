@@ -54,7 +54,7 @@ describe("lorem.js", function () {
         context("when 'wordCount' param passed in", function () {
             it("returns a string of at least the requested number of words", function () {
                 sinon.spy(faker.Lorem, 'words');
-                sinon.stub(faker.random, 'number').returns(2);
+                sinon.stub(faker.random, 'number').withArgs(7).returns(2);
                 var sentence = faker.Lorem.sentence(10);
 
                 assert.ok(typeof sentence === 'string');
@@ -70,17 +70,21 @@ describe("lorem.js", function () {
         context("when 'wordCount' and 'range' params passed in", function () {
             it("returns a string of at least the requested number of words", function () {
                 sinon.spy(faker.Lorem, 'words');
-                sinon.stub(faker.random, 'number').returns(4);
+                sinon.stub(faker.random, 'number').withArgs(4).returns(4);
+
                 var sentence = faker.Lorem.sentence(10, 4);
 
                 assert.ok(typeof sentence === 'string');
                 var parts = sentence.split(' ');
                 assert.equal(parts.length, 14); // requested 10 plus stubbed 4.
+                assert.ok(faker.random.number.calledWith(4)); // random.number should be called with the 'range' we passed. 
                 assert.ok(faker.Lorem.words.calledWith(14));
 
                 faker.Lorem.words.restore();
                 faker.random.number.restore();
             });
+
+
         });
     });
 

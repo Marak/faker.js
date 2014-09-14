@@ -2,7 +2,7 @@
 
 var util = require('util');
 
-var faker = require('../faker');
+var faker = require('../index');
 
 var card = faker.Helpers.createCard();
 
