@@ -22,7 +22,7 @@ var modules = {
 
     PhoneNumber: ['phoneNumber'],
 
-    Currency: ['currencyCode', 'currencyName']
+    Finance: ['account', 'accountName', 'mask', 'amount', 'transactionType', 'currencyCode', 'currencyName']
 };
 
 describe("functional tests", function () {
