@@ -197,8 +197,8 @@ describe('finance.js', function () {
 
     describe("currencyCode()", function () {
         it("returns a random currency code with a format", function () {
-            var currency_code = faker.Currency.currencyCode();
-            assert.ok(currency_code.match(/[A-Z]{3}/));
+            var currencyCode = faker.Finance.currencyCode();
+            assert.ok(currencyCode.match(/[A-Z]{3}/));
         });
     })
 });
