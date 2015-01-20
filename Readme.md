@@ -158,11 +158,11 @@ faker.helpers.slugify('an example string')  // return an-example-string
 
 faker.helpers.replaceSymbolWithNumber('#faker', '#')  // return a string with the symbol replaced with a random number between 0 and 9 included. Example: 0faker
 faker.helpers.shuffle([1, 2, 3])            // return the same array but the items are mixed: [2, 1, 3]
-faker.helpers.mustache()                    //
-faker.helpers.createCard()                  //
-faker.helpers.contextualCard()              //
-faker.helpers.userCard()                    //
-faker.helpers.createTransaction()           //
+faker.helpers.mustache()                    
+faker.helpers.createCard()                  // return a JSON Object with a lot of data
+faker.helpers.contextualCard()              // return a JSON Object with a lot of data
+faker.helpers.userCard()                    // return a JSON Object with a lot of data
+faker.helpers.createTransaction()           // return a JSON Object with a lot of data
 ```
 
   * date
