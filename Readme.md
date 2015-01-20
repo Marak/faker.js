@@ -1,5 +1,5 @@
 ## faker.js - Generate massive amounts of fake contextual data
-<img src = "http://imgur.com/KiinQ.png" border = "0">
+<img src = "http://imgur.com/KiinQ.png" border="0" width="90px">
 
 [![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/Faker.js)
 
