@@ -191,24 +191,24 @@ faker.random.object_element()  //
 
 ### faker.finance
 ```js
-faker.finance.account
-faker.finance.accountName
-faker.finance.mask
-faker.finance.amount
-faker.finance.transactionType
-faker.finance.currencyCode
-faker.finance.currencyName
-faker.finance.currencySymbol
+faker.finance.account()          //
+faker.finance.accountName()      //
+faker.finance.mask()             //
+faker.finance.amount()           //
+faker.finance.transactionType()  //
+faker.finance.currencyCode()     //
+faker.finance.currencyName()     //
+faker.finance.currencySymbol()   //
 ```
 
 ### faker.hacker
 ```js
-faker.hacker.abbreviation()
-faker.hacker.adjective()
-faker.hacker.noun()
-faker.hacker.verb()
-faker.hacker.ingverb()
-faker.hacker.phrase()
+faker.hacker.abbreviation()  //
+faker.hacker.adjective()     //
+faker.hacker.noun()          //
+faker.hacker.verb()          //
+faker.hacker.ingverb()       //
+faker.hacker.phrase()        //
 ```
 
   * locales
