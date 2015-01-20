@@ -74,20 +74,20 @@ Read further for complete list of locales.
     * latitude
     * longitude
   * phone
-    * phoneNumber</li>
-    * phoneNumberFormat</li>
-    * phoneFormats</li>
+    * phoneNumber
+    * phoneNumberFormat
+    * phoneFormats
   * internet
-    * avatar</li>
-    * email</li>
-    * userName</li>
-    * domainName</li>
-    * domainSuffix</li>
-    * domainWord</li>
-    * ip</li>
-    * userAgent</li>
-    * color</li>
-    * password</li>
+    * avatar
+    * email
+    * userName
+    * domainName
+    * domainSuffix
+    * domainWord
+    * ip
+    * userAgent
+    * color
+    * password
   * company
     * suffixes
     * companyName
@@ -124,16 +124,16 @@ Read further for complete list of locales.
     * paragraph
     * paragraphs
   * helpers
-    * randomNumber</li>
-    * randomize</li>
-    * slugify</li>
-    * replaceSymbolWithNumber</li>
-    * shuffle</li>
-    * mustache</li>
-    * createCard</li>
-    * contextualCard</li>
-    * userCard</li>
-    * createTransaction</li>
+    * randomNumber
+    * randomize
+    * slugify
+    * replaceSymbolWithNumber
+    * shuffle
+    * mustache
+    * createCard
+    * contextualCard
+    * userCard
+    * createTransaction
   * date
     * past
     * future
