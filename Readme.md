@@ -60,9 +60,7 @@ You can view a code coverage report generated in coverage/lcov-report/index.html
 
 ####Matthew Bergman & Marak Squires
 
-<br/>
 Copyright (c) 2014 Matthew Bergman & Marak Squires http://github.com/marak/faker.js/
-<br/>
 
 faker.js was inspired by and has used data definitions from
 
