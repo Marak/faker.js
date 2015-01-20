@@ -45,7 +45,7 @@ var randomCard = faker.helpers.createCard(); // random contact card containing m
  * [Random](#fakerrandom)
  * [Finance](#fakerfinance)
  * [Hacker](#fakerhacker)
- * [Localization](#fakerlocale)
+ * [Localization](#localization)
  
 
 ### faker.name
@@ -214,17 +214,8 @@ faker.locale = "de";
 ```
 List of locales available
 
-  * de
-  * de_AT
-  * de_CH
-  * en
-  * en_AU
-  * en_BORK
-  * en_CA
-  * en_GB
-  * en_IND
-  * en_US
-  * en_au_ocker
+  * de, de_AT, de_CH
+  * en, en_AU, en_BORK, en_CA, en_GB, en_IND, en_US, en_au_ocker
   * es
   * fa
   * fr
@@ -241,14 +232,16 @@ List of locales available
   * sv
   * vi
   * zh_CN
-  * 
   
-  * locale
-    * 0
-    * 1
-  * localeFallback
-    * 0
-    * 1
+### faker.localeFallback
+
+> The default fallback language is set to English 'en'.
+
+Setting a new fallback locale is simple:
+
+```js
+// sets localeFallback to it
+faker.localeFallback = "it";
 
 ## Tests
 
