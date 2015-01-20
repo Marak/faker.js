@@ -206,9 +206,9 @@ You can view a code coverage report generated in coverage/lcov-report/index.html
 
 ## Authors
 
-####Matthew Bergman & Marak Squires
+#### Matthew Bergman & Marak Squires
 
-Copyright (c) 2014 Matthew Bergman & Marak Squires http://github.com/marak/faker.js/
+Copyright (c) 2015 Matthew Bergman & Marak Squires http://github.com/marak/faker.js/
 
 faker.js was inspired by and has used data definitions from
 
