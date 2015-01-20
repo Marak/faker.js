@@ -45,12 +45,6 @@ faker.locale = "de";
 Read further for complete list of locales.
 
 ## API
-  * name
-    * firstName
-  * fdfds
-    * dfsdfsdfds
-
-## API
 
   * name
     * firstName
