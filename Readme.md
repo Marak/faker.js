@@ -22,7 +22,6 @@
 
 ### Node.js
 
-### Usage
 ```js
   var faker = require('./faker');
 
