@@ -43,7 +43,7 @@ faker.locale = "de";
 ```
 Read further for a complete list of locales.
 
-## API
+# API Usage
 
   * name
     * firstName
