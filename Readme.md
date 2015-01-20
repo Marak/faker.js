@@ -148,34 +148,23 @@ fake.lorem.paragraphs()  // pariatur commodi beatae at sunt quasi esse\n quia...
 ### faker.helpers
 
 ```js
-faker.helpers.randomNumber()             // return 0 or 1 
-faker.helpers.randomNumber(10)           // return a number between 0 and 10 included
+faker.helpers.randomNumber()                // return 0 or 1 
+faker.helpers.randomNumber(10)              // return a number between 0 and 10 included
 
-faker.helpers.randomize()                // return 'a' or 'b' or 'c'
-faker.helpers.randomize('faker')         // return a random character of the string
+faker.helpers.randomize()                   // return 'a' or 'b' or 'c'
+faker.helpers.randomize('faker')            // return a random character of the string
 
-faker.helpers.slugify()                  //
-faker.helpers.replaceSymbolWithNumber()  //
-faker.helpers.shuffle()                  //
-faker.helpers.mustache()                 //
-faker.helpers.createCard()               //
-faker.helpers.contextualCard()           //
-faker.helpers.userCard()                 //
-faker.helpers.createTransaction()        //
+faker.helpers.slugify('an example string')  // return an-example-string
+
+faker.helpers.replaceSymbolWithNumber('#faker', '#')  // return a string with the symbol replaced with a random number between 0 and 9 included. Example: 0faker
+faker.helpers.shuffle([1, 2, 3])            // return the same array but the items are mixed: [2, 1, 3]
+faker.helpers.mustache()                    //
+faker.helpers.createCard()                  //
+faker.helpers.contextualCard()              //
+faker.helpers.userCard()                    //
+faker.helpers.createTransaction()           //
 ```
 
-
-  * helpers
-    * randomNumber
-    * randomize
-    * slugify
-    * replaceSymbolWithNumber
-    * shuffle
-    * mustache
-    * createCard
-    * contextualCard
-    * userCard
-    * createTransaction
   * date
     * past
     * future
@@ -246,6 +235,7 @@ faker.helpers.createTransaction()        //
     * internet
 
 ## Tests
+
 ```sh
 npm install .
 make test
