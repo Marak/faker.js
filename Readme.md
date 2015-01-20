@@ -54,13 +54,25 @@ faker.name.findName()  // Sedrick Wintheiser IV
 faker.name.prefix()    // Mrs.
 faker.name.suffix()    // DDS
 ```
+### faker.address
 
-  * name
-    * firstName
-    * lastName
-    * findName
-    *  prefix
-    * suffix
+```js
+faker.address.zipCode()           // 01860
+faker.address.city()              // Grimesberg
+faker.address.cityPrefix()        // South
+faker.address.citySuffix()        // side
+faker.address.streetName()        // Harley Plain
+faker.address.streetAddress()     // 22944 Bert Shores
+faker.address.streetSuffix()      // Mountain
+faker.address.secondaryAddress()  // Apt. 488
+faker.address.county()            // Borders
+faker.address.country()           // Cameroon
+faker.address.state()             // Mississippi
+faker.address.stateAbbr()         // VT
+faker.address.latitude()          // 26.8868
+faker.address.longitude()         // -101.2776
+```
+
   * address
     * zipCode
     * city
