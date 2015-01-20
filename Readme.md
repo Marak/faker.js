@@ -212,7 +212,7 @@ Setting a new locale is simple:
 // sets locale to de
 faker.locale = "de";
 ```
-List of locales available
+#### List of locales available
 
   * de, de_AT, de_CH
   * en, en_AU, en_BORK, en_CA, en_GB, en_IND, en_US, en_au_ocker
