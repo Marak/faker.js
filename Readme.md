@@ -135,7 +135,7 @@ faker.image.transport()  // http://lorempixel.com/640/480/transport
 
 ### faker.lorem
 
-> Each function also accept a number as parameter
+> Each function, also, accept a number as parameter.
 
 ```js
 fake.lorem.words()       // [ 'velit', 'magni', 'ab' ]
@@ -143,6 +143,25 @@ fake.lorem.sentence()    // qui eligendi dicta culpa minus quia voluptate ea rep
 fake.lorem.sentences()   // omnis veniam\ndistinctio autem perspiciatis...sint temporibus rerum dolor magni
 fake.lorem.paragraph()   // autem cupiditate saepe itaque architecto...quis\nerror inventorfugiat doloribus
 fake.lorem.paragraphs()  // pariatur commodi beatae at sunt quasi esse\n quia...et officiis repudiandae
+```
+
+### faker.helpers
+
+```js
+faker.helpers.randomNumber()             // return 0 or 1 
+faker.helpers.randomNumber(10)           // return a number between 0 and 10 included
+
+faker.helpers.randomize()                // return 'a' or 'b' or 'c'
+faker.helpers.randomize('faker')         // return a random character of the string
+
+faker.helpers.slugify()                  //
+faker.helpers.replaceSymbolWithNumber()  //
+faker.helpers.shuffle()                  //
+faker.helpers.mustache()                 //
+faker.helpers.createCard()               //
+faker.helpers.contextualCard()           //
+faker.helpers.userCard()                 //
+faker.helpers.createTransaction()        //
 ```
 
 
