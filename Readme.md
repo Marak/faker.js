@@ -133,12 +133,19 @@ faker.image.technics()   // http://lorempixel.com/640/480/technics
 faker.image.transport()  // http://lorempixel.com/640/480/transport
 ```
 
-  * lorem
-    * words
-    * sentence
-    * sentences
-    * paragraph
-    * paragraphs
+### faker.lorem
+
+> Each function also accept a number as parameter
+
+```js
+fake.lorem.words()       // [ 'velit', 'magni', 'ab' ]
+fake.lorem.sentence()    // qui eligendi dicta culpa minus quia voluptate ea repellat
+fake.lorem.sentences()   // omnis veniam\ndistinctio autem perspiciatis...sint temporibus rerum dolor magni
+fake.lorem.paragraph()   // autem cupiditate saepe itaque architecto...quis\nerror inventorfugiat doloribus
+fake.lorem.paragraphs()  // pariatur commodi beatae at sunt quasi esse\n quia...et officiis repudiandae
+```
+
+
   * helpers
     * randomNumber
     * randomize
