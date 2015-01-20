@@ -1,5 +1,5 @@
-## faker.js - Generate fake data of different type
-You can use it in the [browser](#browser) and [Node.js](#node.js)
+## faker.js - Generate massive amounts of fake data in the browser and Node.js
+<img src = "http://imgur.com/KiinQ.png" border = "0">
 
 [![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/Faker.js)
 
