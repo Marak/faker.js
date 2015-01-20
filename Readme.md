@@ -1,5 +1,5 @@
 ## faker.js - Generate fake data of different type
-You can use it in the browser and Node.js
+You can use it in the [browser](#browser) and [Node.js](#node-js)
 
 [![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/Faker.js)
 
