@@ -48,11 +48,11 @@ Read further for a complete list of locales.
 ### faker.name
 
 ```js
-faker.name.firstName() // output example
-faker.name.lastName() // output example
-faker.name.findName() // output example
-faker.name.prefix() // output example
-faker.name.suffix() // output example
+faker.name.firstName() // Blanca
+faker.name.lastName()  // Denesik
+faker.name.findName()  // Sedrick Wintheiser IV
+faker.name.prefix()    // Mrs.
+faker.name.suffix()    // DDS
 ```
 
   * name
