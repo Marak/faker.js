@@ -45,8 +45,18 @@ Read further for a complete list of locales.
 
 ## API Usage
 
-### faker.name
+#### Definitions
 
+ * name
+ * address
+ * company
+ * lorem
+ * hacker
+ * phone_number
+ * finance
+    * internet
+
+### faker.name
 ```js
 faker.name.firstName() // Blanca
 faker.name.lastName()  // Denesik
@@ -56,7 +66,6 @@ faker.name.suffix()    // DDS
 ```
 
 ### faker.address
-
 ```js
 faker.address.zipCode()           // 01860
 faker.address.city()              // Grimesberg
@@ -74,7 +83,6 @@ faker.address.latitude()          // 29.9357
 faker.address.longitude()         // -101.2776
 ```
 ### faker.phone
-
 ```js
 faker.phone.phoneNumber()        // 530-319-6715 x412
 faker.phone.phoneNumberFormat()  // 624-882-3940
@@ -82,7 +90,6 @@ faker.phone.phoneFormats()       // 1-###-###-#### x#####
 ```
 
 ### faker.internet
-
 ```js
 faker.internet.avatar()       // https://s3.amazonaws.com/uifaces/faces/twitter/twitteruiface/128.jpg
 faker.internet.email()        // Misty.Hoppe76@hotmail.com
@@ -97,7 +104,6 @@ faker.internet.password()     // pYxwv3wt4usqpiQ
 ```
 
 ### faker.company
-
 ```js
 faker.company.suffixes()               // [ 'Inc','and Sons','LLC','Group','and Daughters' ]
 faker.company.companyName()            // Marks, Schaefer and Corkery
@@ -113,7 +119,6 @@ faker.company.bsNoun()                 // supply-chains
 ```
 
 ### faker.image
-
 ```js
 faker.image.image()      // http://lorempixel.com/640/480/animals
 faker.image.avatar()     // https://s3.amazonaws.com/uifaces/faces/twitter/twitteruiface/128.jpg
@@ -146,7 +151,6 @@ fake.lorem.paragraphs()  // pariatur commodi beatae at sunt quasi esse\n quia...
 ```
 
 ### faker.helpers
-
 ```js
 faker.helpers.randomNumber()                // return 0 or 1 
 faker.helpers.randomNumber(10)              // return a number between 0 and 10 included
@@ -165,31 +169,43 @@ faker.helpers.userCard()                    // return a JSON Object with a lot o
 faker.helpers.createTransaction()           // return a JSON Object with a lot of data
 ```
 
-  * date
-    * past
-    * future
-    * between
-    * recent
-  * random
-    * number
-    * array_element
-    * object_element
-  * finance
-    * account
-    * accountName
-    * mask
-    * amount
-    * transactionType
-    * currencyCode
-    * currencyName
-    * currencySymbol
-  * hacker
-    * abbreviation
-    * adjective
-    * noun
-    * verb
-    * ingverb
-    * phrase
+### faker.data
+```js
+faker.data.past()     //
+faker.data.future()   //
+faker.data.between()  //
+faker.data.recent()   //
+```
+
+### faker.random
+```js
+faker.random.number()          //
+faker.random.array_element()   //
+faker.random.object_element()  //
+```
+
+### faker.finance
+```js
+faker.finance.account
+faker.finance.accountName
+faker.finance.mask
+faker.finance.amount
+faker.finance.transactionType
+faker.finance.currencyCode
+faker.finance.currencyName
+faker.finance.currencySymbol
+```
+
+### faker.hacker
+```js
+abbreviation
+adjective
+noun
+verb
+ingverb
+phrase
+```
+
   * locales
     * de
     * de_AT
@@ -224,15 +240,6 @@ faker.helpers.createTransaction()           // return a JSON Object with a lot o
   * localeFallback
     * 0
     * 1
-  * definitions
-    * name
-    * address
-    * company
-    * lorem
-    * hacker
-    * phone_number
-    * finance
-    * internet
 
 ## Tests
 
