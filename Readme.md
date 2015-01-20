@@ -1,4 +1,5 @@
 # faker.js - generate massive amounts of fake data in the browser and node.js
+
 <img src = "http://imgur.com/KiinQ.png" border = "0">
 
 [![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/Faker.js)
@@ -9,14 +10,15 @@
 
 ## USAGE
 
-### browser -
-
-      <script src = "faker.js" type = "text/javascript"></script>
-      <script>
-        var randomName = faker.name.findName(); // Caitlyn Kerluke
-        var randomEmail = faker.internet.email(); // Rusty@arne.info
-        var randomCard = faker.helpers.createCard(); // random contact card containing many properties
-      </script>
+### Browser
+```html
+<script src = "faker.js" type = "text/javascript"></script>
+<script>
+var randomName = faker.name.findName(); // Caitlyn Kerluke
+var randomEmail = faker.internet.email(); // Rusty@arne.info
+var randomCard = faker.helpers.createCard(); // random contact card containing many properties
+</script>
+```
 
 ### node.js -
 
