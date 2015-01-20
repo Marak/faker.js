@@ -47,14 +47,19 @@ Read further for a complete list of locales.
 
 #### Definitions
 
- * name
- * address
- * company
- * lorem
- * hacker
- * phone_number
- * finance
-    * internet
+ * [Name](#fakername)
+ * [Address](#fakeraddress)
+ * [Phone](#fakerphone)
+ * [Internet](#fakerinternet)
+ * [Company](#fakercompany)
+ * [Image](#fakerimage)
+ * [Lorem](#fakerlorem)
+ * [Helpers](#fakerhelpers)
+ * [Data](#fakerdata)
+ * [Random](#fakerrandom)
+ * [Finance](#fakerfinance)
+ * [Hacker](#fakerhacker)
+ 
 
 ### faker.name
 ```js
@@ -198,12 +203,12 @@ faker.finance.currencySymbol
 
 ### faker.hacker
 ```js
-abbreviation
-adjective
-noun
-verb
-ingverb
-phrase
+faker.hacker.abbreviation()
+faker.hacker.adjective()
+faker.hacker.noun()
+faker.hacker.verb()
+faker.hacker.ingverb()
+faker.hacker.phrase()
 ```
 
   * locales
