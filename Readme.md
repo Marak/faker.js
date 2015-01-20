@@ -7,7 +7,7 @@
 
 <a href="http://marak.com/faker.js/">http://marak.com/faker.js/</a>
 
-## USAGE
+## Usage
 
 ### Browser
 ```html
@@ -43,7 +43,7 @@ faker.locale = "de";
 ```
 Read further for a complete list of locales.
 
-# API Usage
+## API Usage
 
   * name
     * firstName
