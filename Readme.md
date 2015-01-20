@@ -45,6 +45,16 @@ Read further for a complete list of locales.
 
 ## API Usage
 
+### faker.name
+
+```js
+faker.name.firstName() // output example
+faker.name.lastName() // output example
+faker.name.findName() // output example
+faker.name.prefix() // output example
+faker.name.suffix() // output example
+```
+
   * name
     * firstName
     * lastName
