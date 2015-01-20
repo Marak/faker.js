@@ -29,20 +29,6 @@ var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
 var randomCard = faker.helpers.createCard(); // random contact card containing many properties
 ```
 
-## Localization
-
-As of version `v2.0.0` faker.js supports 27 different language definition packs.
-
-The default language is set to English.
-
-Setting a new locale is simple:
-
-```js
-// sets locale to de
-faker.locale = "de";
-```
-Read further for a complete list of locales.
-
 ## API Usage
 
 #### Definitions
@@ -59,6 +45,7 @@ Read further for a complete list of locales.
  * [Random](#fakerrandom)
  * [Finance](#fakerfinance)
  * [Hacker](#fakerhacker)
+ * [Localization](#fakerlocale)
  
 
 ### faker.name
@@ -211,34 +198,51 @@ faker.hacker.ingverb()       //
 faker.hacker.phrase()        //
 ```
 
-  * locales
-    * de
-    * de_AT
-    * de_CH
-    * en
-    * en_AU
-    * en_BORK
-    * en_CA
-    * en_GB
-    * en_IND
-    * en_US
-    * en_au_ocker
-    * es
-    * fa
-    * fr
-    * it
-    * ja
-    * ko
-    * nb_NO
-    * nep
-    * nl
-    * pl
-    * pt_BR
-    * ru
-    * sk
-    * sv
-    * vi
-    * zh_CN
+## Localization
+
+As of version `v2.0.0` faker.js supports 27 different language definition packs.
+
+### faker.locale
+
+> The default language is set to English 'en'.
+
+Setting a new locale is simple:
+
+```js
+// sets locale to de
+faker.locale = "de";
+```
+List of locales available
+
+  * de
+  * de_AT
+  * de_CH
+  * en
+  * en_AU
+  * en_BORK
+  * en_CA
+  * en_GB
+  * en_IND
+  * en_US
+  * en_au_ocker
+  * es
+  * fa
+  * fr
+  * it
+  * ja
+  * ko
+  * nb_NO
+  * nep
+  * nl
+  * pl
+  * pt_BR
+  * ru
+  * sk
+  * sv
+  * vi
+  * zh_CN
+  * 
+  
   * locale
     * 0
     * 1
