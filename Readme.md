@@ -54,6 +54,7 @@ faker.name.findName()  // Sedrick Wintheiser IV
 faker.name.prefix()    // Mrs.
 faker.name.suffix()    // DDS
 ```
+
 ### faker.address
 
 ```js
@@ -69,69 +70,69 @@ faker.address.county()            // Borders
 faker.address.country()           // Cameroon
 faker.address.state()             // Mississippi
 faker.address.stateAbbr()         // VT
-faker.address.latitude()          // 26.8868
+faker.address.latitude()          // 29.9357
 faker.address.longitude()         // -101.2776
 ```
+### faker.phone
 
-  * address
-    * zipCode
-    * city
-    * cityPrefix
-    * citySuffix
-    * streetName
-    * streetAddress
-    * streetSuffix
-    * secondaryAddress
-    * county
-    * country
-    * state
-    * stateAbbr
-    * latitude
-    * longitude
-  * phone
-    * phoneNumber
-    * phoneNumberFormat
-    * phoneFormats
-  * internet
-    * avatar
-    * email
-    * userName
-    * domainName
-    * domainSuffix
-    * domainWord
-    * ip
-    * userAgent
-    * color
-    * password
-  * company
-    * suffixes
-    * companyName
-    * companySuffix
-    * catchPhrase
-    * bs
-    * catchPhraseAdjective
-    * catchPhraseDescriptor
-    * catchPhraseNoun
-    * bsAdjective
-    * bsBuzz
-    * bsNoun
-  * image
-    * image
-    * avatar
-    * imageUrl
-    * abstract
-    * animals
-    * business
-    * cats
-    * city
-    * food
-    * nightlife
-    * fashion
-    * people
-    * nature
-    * sports
-    * technics
-    * transport
+```js
+faker.phone.phoneNumber()        // 530-319-6715 x412
+faker.phone.phoneNumberFormat()  // 624-882-3940
+faker.phone.phoneFormats()       // 1-###-###-#### x#####
+```
+
+### faker.internet
+
+```js
+faker.internet.avatar()       // https://s3.amazonaws.com/uifaces/faces/twitter/twitteruiface/128.jpg
+faker.internet.email()        // Misty.Hoppe76@hotmail.com
+faker.internet.userName()     // Janae22
+faker.internet.domainName()   // preston.name
+faker.internet.domainSuffix() // name
+faker.internet.domainWord()   // georgianna
+faker.internet.ip()           // 121.110.86.180
+faker.internet.userAgent()    // Mozilla/5.0 (Macintosh; Intel Mac OS X 10_5_0 rv:5.0; NL) AppleWebKit/533.0.1 (KHTML, like Gecko) Version/6.1.6 Safari/533.0.1
+faker.internet.color()        // #396a67
+faker.internet.password()     // pYxwv3wt4usqpiQ
+```
+
+### faker.company
+
+```js
+faker.company.suffixes()               // [ 'Inc','and Sons','LLC','Group','and Daughters' ]
+faker.company.companyName()            // Marks, Schaefer and Corkery
+faker.company.companySuffix()          // and Daughters
+faker.company.catchPhrase()            // Re-contextualized neutral concept
+faker.company.bs()                     // intuitive leverage experiences
+faker.company.catchPhraseAdjective()   // Universal
+faker.company.catchPhraseDescriptor()  // grid-enabled
+faker.company.catchPhraseNoun()        // time-frame
+faker.company.bsAdjective()            // revolutionary
+faker.company.bsBuzz()                 // deliver
+faker.company.bsNoun()                 // supply-chains
+```
+
+### faker.image
+
+```js
+faker.image.image()      // http://lorempixel.com/640/480/animals
+faker.image.avatar()     // https://s3.amazonaws.com/uifaces/faces/twitter/twitteruiface/128.jpg
+faker.image.imageUrl()   // http://lorempixel.com/640/480
+faker.image.abstract()   // http://lorempixel.com/640/480/abstract
+faker.image.animals()    // http://lorempixel.com/640/480/animals
+faker.image.business()   // http://lorempixel.com/640/480/business
+faker.image.cats()       // http://lorempixel.com/640/480/cats
+faker.image.city()       // http://lorempixel.com/640/480/city
+faker.image.food()       // http://lorempixel.com/640/480/food
+faker.image.nightlife()  // http://lorempixel.com/640/480/nightlife
+faker.image.fashion()    // http://lorempixel.com/640/480/fashion
+faker.image.people()     // http://lorempixel.com/640/480/people
+faker.image.nature()     // http://lorempixel.com/640/480/nature
+faker.image.sports()     // http://lorempixel.com/640/480/soprts
+faker.image.technics()   // http://lorempixel.com/640/480/technics
+faker.image.transport()  // http://lorempixel.com/640/480/transport
+```
+
   * lorem
     * words
     * sentence
