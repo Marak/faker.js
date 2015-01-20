@@ -242,6 +242,7 @@ Setting a new fallback locale is simple:
 ```js
 // sets localeFallback to it
 faker.localeFallback = "it";
+```
 
 ## Tests
 
