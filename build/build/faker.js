@@ -18407,7 +18407,7 @@ en_CA.address = {
     "PE",
     "QC",
     "SK",
-    "YK"
+    "YT"
   ],
   "default_country": [
     "Canada"
