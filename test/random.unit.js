@@ -17,7 +17,7 @@ describe("random.js", function () {
 
     it("returns a random number given a maximum value as Object", function() {
       var options = { max: 10 };
-      assert.ok(faker.random.number(options) < options.max);
+      assert.ok(faker.random.number(options) <= options.max);
     });
 
     it("returns a random number between a range", function() {

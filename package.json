@@ -1,7 +1,7 @@
 {
   "name": "faker",
   "description": "Generate massive amounts of fake contextual data",
-  "version": "2.1.2",
+  "version": "2.2.2",
   "contributors": [
     "Marak Squires <marak.squires@gmail.com>",
     "Matthew Bergman <matt@novafabrica.com>"
