@@ -69,4 +69,11 @@ describe("random.js", function () {
       assert.ok(RFC4122.test(UUID));
     })
   })
+
+  describe('boolean', function() {
+    it('should generate a boolean value', function() {
+      var bool = faker.random.boolean();
+      assert.ok(typeof bool == 'boolean');
+    });
+  });
 });
