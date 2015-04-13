@@ -67,4 +67,16 @@ describe("name.js", function () {
             var name = faker.name.findName();
         });
     });
+
+    describe("title()", function () {
+        it("returns a random title", function () {
+            sinon.stub(faker.name, 'title').returns('Lead Solutions Supervisor');
+
+            var title = faker.name.title();
+
+            assert.equal(title, 'Lead Solutions Supervisor');
+
+            faker.name.title.restore();
+        });
+    });
 });
