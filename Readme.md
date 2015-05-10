@@ -2,7 +2,7 @@
 <img src = "http://imgur.com/KiinQ.png" border = "0">
 
 [![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/Faker.js)
-
+[![npm version](https://badge.fury.io/js/faker.svg)](http://badge.fury.io/js/faker)
 ## Demo
 
 <a href="http://marak.com/faker.js/">http://marak.com/faker.js/</a>
@@ -61,7 +61,7 @@ You can view a code coverage report generated in coverage/lcov-report/index.html
 ####Matthew Bergman & Marak Squires
 
 <br/>
-Copyright (c) 2014 Matthew Bergman & Marak Squires http://github.com/marak/faker.js/
+Copyright (c) 2015 Matthew Bergman & Marak Squires http://github.com/marak/faker.js/
 <br/>
 
 faker.js was inspired by and has used data definitions from

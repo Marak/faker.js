@@ -252,9 +252,13 @@ var date = {
 
     past: function (years, refDate) {
         var date = (refDate) ? new Date(Date.parse(refDate)) : new Date();
+        var range = {
+          min: 1000,
+          max: (years || 1) * 365 * 24 * 3600 * 1000
+        };
 
         var past = date.getTime();
-        past -= faker.random.number(years) * 365 * 24 * 3600 * 1000; // some time from now to N years ago, in milliseconds
+        past -= faker.random.number(range); // some time from now to N years ago, in milliseconds
         date.setTime(past);
 
         return date;
@@ -262,8 +266,13 @@ var date = {
 
     future: function (years, refDate) {
         var date = (refDate) ? new Date(Date.parse(refDate)) : new Date();
+        var range = {
+          min: 1000,
+          max: (years || 1) * 365 * 24 * 3600 * 1000
+        };
+
         var future = date.getTime();
-        future += faker.random.number(years) * 365 * 3600 * 1000 + 1000; // some time from now to N years later, in milliseconds
+        future += faker.random.number(range); // some time from now to N years later, in milliseconds
         date.setTime(future);
 
         return date;
@@ -280,8 +289,13 @@ var date = {
 
     recent: function (days) {
         var date = new Date();
+        var range = {
+          min: 1000,
+          max: (days || 1) * 24 * 3600 * 1000
+        };
+
         var future = date.getTime();
-        future -= faker.random.number(days) * 24 * 60 * 60 * 1000; // some time from now to N days ago, in milliseconds
+        future -= faker.random.number(range); // some time from now to N days ago, in milliseconds
         date.setTime(future);
 
         return date;
@@ -747,7 +761,13 @@ var internet = {
         var red = Math.floor((faker.random.number(256) + baseRed255) / 2);
         var green = Math.floor((faker.random.number(256) + baseRed255) / 2);
         var blue = Math.floor((faker.random.number(256) + baseRed255) / 2);
-        return '#' + red.toString(16) + green.toString(16) + blue.toString(16);
+        var redStr = red.toString(16);
+        var greenStr = green.toString(16);
+        var blueStr = blue.toString(16);
+        return '#' +
+          (redStr.length === 1 ? '0' : '') + redStr +
+          (greenStr.length === 1 ? '0' : '') + greenStr +
+          (blueStr.length === 1 ? '0': '') + blueStr;
 
     },
 
@@ -42003,12 +42023,33 @@ module.exports = lorem;
 var faker = require('../index');
 
 var _name = {
+
     firstName: function () {
-        return faker.random.array_element(faker.definitions.name.first_name)
+      if (typeof faker.definitions.name.male_first_name !== "undefined" && typeof faker.definitions.name.female_first_name !== "undefined") {
+        // some locale datasets ( like ru ) have first_name split by gender. since the name.first_name field does not exist in these datasets,
+        // we must randomly pick a name from either gender array so faker.name.firstName will return the correct locale data ( and not fallback )
+        var rand = faker.random.number(1);
+        if (rand === 0) {
+          return faker.random.array_element(faker.locales[faker.locale].name.male_first_name)
+        } else {
+          return faker.random.array_element(faker.locales[faker.locale].name.female_first_name)
+        }
+      }
+      return faker.random.array_element(faker.definitions.name.first_name)
     },
 
     lastName: function () {
-      return faker.random.array_element(faker.definitions.name.last_name)
+      if (typeof faker.definitions.name.male_last_name !== "undefined" && typeof faker.defintions.name.female_last_name !== "undefined") {
+        // some locale datasets ( like ru ) have last_name split by gender. i have no idea how last names can have genders, but also i do not speak russian
+        // see above comment of firstName method
+        var rand = faker.random.number(1);
+        if (rand === 0) {
+          return faker.random.array_element(faker.locales[faker.locale].name.male_last_name);
+        } else {
+          return faker.random.array_element(faker.locales[faker.locale].name.female_last_name);
+        }
+      }
+      return faker.random.array_element(faker.definitions.name.last_name);
     },
 
     findName: function (firstName, lastName) {
@@ -42069,16 +42110,12 @@ var random = {
     number: function (options) {
 
         if (typeof options === "number") {
-          var options = {
+          options = {
             max: options
           };
         }
 
-        options = options || {
-          min: 0,
-          max: 1,
-          precision: 1
-        };
+        options = options || {};
 
         if (typeof options.min === "undefined") {
           options.min = 0;
@@ -42087,18 +42124,24 @@ var random = {
         if (typeof options.max === "undefined") {
           options.max = 1;
         }
-
-        // by incrementing max by 1, max becomes inclusive of the range
-        if (options.max > 0) {
-          options.max++;
+        if (typeof options.precision === "undefined") {
+          options.precision = 1;
         }
 
-        var randomNumber = mersenne.rand(options.max, options.min);
+        // Make the range inclusive of the max value
+        var max = options.max;
+        if (max > 0) {
+          max += options.precision;
+        } 
+          
+        var randomNumber = options.precision * Math.floor(
+          mersenne.rand(max / options.precision, options.min / options.precision));
+
         return randomNumber;
 
     },
 
-    // takes an array and returns the array randomly sorted
+    // takes an array and returns a random element of the array
     array_element: function (array) {
         array = array || ["a", "b", "c"];
         var r = faker.random.number({ max: array.length - 1 });
@@ -42112,6 +42155,16 @@ var random = {
         var key = faker.random.array_element(array);
 
         return field === "key" ? key : object[key];
+    },
+
+    uuid : function () {
+        var RFC4122_TEMPLATE = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+        var replacePlaceholders = function (placeholder) {
+            var random = Math.random()*16|0;
+            var value = placeholder == 'x' ? random : (random &0x3 | 0x8);
+            return value.toString(16);
+        };
+        return RFC4122_TEMPLATE.replace(/[xy]/g, replacePlaceholders);
     }
 };
 
