@@ -47,6 +47,33 @@ describe("internet.js", function () {
         });
     });
 
+    describe("userName('_')", function() {
+        it("returns usernames with an underscore", function () {
+            var username = faker.internet.userName('_');
+
+            assert.ok(username);
+            assert.equal(username.indexOf('_') > 0, true);
+        });
+    });
+
+    describe("userName('.')", function() {
+        it("returns usernames with a dot", function () {
+            var username = faker.internet.userName('.');
+
+            assert.ok(username);
+            assert.equal(username.indexOf('.') > 0, true);
+        });
+    });
+
+    describe("userName('-')", function () {
+        it("returns usernames with a hyphen", function () {
+            var username = faker.internet.userName('-');
+
+            assert.ok(username);
+            assert.equal(username.indexOf('-') > 0, true);
+        });
+    });
+
     describe("domainName()", function () {
         it("returns a domainWord plus a random suffix", function () {
             sinon.stub(faker.internet, 'domainWord').returns('bar');
