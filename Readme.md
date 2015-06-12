@@ -2,7 +2,7 @@
 
 ![Faker.js](http://imgur.com/KiinQ.png)
 
-[![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/Faker.js)
+[![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/faker.js)
 
 [![npm version](https://badge.fury.io/js/faker.svg)](http://badge.fury.io/js/faker)
 
