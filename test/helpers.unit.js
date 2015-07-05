@@ -38,6 +38,22 @@ describe("helpers.js", function () {
         });
     });
 
+    describe("mustache()", function () {
+        it("interpolates mustache variables", function () {
+            var str = "{{foo}} {{foo}}";
+            var data = {"foo": "bar"};
+            assert.equal(faker.helpers.mustache(str, data), "bar bar");
+        });
+    });
+
+    describe("template()", function () {
+        it("interpolates template variables", function () {
+          var str = "#{foo} #{foo}";
+          var data = {"foo": "bar"};
+          assert.equal(faker.helpers.template(str, data), "bar bar");
+        });
+    });
+
     describe("createCard()", function () {
         it("returns an object", function () {
             var card = faker.helpers.createCard();

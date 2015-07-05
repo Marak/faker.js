@@ -17,6 +17,17 @@ describe("name.js", function () {
         });
     });
 
+    describe("middleName()", function () {
+        it("returns a random name", function () {
+            sinon.stub(faker.name, 'middleName').returns('foo');
+            var middle_name = faker.name.middleName();
+
+            assert.equal(middle_name, 'foo');
+
+            faker.name.middleName.restore();
+        });
+    });
+
     describe("lastName()", function () {
         it("returns a random name", function () {
             sinon.stub(faker.name, 'lastName').returns('foo');
