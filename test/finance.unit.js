@@ -203,7 +203,7 @@ describe('finance.js', function () {
         });
     });
 
-        describe("creditCard(cardType)", function () {
+    describe("creditCard(cardType)", function () {
         var calculateLuhn = function(luhn) {
             var luhnStrDigit, luhnStrLess;
   
