@@ -221,16 +221,15 @@ describe('finance.js', function () {
         });
         
         it ("should return a specific Visa card object", function () {
-            var card = faker.finance.creditcard("visa");
+            var card = faker.finance.creditcard("Visa");
             
-            assert.equal(card.issuer, "Visa");
+            assert.equal(card.issuer, "VISA");
         });
         
         it ("should return a valid Visa card number", function () {
             // do this multiple times because random data might be correct by chance
             for (var i = 0; i < 20; ++i) { 
-              var card = faker.finance.creditcard("visa");
-              
+              var card = faker.finance.creditcard("VISA");
               assert.equal(card.number.length >= 13 && card.number.length <= 16, true, "Length should be between 13 and 16");
               assert.equal(card.number.substr(0, 1), "4");
               assert.equal(calculateLuhn(card.number), card.number.substr(card.number.length - 1, card.number.length));
@@ -238,15 +237,15 @@ describe('finance.js', function () {
         });
         
         it ("should return a specific Mastercard card object", function () {
-            var card = faker.finance.creditcard("visa");
+            var card = faker.finance.creditcard("Mastercard");
             
-            assert.equal(card.issuer, "Visa");
+            assert.equal(card.issuer, "MasterCard");
         });
         
         it ("should return a valid Mastercard card number", function () {
             // do this multiple times because random data might be correct by chance
             for (var i = 0; i < 20; ++i) { 
-              var card = faker.finance.creditcard("mastercard");
+              var card = faker.finance.creditcard("Mastercard");
               
               assert.equal(card.number.length >= 16 && card.number.length <= 19, true, "Length should be between 16 and 19");
               assert.equal(card.number.substr(0, 1), "5", "First digit should be 5");
@@ -256,15 +255,15 @@ describe('finance.js', function () {
         });
         
         it ("should return a specific American Express card object", function () {
-            var card = faker.finance.creditcard("americanexpress");
+            var card = faker.finance.creditcard("Amex");
             
-            assert.equal(card.issuer, "American Express");
+            assert.equal(card.issuer, "Amex");
         });
         
         it ("should return a valid American Express card number", function () {
             // do this multiple times because random data might be correct by chance
             for (var i = 0; i < 20; ++i) { 
-              var card = faker.finance.creditcard("americanexpress");
+              var card = faker.finance.creditcard("Amex");
               
               assert.equal(card.number.length, 15, "Length should be 15");
               assert.equal(card.number.substr(0, 1), "3", "First digit should be 3");
@@ -274,7 +273,7 @@ describe('finance.js', function () {
         });
         
         it ("should return a specific Discover card object", function () {
-            var card = faker.finance.creditcard("discover");
+            var card = faker.finance.creditcard("Discover");
             
             assert.equal(card.issuer, "Discover");
         });
@@ -282,7 +281,7 @@ describe('finance.js', function () {
         it ("should return a valid Discover card number", function () {
             // do this multiple times because random data might be correct by chance
             for (var i = 0; i < 20; ++i) { 
-              var card = faker.finance.creditcard("discover");
+              var card = faker.finance.creditcard("Discover");
               
               assert.equal(card.number.length, 16, "Length should be 16");
               assert.equal(card.number.substr(0, 4), "6011", "First 4 digit combination should be 6011");

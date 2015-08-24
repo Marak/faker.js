@@ -30,5 +30,8 @@
     "through2": "2.0.0"
   },
   "license": "MIT",
-  "main": "index.js"
+  "main": "index.js",
+  "dependencies": {
+    "creditcard-generator": "0.0.7"
+  }
 }
