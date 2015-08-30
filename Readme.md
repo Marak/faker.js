@@ -162,6 +162,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * mac
   * password
 * lorem
+  * word
   * words
   * sentence
   * sentences
