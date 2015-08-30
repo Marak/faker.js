@@ -4,18 +4,18 @@ if (typeof module !== 'undefined') {
     var faker = require('../index');
 }
 
-describe("lorem.js", function () {
-    describe("words()", function () {
-        beforeEach(function () {
+describe("lorem.js", function() {
+    describe("words()", function() {
+        beforeEach(function() {
             sinon.spy(faker.helpers, 'shuffle');
         });
 
-        afterEach(function () {
+        afterEach(function() {
             faker.helpers.shuffle.restore();
         });
 
-        context("when no 'num' param passed in", function () {
-            it("returns three words", function () {
+        context("when no 'num' param passed in", function() {
+            it("returns three words", function() {
                 var words = faker.lorem.words();
 
                 assert.ok(Array.isArray(words));
@@ -24,8 +24,8 @@ describe("lorem.js", function () {
             });
         });
 
-        context("when 'num' param passed in", function () {
-            it("returns requested number of words", function () {
+        context("when 'num' param passed in", function() {
+            it("returns requested number of words", function() {
                 var words = faker.lorem.words(7);
 
                 assert.ok(Array.isArray(words));
@@ -34,9 +34,22 @@ describe("lorem.js", function () {
         });
     });
 
-    describe("sentence()", function () {
-        context("when no 'wordCount' or 'range' param passed in", function () {
-            it("returns a string of at least three words", function () {
+    describe("word()", function() {
+        it("returns a random word", function() {
+            sinon.spy(faker.lorem, 'words');
+
+            var word = faker.lorem.word();
+
+            assert.ok(typeof word === 'string');
+            assert.ok(faker.lorem.words.calledWith(1));
+
+            faker.lorem.words.restore();
+        });
+    });
+
+    describe("sentence()", function() {
+        context("when no 'wordCount' or 'range' param passed in", function() {
+            it("returns a string of at least three words", function() {
                 sinon.spy(faker.lorem, 'words');
                 sinon.stub(faker.random, 'number').returns(2);
                 var sentence = faker.lorem.sentence();
@@ -51,8 +64,8 @@ describe("lorem.js", function () {
             });
         });
 
-        context("when 'wordCount' param passed in", function () {
-            it("returns a string of at least the requested number of words", function () {
+        context("when 'wordCount' param passed in", function() {
+            it("returns a string of at least the requested number of words", function() {
                 sinon.spy(faker.lorem, 'words');
                 sinon.stub(faker.random, 'number').withArgs(7).returns(2);
                 var sentence = faker.lorem.sentence(10);
@@ -67,8 +80,8 @@ describe("lorem.js", function () {
             });
         });
 
-        context("when 'wordCount' and 'range' params passed in", function () {
-            it("returns a string of at least the requested number of words", function () {
+        context("when 'wordCount' and 'range' params passed in", function() {
+            it("returns a string of at least the requested number of words", function() {
                 sinon.spy(faker.lorem, 'words');
                 sinon.stub(faker.random, 'number').withArgs(4).returns(4);
 
@@ -88,9 +101,9 @@ describe("lorem.js", function () {
         });
     });
 
-    describe("sentences()", function () {
-        context("when no 'sentenceCount' param passed in", function () {
-            it("returns newline-separated string of three sentences", function () {
+    describe("sentences()", function() {
+        context("when no 'sentenceCount' param passed in", function() {
+            it("returns newline-separated string of three sentences", function() {
                 sinon.spy(faker.lorem, 'sentence');
                 var sentences = faker.lorem.sentences();
 
@@ -103,8 +116,8 @@ describe("lorem.js", function () {
             });
         });
 
-        context("when 'sentenceCount' param passed in", function () {
-            it("returns newline-separated string of requested number of sentences", function () {
+        context("when 'sentenceCount' param passed in", function() {
+            it("returns newline-separated string of requested number of sentences", function() {
                 sinon.spy(faker.lorem, 'sentence');
                 var sentences = faker.lorem.sentences(5);
 
@@ -117,9 +130,9 @@ describe("lorem.js", function () {
         });
     });
 
-    describe("paragraph()", function () {
-        context("when no 'wordCount' param passed in", function () {
-            it("returns a string of at least three sentences", function () {
+    describe("paragraph()", function() {
+        context("when no 'wordCount' param passed in", function() {
+            it("returns a string of at least three sentences", function() {
                 sinon.spy(faker.lorem, 'sentences');
                 sinon.stub(faker.random, 'number').returns(2);
                 var paragraph = faker.lorem.paragraph();
@@ -134,8 +147,8 @@ describe("lorem.js", function () {
             });
         });
 
-        context("when 'wordCount' param passed in", function () {
-            it("returns a string of at least the requested number of sentences", function () {
+        context("when 'wordCount' param passed in", function() {
+            it("returns a string of at least the requested number of sentences", function() {
                 sinon.spy(faker.lorem, 'sentences');
                 sinon.stub(faker.random, 'number').returns(2);
                 var paragraph = faker.lorem.paragraph(10);
@@ -151,9 +164,9 @@ describe("lorem.js", function () {
         });
     });
 
-    describe("paragraphs()", function () {
-        context("when no 'paragraphCount' param passed in", function () {
-            it("returns newline-separated string of three paragraphs", function () {
+    describe("paragraphs()", function() {
+        context("when no 'paragraphCount' param passed in", function() {
+            it("returns newline-separated string of three paragraphs", function() {
                 sinon.spy(faker.lorem, 'paragraph');
                 var paragraphs = faker.lorem.paragraphs();
 
@@ -166,8 +179,8 @@ describe("lorem.js", function () {
             });
         });
 
-        context("when 'paragraphCount' param passed in", function () {
-            it("returns newline-separated string of requested number of paragraphs", function () {
+        context("when 'paragraphCount' param passed in", function() {
+            it("returns newline-separated string of requested number of paragraphs", function() {
                 sinon.spy(faker.lorem, 'paragraph');
                 var paragraphs = faker.lorem.paragraphs(5);
 
