@@ -1,34 +1,35 @@
 {
-  "name": "faker",
-  "description": "Generate massive amounts of fake contextual data",
-  "version": "3.0.1",
-  "contributors": [
-    "Marak Squires <marak.squires@gmail.com>",
-    "Matthew Bergman <matt@novafabrica.com>"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/Marak/Faker.js.git"
-  },
-  "scripts": {
-    "test": "node_modules/.bin/mocha test/*.*.js"
-  },
-  "devDependencies": {
-    "browserify": "5.11.1",
-    "gulp": "3.8.8",
-    "gulp-mustache": "0.4.0",
-    "gulp-rename": "1.2.0",
-    "gulp-uglify": "1.0.1",
-    "istanbul": "0.1.25",
-    "jshint": "0.9.0",
-    "lodash": "^2.4.1",
-    "mocha": "1.8.x",
-    "node-minify": "*",
-    "optimist": "0.3.5",
-    "sinon": "1.4.2",
-    "vinyl-transform": "0.0.1",
-    "through2": "2.0.0"
-  },
-  "license": "MIT",
-  "main": "index.js"
+    "name": "faker",
+    "description": "Generate massive amounts of fake contextual data",
+    "version": "3.0.1",
+    "contributors": [
+        "Marak Squires <marak.squires@gmail.com>",
+        "Matthew Bergman <matt@novafabrica.com>"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/Marak/Faker.js.git"
+    },
+    "scripts": {
+        "test": "node_modules/.bin/mocha test/*.*.js"
+    },
+    "devDependencies": {
+        "browserify": "5.11.1",
+        "gulp": "3.8.8",
+        "gulp-mustache": "0.4.0",
+        "gulp-rename": "1.2.0",
+        "gulp-uglify": "1.0.1",
+        "istanbul": "0.1.25",
+        "jshint": "0.9.0",
+        "lodash": "^2.4.1",
+        "mocha": "1.8.x",
+        "node-minify": "*",
+        "optimist": "0.3.5",
+        "sinon": "1.4.2",
+        "vinyl-transform": "0.0.1",
+        "through2": "2.0.0"
+    },
+    "license": "MIT",
+    "main": "index.js",
+    "dependencies": {}
 }
