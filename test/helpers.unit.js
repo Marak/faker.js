@@ -74,4 +74,33 @@ describe("helpers.js", function () {
       assert.ok(transaction.account);
     });
   });
+
+  describe('masked()', function() {
+    it('should generate a lowercase character', function() {
+      var character = faker.helpers.masked("a");
+      var lowercase = /[a-z]/;
+      assert.ok(lowercase.test(character));
+    });
+    it('should generate a uppercase character', function() {
+      var character = faker.helpers.masked("A");
+      var uppercase = /[A-Z]/;
+      assert.ok(uppercase.test(character));
+    });
+    it('should generate a digit', function() {
+      var character = faker.helpers.masked("9");
+      var digit = /[0-9]/;
+      assert.ok(digit.test(character));
+    });
+    it('should generate a digit or character', function() {
+      var character = faker.helpers.masked("*");
+      var any = /[a-zA-Z0-9]/;
+      assert.ok(any.test(character));
+    });
+    it('should generate a string masked', function() {
+      var character = faker.helpers.masked("99aaA9*");
+      var any = /[1-9][1-9][a-z][a-z][A-Z][1-9][a-zA-Z0-9]/;
+      assert.ok(any.test(character));
+    });
+  });
+  
 });
