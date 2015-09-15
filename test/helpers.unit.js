@@ -101,6 +101,11 @@ describe("helpers.js", function () {
       var any = /[1-9][1-9][a-z][a-z][A-Z][1-9][a-zA-Z0-9]/;
       assert.ok(any.test(character));
     });
+    it('should generate a digit or character and using non filtred character', function() {
+      var character = faker.helpers.masked("99.a-A*");
+      var any = /[0-9][0-9].[a-z]-[A-Z][a-zA-Z0-9]/;
+      assert.ok(any.test(character));
+    });
   });
   
 });
