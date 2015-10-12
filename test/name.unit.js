@@ -53,11 +53,14 @@ describe("name.js", function () {
 
         it("occasionally returns a first name and last name with a suffix", function () {
             sinon.stub(faker.random, 'number').returns(1);
+            sinon.stub(faker.name, 'suffix').returns('Jr.');
             var name = faker.name.findName();
             var parts = name.split(' ');
 
             assert.ok(parts.length >= 3);
+            assert.equal(parts[parts.length-1], 'Jr.');
 
+            faker.name.suffix.restore();
             faker.random.number.restore();
         });
 
