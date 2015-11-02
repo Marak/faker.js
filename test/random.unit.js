@@ -37,7 +37,7 @@ describe("random.js", function () {
         assert.ok(randomNumber <= options.max);
       }
     });
-    
+
     it("returns a random number between a range using the shortcut", function(){
       var options = { min: 22, max: 33 };
       for(var i = 0; i < 100; i++) {
@@ -45,7 +45,22 @@ describe("random.js", function () {
         assert.ok(randomNumber >= options.min);
         assert.ok(randomNumber <= options.max);
       }
-    })
+    });
+
+    it("ignores second parameter if it is smaller then the first one", function () {
+      var below10 = false;
+      // chance of failing (7.889E-29%)
+      for(var i = 0; i < 200; i++) {
+        var randomNumber = faker.random.number(20, 10); {
+          assert.ok(randomNumber <= 20);
+          assert.ok(randomNumber >= 0);
+          if (!below10 && randomNumber < 10) {
+            below10 = true;
+          }
+        }
+      }
+      assert.ok(below10);
+    });
 
     it("provides numbers with a given precision", function() {
       var options = { min: 0, max: 1.5, precision: 0.5 };
@@ -83,7 +98,7 @@ describe("random.js", function () {
       faker.seed(100);
       var name = faker.name.findName();
       assert.equal(name, 'Dulce Jenkins');
-    })
+    });
   });
 
   describe('arrayElement', function() {
@@ -103,8 +118,8 @@ describe("random.js", function () {
       var UUID = faker.random.uuid();
       var RFC4122 = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
       assert.ok(RFC4122.test(UUID));
-    })
-  })
+    });
+  });
 
   describe('boolean', function() {
     it('should generate a boolean value', function() {
