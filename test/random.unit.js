@@ -37,6 +37,15 @@ describe("random.js", function () {
         assert.ok(randomNumber <= options.max);
       }
     });
+    
+    it("returns a random number between a range using the shortcut", function(){
+      var options = { min: 22, max: 33 };
+      for(var i = 0; i < 100; i++) {
+        var randomNumber = faker.random.number(options.min, options.max);
+        assert.ok(randomNumber >= options.min);
+        assert.ok(randomNumber <= options.max);
+      }
+    })
 
     it("provides numbers with a given precision", function() {
       var options = { min: 0, max: 1.5, precision: 0.5 };
