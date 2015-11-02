@@ -102,6 +102,10 @@ describe("random.js", function () {
   });
 
   describe('arrayElement', function() {
+    it('uses default array if no array is provided', function () {
+      var testArray = ["a", "b", "c"];
+      assert.ok(testArray.indexOf(faker.random.arrayElement()) > -1);
+    });
     it('returns a random element in the array', function() {
       var testArray = ['hello', 'to', 'you', 'my', 'friend'];
       assert.ok(testArray.indexOf(faker.random.arrayElement(testArray)) > -1);
