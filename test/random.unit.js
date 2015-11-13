@@ -103,4 +103,16 @@ describe("random.js", function () {
       assert.ok(typeof bool == 'boolean');
     });
   });
+
+  describe('semver', function() {
+    var semver = faker.random.semver();
+
+    it('should generate a string', function() {
+      assert.ok(typeof semver === 'string');
+    });
+
+    it('should generate a valid semver', function() {
+      assert.ok(/^\d+\.\d+\.\d+$/.test(semver));
+    });
+  });
 });
