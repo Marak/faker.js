@@ -194,6 +194,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * objectElement
   * uuid
   * boolean
+  * semver
 
 
 ## Localization
