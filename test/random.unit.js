@@ -74,6 +74,22 @@ describe("random.js", function () {
       faker.seed(100);
       var name = faker.name.findName();
       assert.equal(name, 'Dulce Jenkins');
+
+      [
+        faker.random.number,
+        faker.random.uuid,
+        faker.internet.mac
+      ]
+      .forEach(function(fn) {
+        faker.seed(100);
+        var a = fn();
+
+        faker.seed(100);
+        var b = fn();
+
+        assert.equal(a, b);
+      });
+
     })
   });
 
