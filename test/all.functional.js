@@ -34,8 +34,15 @@ describe("functional tests", function () {
       Object.keys(modules).forEach(function (module) {
           describe(module, function () {
               modules[module].forEach(function (meth) {
-                  it(meth + "()", function () {
+                  var localFaker = faker.makeNewInstance();
+
+                  it(meth + "() (global instance)", function () {
                       var result = faker[module][meth]();
+                      assert.ok(result);
+                  });
+
+                  it(meth + "() (local instance)", function () {
+                      var result = localFaker[module][meth]();
                       assert.ok(result);
                   });
               });
