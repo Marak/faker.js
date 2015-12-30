@@ -11,23 +11,25 @@
     "url": "http://github.com/Marak/Faker.js.git"
   },
   "scripts": {
-    "test": "node_modules/.bin/mocha test/*.*.js"
+    "test": "mocha test/*.*.js",
+    "coverage": "istanbul cover _mocha --report lcovonly test/*.*.js; cat ./coverage/lcov.info | coveralls"
   },
   "devDependencies": {
-    "browserify": "5.11.1",
-    "gulp": "3.8.8",
-    "gulp-mustache": "0.4.0",
-    "gulp-rename": "1.2.0",
-    "gulp-uglify": "1.0.1",
-    "istanbul": "0.1.25",
-    "jshint": "0.9.0",
-    "lodash": "^2.4.1",
-    "mocha": "1.8.x",
+    "browserify": "12.0.1",
+    "coveralls": "^2.11.6",
+    "gulp": "3.9.0",
+    "gulp-mustache": "2.2.0",
+    "gulp-rename": "1.2.2",
+    "gulp-uglify": "1.5.1",
+    "istanbul": "^0.4.1",
+    "jshint": "2.9.1-rc2",
+    "lodash": "^3.10.1",
+    "mocha": "2.3.x",
     "node-minify": "*",
-    "optimist": "0.3.5",
-    "sinon": "1.4.2",
-    "vinyl-transform": "0.0.1",
-    "through2": "2.0.0"
+    "optimist": "0.6.1",
+    "sinon": "1.17.2",
+    "through2": "2.0.0",
+    "vinyl-transform": "1.0.0"
   },
   "license": "MIT",
   "main": "index.js"

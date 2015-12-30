@@ -2,9 +2,10 @@
 
 ![Faker.js](http://imgur.com/KiinQ.png)
 
-[![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/faker.js)
-
-[![npm version](https://badge.fury.io/js/faker.svg)](http://badge.fury.io/js/faker)
+[![npm version][npm-badge]][npm-url]
+[![Build Status][travis-badge]][travis-url]
+[![Coverage Status][coveralls-badge]][coveralls-url]
+[![Dev Dependencies][david-badge]][david-url]
 
 ## Demo
 
@@ -325,3 +326,11 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+[npm-badge]: https://badge.fury.io/js/faker.svg
+[npm-url]: https://badge.fury.io/js/faker
+[travis-badge]: https://travis-ci.org/Marak/faker.js.svg?branch=master
+[travis-url]: https://travis-ci.org/Marak/faker.js
+[coveralls-badge]: https://coveralls.io/repos/Marak/faker.js/badge.svg?branch=master&service=github
+[coveralls-url]:  https://coveralls.io/github/Marak/faker.js?branch=master
+[david-badge]: https://david-dm.org/Marak/faker.js.svg
+[david-url]: https://david-dm.org/Marak/faker.js
