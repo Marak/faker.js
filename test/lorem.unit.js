@@ -18,8 +18,9 @@ describe("lorem.js", function () {
             it("returns three words", function () {
                 var words = faker.lorem.words();
 
-                assert.ok(Array.isArray(words));
-                assert.equal(words.length, 3);
+                assert.ok(typeof words === 'string');
+                var parts = words.split(' ');
+                assert.equal(parts.length, 3);
                 assert.ok(faker.helpers.shuffle.called);
             });
         });
@@ -28,8 +29,9 @@ describe("lorem.js", function () {
             it("returns requested number of words", function () {
                 var words = faker.lorem.words(7);
 
-                assert.ok(Array.isArray(words));
-                assert.equal(words.length, 7);
+                assert.ok(typeof words === 'string');
+                var parts = words.split(' ');
+                assert.equal(parts.length, 7);
             });
         });
     });
