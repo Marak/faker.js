@@ -137,7 +137,7 @@ describe("internet.js", function () {
     describe("mac()", function () {
         it("returns a random MAC address with 6 hexadecimal digits", function () {
             var mac = faker.internet.mac();
-            assert.ok(mac.match(/^([a-f0-9]{2}:){5}[a-f0-9]{2}$/));
+            assert.ok(mac.match(/^([0-9A-Fa-f]{1,2}:){5}([0-9A-Fa-f]{1,2})$/));
         });
     });
 });

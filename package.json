@@ -27,6 +27,7 @@
     "optimist": "0.3.5",
     "sinon": "1.4.2",
     "vinyl-transform": "0.0.1",
+    "randexp": "^0.4.2",
     "through2": "2.0.0"
   },
   "license": "MIT",
