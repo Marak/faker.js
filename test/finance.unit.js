@@ -201,5 +201,92 @@ describe('finance.js', function () {
 
             assert.ok(currencyCode.match(/[A-Z]{3}/));
         });
-    })
+    });
+
+    describe("creditCard(cardType)", function () {
+        var calculateLuhn = function(luhn) {
+            var luhnStrDigit, luhnStrLess;
+  
+            luhnStrDigit = parseInt(luhn.substring(luhn.length-1,luhn.length));
+            luhnStrLess = luhn.substring(0,luhn.length-1);
+          
+            return luhnStrDigit;
+        };
+        
+        it("should return a random card object", function () {
+            var card = faker.finance.creditcard();
+            
+            assert.ok(card.issuer);
+            assert.ok(card.number);
+        });
+        
+        it ("should return a specific Visa card object", function () {
+            var card = faker.finance.creditcard("Visa");
+            
+            assert.equal(card.issuer, "VISA");
+        });
+        
+        it ("should return a valid Visa card number", function () {
+            // do this multiple times because random data might be correct by chance
+            for (var i = 0; i < 20; ++i) { 
+              var card = faker.finance.creditcard("VISA");
+              assert.equal(card.number.length >= 13 && card.number.length <= 16, true, "Length should be between 13 and 16");
+              assert.equal(card.number.substr(0, 1), "4");
+              assert.equal(calculateLuhn(card.number), card.number.substr(card.number.length - 1, card.number.length));
+            }
+        });
+        
+        it ("should return a specific Mastercard card object", function () {
+            var card = faker.finance.creditcard("Mastercard");
+            
+            assert.equal(card.issuer, "MasterCard");
+        });
+        
+        it ("should return a valid Mastercard card number", function () {
+            // do this multiple times because random data might be correct by chance
+            for (var i = 0; i < 20; ++i) { 
+              var card = faker.finance.creditcard("Mastercard");
+              
+              assert.equal(card.number.length >= 16 && card.number.length <= 19, true, "Length should be between 16 and 19");
+              assert.equal(card.number.substr(0, 1), "5", "First digit should be 5");
+              assert.equal(card.number.substr(1, 1) >= 1 && card.number.substr(1, 1) <= 5, true, "Second digit should be between 1 and 5");
+              assert.equal(calculateLuhn(card.number), card.number.substr(card.number.length - 1, card.number.length));
+            }
+        });
+        
+        it ("should return a specific American Express card object", function () {
+            var card = faker.finance.creditcard("Amex");
+            
+            assert.equal(card.issuer, "Amex");
+        });
+        
+        it ("should return a valid American Express card number", function () {
+            // do this multiple times because random data might be correct by chance
+            for (var i = 0; i < 20; ++i) { 
+              var card = faker.finance.creditcard("Amex");
+              
+              assert.equal(card.number.length, 15, "Length should be 15");
+              assert.equal(card.number.substr(0, 1), "3", "First digit should be 3");
+              assert.equal(card.number.substr(1, 1) == "4" || card.number.substr(1, 1) == "7", true, "Second digit should be 4 or 7");
+              assert.equal(calculateLuhn(card.number), card.number.substr(card.number.length - 1, card.number.length));
+            }
+        });
+        
+        it ("should return a specific Discover card object", function () {
+            var card = faker.finance.creditcard("Discover");
+            
+            assert.equal(card.issuer, "Discover");
+        });
+        
+        it ("should return a valid Discover card number", function () {
+            // do this multiple times because random data might be correct by chance
+            for (var i = 0; i < 20; ++i) { 
+              var card = faker.finance.creditcard("Discover");
+              
+              assert.equal(card.number.length, 16, "Length should be 16");
+              assert.equal(card.number.substr(0, 4), "6011", "First 4 digit combination should be 6011");
+              assert.equal(calculateLuhn(card.number), card.number.substr(card.number.length - 1, card.number.length));
+            }
+        });
+    });
 });
