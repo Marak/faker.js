@@ -130,6 +130,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * contextualCard
   * userCard
   * createTransaction
+  * masked
 * image
   * image
   * avatar
