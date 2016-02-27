@@ -61,6 +61,16 @@ describe("name.js", function () {
             faker.random.number.restore();
         });
 
+        it("does not return a prefix as a suffix", function() {
+          sinon.stub(faker.random, 'number').returns(1);
+          var name=faker.name.findName();
+          var parts = name.split(' ');
+
+          assert.ok(parts[2] === ('Sr.' || 'Jr.' || 'II' || 'III' || 'IV'));
+
+          faker.random.number.restore();
+        });
+
         it("needs to work with specific locales and respect the fallbacks", function () {
             faker.locale = 'en_US';
             // this will throw if this is broken
