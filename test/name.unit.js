@@ -66,7 +66,7 @@ describe("name.js", function () {
           var name=faker.name.findName();
           var parts = name.split(' ');
 
-          assert.ok(parts[2] === ('Sr.' || 'Jr.' || 'II' || 'III' || 'IV'));
+          assert.ok(parts[2] === 'Sr.');
 
           faker.random.number.restore();
         });
