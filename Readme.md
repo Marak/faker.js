@@ -58,6 +58,9 @@ This will interpolate the format string with the value of methods `name.lastName
 
 ### API Methods
 
+A documentation can be generated with `npm run-script doc`. The docs are put into `./doc`. Here is
+an overview of all api methods:
+
 * address
   * zipCode
   * city
