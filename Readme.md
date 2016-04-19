@@ -213,6 +213,10 @@ This will interpolate the format string with the value of methods `name.lastName
   * directoryPath
   * filePath
   * semver
+* tin
+  * ein
+  * itin
+  * ssn
 
 
 ## Localization
