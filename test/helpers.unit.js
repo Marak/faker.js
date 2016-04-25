@@ -89,6 +89,10 @@ describe("helpers.js", function () {
             assert.equal(faker.helpers.generate("address.city"), "Marcusburgh");
         });
 
+        it("return a generated city name by index", function() {
+            assert.equal(faker.helpers.generate("address.city[1]"), "South Marcus");
+        });
+
         it("return a generated street address", function() {
             assert.equal(faker.helpers.generate("address.street_address"), "244 Sporer Curve");
         });
