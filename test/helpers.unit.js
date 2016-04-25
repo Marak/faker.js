@@ -74,4 +74,28 @@ describe("helpers.js", function () {
       assert.ok(transaction.account);
     });
   });
+
+    describe("generate()", function() {
+        beforeEach(function() {
+            faker.locale = "en";
+            faker.seed(100);
+        })
+
+        it("return a generated full name", function() {
+            assert.equal(faker.helpers.generate("name.name"), "Marcus Gorczany");
+        });
+
+        it("return a generated city name", function() {
+            assert.equal(faker.helpers.generate("address.city"), "Marcusburgh");
+        });
+
+        it("return a generated street address", function() {
+            assert.equal(faker.helpers.generate("address.street_address"), "244 Sporer Curve");
+        });
+
+        it("return a generated company name", function() {
+            assert.equal(faker.helpers.generate("company.name"), "Osinski-Gorczany");
+        });
+    });
+
 });
