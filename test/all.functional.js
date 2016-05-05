@@ -43,18 +43,25 @@ var modules = Object.keys(faker)
 
 describe("functional tests", function () {
 
+    function assertMethodResult(meth, result) {
+        if (meth === 'boolean') {
+            assert.ok(result === true || result === false);
+        } else {
+            assert.ok(result);
+        }
+    }
+
     for(var locale in faker.locales) {
       faker.locale = locale;
       Object.keys(modules).forEach(function (module) {
           describe(module, function () {
               modules[module].forEach(function (meth) {
                   it(meth + "()", function () {
-                      var result = faker[module][meth]();
-                      if (meth === 'boolean') {
-                          assert.ok(result === true || result === false);
-                      } else {
-                          assert.ok(result);
-                      }
+                      assertMethodResult(meth, faker[module][meth]());
+                  });
+
+                  it(meth + "() without context", function () {
+                      assertMethodResult(meth, faker[module][meth].call(null));
                   });
               });
           });
