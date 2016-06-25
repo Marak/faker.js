@@ -8,7 +8,7 @@
 
 ## Demo
 
-[http://marak.com/faker.js/](http://marak.com/faker.js/)
+[http://marak.github.io/faker.js](http://marak.github.io/faker.js)
 
 ## Hosted API Microservice
 
