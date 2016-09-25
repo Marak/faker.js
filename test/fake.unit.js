@@ -11,6 +11,16 @@ describe("fake.js", function () {
             assert.ok(name.match(/\d/));
         });
 
+        it("works with spaces", function() {
+            var name = faker.fake('{{ phone.phoneNumber }}');
+            assert.ok(name.match(/\d/));
+        });
+
+        it("works with multiple spaces", function() {
+            var name = faker.fake('{{      phone.phoneNumber      }}');
+            assert.ok(name.match(/\d/));
+        });
+
         it("replaces multiple tokens with random values for methods with no parameters", function () {
             var name = faker.fake('{{helpers.randomize}}{{helpers.randomize}}{{helpers.randomize}}');
             assert.ok(name.match(/[abc]{3}/));
