@@ -110,6 +110,17 @@ describe("commerce.js", function() {
         assert.ok(amount);
         assert.equal((amount == 0.00), true, "the amount should equal 0");
     });
+
+    it("should not contain comma's by default", function () {
+        var amount = faker.commerce.price(1000);
+        var amountWithCommas = faker.commerce.price(1000, undefined, undefined, undefined, true);
+        
+        var testRegExp = new RegExp(/,/);
+        
+        assert.equal(false, testRegExp.test(amount), "The amount should not contain commas.");
+
+        assert.equal(true, testRegExp.test(amountWithCommas), "The amount should contain commas.");
+    });
   });
 
 });
