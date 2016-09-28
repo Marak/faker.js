@@ -29,6 +29,11 @@ describe("helpers.js", function () {
             assert.ok(faker.random.number.calledWith(1));
             faker.random.number.restore();
         });
+
+        it("empty array returns empty array", function () {
+            var shuffled = faker.helpers.shuffle([]);
+            assert.ok(shuffled.length === 0);
+        });
     });
 
     describe("slugify()", function () {
