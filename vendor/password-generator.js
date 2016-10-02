@@ -16,7 +16,7 @@
   // by your application and you want a different name. For example:
   //    // Declare before including the passwordGenerator library
   //    var localPasswordGeneratorLibraryName = 'pass';
-  localName = root.localPasswordGeneratorLibraryName || "generatePassword",
+  localName = root && root.localPasswordGeneratorLibraryName || "generatePassword",
 
   password = function (length, memorable, pattern, prefix) {
     var char, n;
