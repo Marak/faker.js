@@ -2,10 +2,55 @@ if (typeof module !== 'undefined') {
     var assert = require('assert');
     var sinon = require('sinon');
     var faker = require('../index');
+    var util = require('util');
 }
 
 describe("date.js", function () {
     describe("past()", function () {
+
+        describe("format: unix", function () {
+            it("returns a date in unix format", function () {
+
+                var date = faker.date.past(75, false, {format: 'unix'});
+                assert.ok(typeof date === 'number');
+            });
+        });
+
+        describe("format: ISO", function () {
+            it("returns a date in unix format", function () {
+
+                var date = faker.date.past(75, false, {format: 'ISO'});
+                assert.ok(typeof date === 'string');
+                assert.ok(date.match(/Z$/));
+            });
+        });
+
+        describe("format: string", function () {
+            it("returns a date string", function () {
+
+                var date = faker.date.past(75, false, {format: 'string'});
+                assert.ok(typeof date === 'string');
+            });
+        });
+
+        describe("format: internet-timestamp", function () {
+            it("returns an internet timestamp", function () {
+
+                var date = faker.date.past(75, false, {format: 'internet-timestamp'});
+                assert.ok(typeof date === 'string');
+                assert.ok(date.match(/\dT\d/));
+            });
+        });
+
+        describe("format: rfc3339", function () {
+            it("returns an internet timestamp", function () {
+
+                var date = faker.date.past(75, false, {format: 'rfc3339'});
+                assert.ok(typeof date === 'string');
+                assert.ok(date.match(/\dT\d/));
+            });
+        });
+
         it("returns a date N years into the past", function () {
 
             var date = faker.date.past(75);
@@ -17,6 +62,7 @@ describe("date.js", function () {
             var date = faker.date.past(75, false, {format: 'YY:MM:DD'});
             assert.ok(date.match(/\d+:\d+:\d+/));
         });
+
 
         it("returns a past date when N = 0", function () {
 

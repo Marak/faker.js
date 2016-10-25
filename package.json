@@ -38,6 +38,7 @@
   "license": "MIT",
   "main": "index.js",
   "dependencies": {
+    "internet-timestamp": "0.0.1",
     "moment": "^2.x",
     "randomstring": "^1.1.5",
     "string": "^3.3.3"
