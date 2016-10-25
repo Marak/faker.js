@@ -38,6 +38,14 @@ describe("random.js", function () {
       }
     });
 
+    it("returns a random number with decimals", function() {
+      var options = { min: 0, max: 5, decimals: 2, string: true };
+      for(var i = 0; i < 4; i++) {
+        var randomNumber = faker.random.number(options);
+        assert.ok(randomNumber.match(/^\d\.\d{2}$/g));
+      }
+    });
+
     it("provides numbers with a given precision", function() {
       var options = { min: 0, max: 1.5, precision: 0.5 };
       var results = _.chain(_.range(50))

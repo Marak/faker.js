@@ -36,7 +36,7 @@ describe("date.js", function () {
         describe("format: internet-timestamp", function () {
             it("returns an internet timestamp", function () {
 
-                var date = faker.date.past(75, false, {format: 'internet-timestamp'});
+                var date = faker.date.past(75, false, {format: 'internet'});
                 assert.ok(typeof date === 'string');
                 assert.ok(date.match(/\dT\d/));
             });
