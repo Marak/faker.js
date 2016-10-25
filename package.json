@@ -38,6 +38,8 @@
   "license": "MIT",
   "main": "index.js",
   "dependencies": {
-    "moment": "^2.x"
+    "moment": "^2.x",
+    "randomstring": "^1.1.5",
+    "string": "^3.3.3"
   }
 }

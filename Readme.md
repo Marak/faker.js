@@ -205,6 +205,9 @@ This will interpolate the format string with the value of methods `name.lastName
   * image
   * locale
   * alphaNumeric
+* string
+  * random
+  * useful
 * system
   * fileName
   * commonFileName
@@ -216,7 +219,6 @@ This will interpolate the format string with the value of methods `name.lastName
   * directoryPath
   * filePath
   * semver
-
 
 ## Localization
 
