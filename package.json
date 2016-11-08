@@ -1,10 +1,11 @@
 {
-  "name": "faker",
+  "name": "xfaker",
   "description": "Generate massive amounts of fake contextual data",
   "version": "3.2.0",
   "contributors": [
     "Marak Squires <marak.squires@gmail.com>",
-    "Matthew Bergman <matt@novafabrica.com>"
+    "Matthew Bergman <matt@novafabrica.com>",
+    "Kristian Mandrup <matt@novafabrica.com>"
   ],
   "repository": {
     "type": "git",

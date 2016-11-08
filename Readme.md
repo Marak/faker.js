@@ -1,28 +1,18 @@
-# faker.js - generate massive amounts of fake data in the browser and node.js
+# xfaker - generate massive amounts of fake data in the browser and node.js
 
 ![Faker.js](http://imgur.com/KiinQ.png)
-
-[![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/faker.js)
-
-[![npm version](https://badge.fury.io/js/faker.svg)](http://badge.fury.io/js/faker)
 
 ## Demo
 
 [https://cdn.rawgit.com/Marak/faker.js/master/examples/browser/index.html](https://cdn.rawgit.com/Marak/faker.js/master/examples/browser/index.html)
 
-## Hosted API Microservice
+## Overview
 
-[http://faker.hook.io](http://faker.hook.io/)
- - Supports all Faker API Methods
- - Full-Featured Microservice
- - Hosted by [hook.io](http://hook.io)
-
-```bash
-curl http://faker.hook.io?property=name.findName&locale=de
-```
-## Support Faker Development
-
-Please pledge support at [https://www.patreon.com/marak](https://www.patreon.com/marak) to help ensure continued development of faker.js
+This module is an extension of [faker](https://www.npmjs.com/package/Faker) with:
+- custom `date` formatting options using [moment.js](momentjs.com)
+- new `string` library, with flexible `random` and `useful` generators
+- better random `number` generator with decimals precision option
+- much improved docs, now lists arguments for all faker functions
 
 ## Usage
 
@@ -37,14 +27,13 @@ Please pledge support at [https://www.patreon.com/marak](https://www.patreon.com
 
 ### Node.js
 
-    var faker = require('faker');
+    var faker = require('xfaker');
 
     var randomName = faker.name.findName(); // Rowan Nikolaus
     var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
     var randomCard = faker.helpers.createCard(); // random contact card containing many properties
 
 ## API
-
 
 ### Faker.fake()
 
