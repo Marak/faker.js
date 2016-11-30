@@ -205,6 +205,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * image
   * locale
   * alphaNumeric
+  * seed – setter used to set the seed for random generation.
 * system
   * fileName
   * commonFileName
@@ -216,6 +217,22 @@ This will interpolate the format string with the value of methods `name.lastName
   * directoryPath
   * filePath
   * semver
+  
+## Setting a seed
+If you want consistent results, you can set your own seed:
+
+```js
+faker.random.seed(123);
+
+const firstRandom = faker.random.number();
+
+// Setting the seed again resets the sequence.
+faker.random.seed(123);
+
+const secondRandom = faker.random.number();
+
+firstRandom === secondRandom;
+```
 
 
 ## Localization
