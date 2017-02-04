@@ -14,6 +14,8 @@ var modules = {
 
     company: ['companyName', 'companySuffix', 'catchPhrase', 'bs'],
 
+    database: ['column', 'collation', 'engine', 'type'],
+
     internet: ['email', 'userName', 'domainName', 'domainWord', 'ip'],
 
     lorem: ['words', 'sentence', 'sentences', 'paragraph', 'paragraphs'],
