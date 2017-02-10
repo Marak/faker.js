@@ -270,7 +270,7 @@ faker.locale = "de";
 
 ### Individual Localization Packages
 
-As of vesion `v3.0.0` faker.js supports incremental loading of locales. 
+As of vesion `v3.0.0` faker.js supports incremental loading of locales.
 
 By default, requiring `faker` will include *all* locale data.
 
@@ -279,6 +279,13 @@ In a production environment, you may only want to include the locale data for a 
 ```js
 // loads only de locale
 var faker = require('faker/locale/de');
+```
+
+## Updating the seed
+```js
+var faker = require('faker');
+var seed = Math.round(Math.random() * Math.pow(10, 17));
+faker.seed(seed);
 ```
 
 ## Tests
