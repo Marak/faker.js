@@ -1,28 +1,18 @@
-# faker.js - generate massive amounts of fake data in the browser and node.js
+# xfaker - generate massive amounts of fake data in the browser and node.js
 
 ![Faker.js](http://imgur.com/KiinQ.png)
-
-[![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/faker.js)
-
-[![npm version](https://badge.fury.io/js/faker.svg)](http://badge.fury.io/js/faker)
 
 ## Demo
 
 [https://cdn.rawgit.com/Marak/faker.js/master/examples/browser/index.html](https://cdn.rawgit.com/Marak/faker.js/master/examples/browser/index.html)
 
-## Hosted API Microservice
+## Overview
 
-[http://faker.hook.io](http://faker.hook.io/)
- - Supports all Faker API Methods
- - Full-Featured Microservice
- - Hosted by [hook.io](http://hook.io)
-
-```bash
-curl http://faker.hook.io?property=name.findName&locale=de
-```
-## Support Faker Development
-
-Please pledge support at [https://www.patreon.com/marak](https://www.patreon.com/marak) to help ensure continued development of faker.js
+This module is an extension of [faker](https://www.npmjs.com/package/Faker) with:
+- custom `date` formatting options using [moment.js](momentjs.com)
+- new `string` library, with flexible `random` and `useful` generators
+- better random `number` generator with decimals precision option
+- much improved docs, now lists arguments for all faker functions
 
 ## Usage
 
@@ -37,14 +27,13 @@ Please pledge support at [https://www.patreon.com/marak](https://www.patreon.com
 
 ### Node.js
 
-    var faker = require('faker');
+    var faker = require('xfaker');
 
     var randomName = faker.name.findName(); // Rowan Nikolaus
     var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
     var randomCard = faker.helpers.createCard(); // random contact card containing many properties
 
 ## API
-
 
 ### Faker.fake()
 
@@ -66,157 +55,159 @@ This will interpolate the format string with the value of methods `name.lastName
 ### API Methods
 
 * address
-  * zipCode
-  * city
-  * cityPrefix
-  * citySuffix
-  * streetName
-  * streetAddress
-  * streetSuffix
-  * streetPrefix
-  * secondaryAddress
-  * county
-  * country
-  * countryCode
-  * state
-  * stateAbbr
-  * latitude
-  * longitude
+  * zipCode (format: String)
+  * city (format: String)
+  * cityPrefix ()
+  * citySuffix ()
+  * streetName ()
+  * streetAddress (useFullAddress: Boolean)
+  * streetSuffix ()
+  * streetPrefix ()
+  * secondaryAddress ()
+  * county ()
+  * country ()
+  * countryCode ()
+  * state (useAbbr: Boolean)
+  * stateAbbr ()
+  * latitude ()
+  * longitude ()
 * commerce
-  * color
-  * department
-  * productName
-  * price
-  * productAdjective
-  * productMaterial
-  * product
+  * color ()
+  * department ()
+  * productName ()
+  * price (min, max, dec, symbol)
+  * productAdjective ()
+  * productMaterial ()
+  * product ()
 * company
-  * suffixes
-  * companyName
-  * companySuffix
-  * catchPhrase
-  * bs
-  * catchPhraseAdjective
-  * catchPhraseDescriptor
-  * catchPhraseNoun
-  * bsAdjective
-  * bsBuzz
-  * bsNoun
+  * suffixes ()
+  * companyName (format: String)
+  * companySuffix ()
+  * catchPhrase ()
+  * bs ()
+  * catchPhraseAdjective ()
+  * catchPhraseDescriptor ()
+  * catchPhraseNoun ()
+  * bsAdjective ()
+  * bsBuzz ()
+  * bsNoun ()
 * date
-  * past
-  * future
-  * between
-  * recent
-  * month
-  * weekday
+  * past (years: Number, refDate: Date, options: {format: String})
+  * future (years: Number, refDate: Date, options: {format: String})
+  * between (from: Date, to: Date, options: {format: String})
+  * recent (days: Number, options: {format: String})
+  * month (options: {format: String})
+  * weekday (options: {format: String})
 * fake
 * finance
-  * account
-  * accountName
-  * mask
-  * amount
-  * transactionType
-  * currencyCode
-  * currencyName
-  * currencySymbol
-  * bitcoinAddress
+  * account (length: Number)
+  * accountName ()
+  * mask (length: Number, parens: Boolean, elipsis: Boolean)
+  * amount (min: Number, max: Number, dec: Number, symbol: String)
+  * transactionType ()
+  * currencyCode ()
+  * currencyName ()
+  * currencySymbol ()
+  * bitcoinAddress ()
 * hacker
-  * abbreviation
-  * adjective
-  * noun
-  * verb
-  * ingverb
-  * phrase
+  * abbreviation ()
+  * adjective ()
+  * noun ()
+  * verb ()
+  * ingverb ()
+  * phrase ()
 * helpers
-  * randomize
-  * slugify
-  * replaceSymbolWithNumber
-  * replaceSymbols
-  * shuffle
-  * mustache
-  * createCard
-  * contextualCard
-  * userCard
-  * createTransaction
+  * randomize (array: Array)
+  * slugify (string: String)
+  * replaceSymbolWithNumber (string: String, symbol: String)
+  * replaceSymbols (string: String)
+  * shuffle (o: Array)
+  * mustache (str: String, data: Object)
+  * createCard ()
+  * contextualCard ()
+  * userCard ()
+  * createTransaction ()
 * image
-  * image
-  * avatar
-  * imageUrl
-  * abstract
-  * animals
-  * business
-  * cats
-  * city
-  * food
-  * nightlife
-  * fashion
-  * people
-  * nature
-  * sports
-  * technics
-  * transport
+  * image (width: Number, height: Number, randomize: Boolean)
+  * avatar ()
+  * imageUrl (width: Number, height: Number, category: String, randomize: Boolean)
+  * abstract (width: Number, height: Number, randomize: Boolean)
+  * animals (...)
+  * business (...)
+  * cats (...)
+  * city (...)
+  * food (...)
+  * nightlife (...)
+  * fashion (...)
+  * people (...)
+  * nature (...)
+  * sports (...)
+  * technics (...)
+  * transport (...)
 * internet
-  * avatar
-  * email
-  * exampleEmail
-  * userName
-  * protocol
-  * url
-  * domainName
-  * domainSuffix
-  * domainWord
-  * ip
-  * userAgent
-  * color
-  * mac
-  * password
+  * avatar ()
+  * email (firstName: String, lastName: String, provider: String)
+  * exampleEmail (firstName: String, lastName: String)
+  * userName (firstName: String, lastName: String)
+  * protocol ()
+  * url ()
+  * domainName ()
+  * domainSuffix ()
+  * domainWord ()
+  * ip ()
+  * userAgent ()
+  * color (baseRed255: Number, baseGreen255: Number, baseBlue255: Number)
+  * mac ()
+  * password (len: Number, memorable: Boolean, pattern: String, prefix: String)
 * lorem
-  * word
-  * words
-  * sentence
-  * sentences
-  * paragraph
-  * paragraphs
-  * text
-  * lines
+  * word (num: Number)
+  * words (num: Number)
+  * sentence (wordCount: Number, range: Number)
+  * sentences (sentenceCount: Number, separator: String)
+  * paragraph (sentenceCount: Number)
+  * paragraphs (paragraphCount: Number, separator: String)
+  * text (times: Number)
+  * lines (count: Number)
 * name
-  * firstName
-  * lastName
-  * findName
-  * jobTitle
-  * prefix
-  * suffix
-  * title
-  * jobDescriptor
-  * jobArea
-  * jobType
+  * firstName (gender: 1 or 0)
+  * lastName (gender: 1 or 0)
+  * findName (firstName: String, lastName: String, gender: 1 o 0)
+  * jobTitle ()
+  * prefix (gender: 1 or 0)
+  * suffix ()
+  * title ()
+  * jobDescriptor ()
+  * jobArea ()
+  * jobType ()
 * phone
-  * phoneNumber
-  * phoneNumberFormat
-  * phoneFormats
+  * phoneNumber (format: String)
+  * phoneNumberFormat (phoneFormatsArrayIndex: Number)
+  * phoneFormats ()
 * random
-  * number
-  * arrayElement
-  * objectElement
-  * uuid
-  * boolean
-  * word
-  * words
-  * image
-  * locale
-  * alphaNumeric
+  * number (options: {min, max, precision, decimals})
+  * arrayElement (array: Array)
+  * objectElement (object: Object, field: String or "key")
+  * uuid ()
+  * boolean ()
+  * word (type: String, such as 'hacker.noun')
+  * words (count: Number)
+  * image ()
+  * locale ()
+  * alphaNumeric (count: Number)
+* string
+  * random (options: Object - see 'randomstring' module)
+  * useful (options: {type: String, transform: {method, args}, [type]: {method, args} })
 * system
-  * fileName
-  * commonFileName
-  * mimeType
-  * commonFileType
-  * commonFileExt
-  * fileType
-  * fileExt
-  * directoryPath
-  * filePath
-  * semver
-
+  * fileName (ext: String, type: String)
+  * commonFileName (ext: String, type: String)
+  * mimeType ()
+  * commonFileType ()
+  * commonFileExt (type: String)
+  * fileType ()
+  * fileExt (mimeType: String)
+  * directoryPath ()
+  * filePath ()
+  * semver ()
 
 ## Localization
 

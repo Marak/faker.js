@@ -1,10 +1,11 @@
 {
-  "name": "faker",
+  "name": "xfaker",
   "description": "Generate massive amounts of fake contextual data",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "contributors": [
     "Marak Squires <marak.squires@gmail.com>",
-    "Matthew Bergman <matt@novafabrica.com>"
+    "Matthew Bergman <matt@novafabrica.com>",
+    "Kristian Mandrup <matt@novafabrica.com>"
   ],
   "repository": {
     "type": "git",
@@ -17,8 +18,8 @@
     "doc": "jsdoc -c conf.json -t ./node_modules/ink-docstrap/template -R README.md lib"
   },
   "devDependencies": {
-    "browserify": "5.11.1",
-    "gulp": "3.8.8",
+    "browserify": "^13.1.1",
+    "gulp": "3.9.1",
     "gulp-gh-pages": "^0.5.4",
     "gulp-jsdoc3": "^0.2.1",
     "gulp-mustache": "0.4.0",
@@ -28,7 +29,7 @@
     "jsdoc": "^3.4.0",
     "jshint": "0.9.0",
     "lodash": "^4.6.1",
-    "mocha": "1.8.x",
+    "mocha": "^3.1.2",
     "node-minify": "*",
     "optimist": "0.3.5",
     "sinon": "1.4.2",
@@ -37,5 +38,10 @@
   },
   "license": "MIT",
   "main": "index.js",
-  "dependencies": {}
+  "dependencies": {
+    "internet-timestamp": "0.0.1",
+    "moment": "^2.x",
+    "randomstring": "^1.1.5",
+    "string": "^3.3.3"
+  }
 }
