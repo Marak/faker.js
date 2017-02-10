@@ -12,6 +12,12 @@ describe("date.js", function () {
             assert.ok(date < new Date());
         });
 
+        it("returns a formatted String date N years into the past", function () {
+
+            var date = faker.date.past(75, false, {format: 'YY:MM:DD'});
+            assert.ok(date.match(/\d+:\d+:\d+/));
+        });
+
         it("returns a past date when N = 0", function () {
 
             var refDate = new Date();
@@ -37,6 +43,12 @@ describe("date.js", function () {
             var date = faker.date.future(75);
 
             assert.ok(date > new Date());
+        });
+
+        it("returns a formatted String date N years into the future", function () {
+
+            var date = faker.date.future(75, false, {format: 'YY:MM:DD'});
+            assert.ok(date.match(/\d+:\d+:\d+/));
         });
 
         it("returns a future date when N = 0", function () {
@@ -65,6 +77,12 @@ describe("date.js", function () {
             assert.ok(date <= new Date());
         });
 
+        it("returns a formatted String date N days from the recent past", function () {
+
+            var date = faker.date.recent(30, {format: 'YY:MM:DD'});
+            assert.ok(date.match(/\d+:\d+:\d+/));
+        });
+
     });
 
     describe("between()", function () {
@@ -77,6 +95,17 @@ describe("date.js", function () {
 
             assert.ok(date > from && date < to);
         });
+
+        it("returns a random formatted String date between the dates given", function () {
+
+            var from = new Date(1990, 5, 7, 9, 11, 0, 0);
+            var to = new Date(2000, 6, 8, 10, 12, 0, 0);
+
+            var date = faker.date.between(from, to, {format: 'YY:MM:DD'});
+
+            assert.ok(date.match(/\d+:\d+:\d+/));
+        });
+
     });
 
     describe("month()", function () {
