@@ -39,6 +39,12 @@ curl http://faker.hook.io?property=name.findName&locale=de
     var randomName = faker.name.findName(); // Rowan Nikolaus
     var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
     var randomCard = faker.helpers.createCard(); // random contact card containing many properties
+    
+## Installation
+
+### npm
+
+`npm install --save faker`
 
 ## API
 
