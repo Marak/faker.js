@@ -62,7 +62,7 @@ This will interpolate the format string with the value of methods `name.lastName
 
 ### API Methods
 
-* address
+* Address
   * zipCode
   * city
   * cityPrefix
@@ -87,7 +87,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * productAdjective
   * productMaterial
   * product
-* company
+* Company
   * suffixes
   * companyName
   * companySuffix
@@ -99,7 +99,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * bsAdjective
   * bsBuzz
   * bsNoun
-* date
+* Date
   * past
   * future
   * between
@@ -124,7 +124,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * verb
   * ingverb
   * phrase
-* helpers
+* Helpers
   * randomize
   * slugify
   * replaceSymbolWithNumber
@@ -135,7 +135,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * contextualCard
   * userCard
   * createTransaction
-* image
+* Image
   * image
   * avatar
   * imageUrl
@@ -152,7 +152,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * sports
   * technics
   * transport
-* internet
+* Internet
   * avatar
   * email
   * exampleEmail
@@ -167,7 +167,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * color
   * mac
   * password
-* lorem
+* Lorem
   * word
   * words
   * sentence
@@ -176,7 +176,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * paragraphs
   * text
   * lines
-* name
+* Name
   * firstName
   * lastName
   * findName
@@ -187,7 +187,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * jobDescriptor
   * jobArea
   * jobType
-* phone
+* PhoneNumber
   * phoneNumber
   * phoneNumberFormat
   * phoneFormats
