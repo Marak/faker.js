@@ -247,10 +247,8 @@ var Commerce = function (faker) {
    * department
    *
    * @method faker.commerce.department
-   * @param {number} max
-   * @param {number} fixedAmount
    */
-  self.department = function(max, fixedAmount) {
+  self.department = function() {
       return faker.random.arrayElement(faker.definitions.commerce.department);
   };
 
@@ -806,9 +804,9 @@ var Finance = function (faker) {
       max = max || 1000;
       dec = dec || 2;
       symbol = symbol || '';
-      var randValue = faker.random.number({ max: max, min: min });
+      var randValue = faker.random.number({ max: max, min: min, precision: Math.pow(10, -dec) });
 
-      return symbol + (Math.round(randValue * Math.pow(10, dec)) / Math.pow(10, dec)).toFixed(dec);
+      return symbol + randValue.toFixed(dec);
 
   }
 
@@ -1044,6 +1042,9 @@ var Helpers = function (faker) {
    * @param {array} o
    */
   self.shuffle = function (o) {
+      if (o.length === 0) {
+        return [];
+      }
       o = o || ["a", "b", "c"];
       for (var j, x, i = o.length-1; i; j = faker.random.number(i), x = o[--i], o[i] = o[j], o[j] = x);
       return o;
@@ -1776,6 +1777,32 @@ var Internet = function (faker) {
   };
 
   /**
+   * ipv6
+   *
+   * @method faker.internet.ipv6
+   */
+  self.ipv6 = function () {
+      var randHash = function () {
+          var result = "";
+          for (var i = 0; i < 4; i++) {
+            result += (faker.random.arrayElement(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"]));
+          }
+          return result
+      };
+
+      var result = [];
+      for (var i = 0; i < 8; i++) {
+        result[i] = randHash();
+      }
+      return result.join(":");
+  };
+
+  self.ipv6.schema = {
+    "description": "Generates a random IPv6 address.",
+    "sampleResults": ["2001:0db8:6276:b1a7:5213:22f1:25df:c8a0"]
+  };
+
+  /**
    * userAgent
    *
    * @method faker.internet.userAgent
@@ -2009,7 +2036,6 @@ module["exports"] = [
   "Cocos (Keeling) Islands",
   "Colombia",
   "Comoros",
-  "Congo",
   "Congo",
   "Cook Islands",
   "Costa Rica",
@@ -2506,7 +2532,7 @@ module["exports"] = [
 
 },{}],22:[function(require,module,exports){
 module.exports=require(21)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/postcode.js":21}],23:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\address\\postcode.js":21}],23:[function(require,module,exports){
 module["exports"] = [
   "Apt. ###",
   "Suite ###"
@@ -10868,7 +10894,7 @@ module["exports"] = {
     "Supervisor",
     "Associate",
     "Executive",
-    "Liason",
+    "Liaison",
     "Officer",
     "Manager",
     "Engineer",
@@ -17592,7 +17618,7 @@ module["exports"] = [
 
 },{}],100:[function(require,module,exports){
 module.exports=require(12)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/building_number.js":12}],101:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\address\\building_number.js":12}],101:[function(require,module,exports){
 module["exports"] = [
   "#{city_name}"
 ];
@@ -18740,7 +18766,7 @@ module["exports"] = [
 
 },{}],107:[function(require,module,exports){
 module.exports=require(23)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/secondary_address.js":23}],108:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\address\\secondary_address.js":23}],108:[function(require,module,exports){
 module["exports"] = [
   "Dolnośląskie",
   "Kujawsko-pomorskie",
@@ -18814,17 +18840,17 @@ module["exports"] = [
 
 },{}],114:[function(require,module,exports){
 arguments[4][39][0].apply(exports,arguments)
-},{"./formats":113,"/Users/a/dev/faker.js/lib/locales/en/cell_phone/index.js":39}],115:[function(require,module,exports){
+},{"./formats":113,"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\cell_phone\\index.js":39}],115:[function(require,module,exports){
 module.exports=require(44)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/adjective.js":44}],116:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\company\\adjective.js":44}],116:[function(require,module,exports){
 module.exports=require(45)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_adjective.js":45}],117:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\company\\bs_adjective.js":45}],117:[function(require,module,exports){
 module.exports=require(46)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_noun.js":46}],118:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\company\\bs_noun.js":46}],118:[function(require,module,exports){
 module.exports=require(47)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_verb.js":47}],119:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\company\\bs_verb.js":47}],119:[function(require,module,exports){
 module.exports=require(48)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/descriptor.js":48}],120:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\company\\descriptor.js":48}],120:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -18838,11 +18864,11 @@ company.name = require("./name");
 
 },{"./adjetive":115,"./bs_adjective":116,"./bs_noun":117,"./bs_verb":118,"./descriptor":119,"./name":121,"./noun":122,"./suffix":123}],121:[function(require,module,exports){
 module.exports=require(50)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/name.js":50}],122:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\company\\name.js":50}],122:[function(require,module,exports){
 module.exports=require(51)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/noun.js":51}],123:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\company\\noun.js":51}],123:[function(require,module,exports){
 module.exports=require(52)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/suffix.js":52}],124:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\company\\suffix.js":52}],124:[function(require,module,exports){
 var pl = {};
 module['exports'] = pl;
 pl.title = "Polish";
@@ -18865,7 +18891,7 @@ module["exports"] = [
 
 },{}],126:[function(require,module,exports){
 module.exports=require(81)
-},{"/Users/a/dev/faker.js/lib/locales/en/internet/free_email.js":81}],127:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\internet\\free_email.js":81}],127:[function(require,module,exports){
 var internet = {};
 module['exports'] = internet;
 internet.free_email = require("./free_email");
@@ -18873,11 +18899,11 @@ internet.domain_suffix = require("./domain_suffix");
 
 },{"./domain_suffix":125,"./free_email":126}],128:[function(require,module,exports){
 module.exports=require(83)
-},{"./supplemental":129,"./words":130,"/Users/a/dev/faker.js/lib/locales/en/lorem/index.js":83}],129:[function(require,module,exports){
+},{"./supplemental":129,"./words":130,"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\lorem\\index.js":83}],129:[function(require,module,exports){
 module.exports=require(84)
-},{"/Users/a/dev/faker.js/lib/locales/en/lorem/supplemental.js":84}],130:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\lorem\\supplemental.js":84}],130:[function(require,module,exports){
 module.exports=require(85)
-},{"/Users/a/dev/faker.js/lib/locales/en/lorem/words.js":85}],131:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\lorem\\words.js":85}],131:[function(require,module,exports){
 module["exports"] = [
   "Aaron",
   "Abraham",
@@ -20025,7 +20051,7 @@ module["exports"] = [
 
 },{}],136:[function(require,module,exports){
 module.exports=require(92)
-},{"/Users/a/dev/faker.js/lib/locales/en/name/title.js":92}],137:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\name\\title.js":92}],137:[function(require,module,exports){
 module["exports"] = [
   "12-###-##-##",
   "13-###-##-##",
@@ -20080,7 +20106,7 @@ module["exports"] = [
 
 },{}],138:[function(require,module,exports){
 arguments[4][94][0].apply(exports,arguments)
-},{"./formats":137,"/Users/a/dev/faker.js/lib/locales/en/phone_number/index.js":94}],139:[function(require,module,exports){
+},{"./formats":137,"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\phone_number\\index.js":94}],139:[function(require,module,exports){
 
 /**
  *
@@ -20166,7 +20192,7 @@ var Lorem = function (faker) {
    *
    * @method faker.lorem.paragraphs
    * @param {number} paragraphCount defaults to 3
-   * @param {string} separatora defaults to `'\n \r'`
+   * @param {string} separator defaults to `'\n \r'`
    */
   self.paragraphs = function (paragraphCount, separator) {
     if (typeof separator === "undefined") {
@@ -20629,10 +20655,20 @@ function Random (faker, seed) {
    * alphaNumeric
    *
    * @method faker.random.alphaNumeric
+   * @param {number} count defaults to 1
    */
-  this.alphaNumeric = function alphaNumeric() {
-    return faker.random.arrayElement(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]);
-  }
+  this.alphaNumeric = function alphaNumeric(count) {
+    if (typeof count === "undefined") {
+      count = 1;
+    }
+
+    var wholeString = "";
+    for(var i = 0; i < count; i++) {
+      wholeString += faker.random.arrayElement(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]);
+    }
+
+    return wholeString;
+  };
 
   return this;
 

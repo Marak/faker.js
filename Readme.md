@@ -8,7 +8,7 @@
 
 ## Demo
 
-[https://cdn.rawgit.com/Marak/faker.js/master/examples/browser/index.html](https://cdn.rawgit.com/Marak/faker.js/master/examples/browser/index.html)
+[http://marak.com/faker.js/](http://marak.com/faker.js/)
 
 ## Hosted API Microservice
 
@@ -163,6 +163,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * domainSuffix
   * domainWord
   * ip
+  * ipv6
   * userAgent
   * color
   * mac
@@ -228,6 +229,7 @@ Setting a new locale is simple:
 faker.locale = "de";
 ```
 
+ * cz
  * de
  * de_AT
  * de_CH
@@ -255,6 +257,7 @@ faker.locale = "de";
  * nl
  * pl
  * pt_BR
+ * pt_PT
  * ru
  * sk
  * sv

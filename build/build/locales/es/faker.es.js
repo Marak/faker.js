@@ -247,10 +247,8 @@ var Commerce = function (faker) {
    * department
    *
    * @method faker.commerce.department
-   * @param {number} max
-   * @param {number} fixedAmount
    */
-  self.department = function(max, fixedAmount) {
+  self.department = function() {
       return faker.random.arrayElement(faker.definitions.commerce.department);
   };
 
@@ -806,9 +804,9 @@ var Finance = function (faker) {
       max = max || 1000;
       dec = dec || 2;
       symbol = symbol || '';
-      var randValue = faker.random.number({ max: max, min: min });
+      var randValue = faker.random.number({ max: max, min: min, precision: Math.pow(10, -dec) });
 
-      return symbol + (Math.round(randValue * Math.pow(10, dec)) / Math.pow(10, dec)).toFixed(dec);
+      return symbol + randValue.toFixed(dec);
 
   }
 
@@ -1044,6 +1042,9 @@ var Helpers = function (faker) {
    * @param {array} o
    */
   self.shuffle = function (o) {
+      if (o.length === 0) {
+        return [];
+      }
       o = o || ["a", "b", "c"];
       for (var j, x, i = o.length-1; i; j = faker.random.number(i), x = o[--i], o[i] = o[j], o[j] = x);
       return o;
@@ -1776,6 +1777,32 @@ var Internet = function (faker) {
   };
 
   /**
+   * ipv6
+   *
+   * @method faker.internet.ipv6
+   */
+  self.ipv6 = function () {
+      var randHash = function () {
+          var result = "";
+          for (var i = 0; i < 4; i++) {
+            result += (faker.random.arrayElement(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"]));
+          }
+          return result
+      };
+
+      var result = [];
+      for (var i = 0; i < 8; i++) {
+        result[i] = randHash();
+      }
+      return result.join(":");
+  };
+
+  self.ipv6.schema = {
+    "description": "Generates a random IPv6 address.",
+    "sampleResults": ["2001:0db8:6276:b1a7:5213:22f1:25df:c8a0"]
+  };
+
+  /**
    * userAgent
    *
    * @method faker.internet.userAgent
@@ -2009,7 +2036,6 @@ module["exports"] = [
   "Cocos (Keeling) Islands",
   "Colombia",
   "Comoros",
-  "Congo",
   "Congo",
   "Cook Islands",
   "Costa Rica",
@@ -2506,7 +2532,7 @@ module["exports"] = [
 
 },{}],22:[function(require,module,exports){
 module.exports=require(21)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/postcode.js":21}],23:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\address\\postcode.js":21}],23:[function(require,module,exports){
 module["exports"] = [
   "Apt. ###",
   "Suite ###"
@@ -10868,7 +10894,7 @@ module["exports"] = {
     "Supervisor",
     "Associate",
     "Executive",
-    "Liason",
+    "Liaison",
     "Officer",
     "Manager",
     "Engineer",
@@ -18294,7 +18320,7 @@ module["exports"] = [
 
 },{}],116:[function(require,module,exports){
 arguments[4][39][0].apply(exports,arguments)
-},{"./formats":115,"/Users/a/dev/faker.js/lib/locales/en/cell_phone/index.js":39}],117:[function(require,module,exports){
+},{"./formats":115,"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\cell_phone\\index.js":39}],117:[function(require,module,exports){
 module["exports"] = [
   "Adaptativo",
   "Avanzado",
@@ -18612,7 +18638,7 @@ module["exports"] = [
 
 },{}],125:[function(require,module,exports){
 module.exports=require(81)
-},{"/Users/a/dev/faker.js/lib/locales/en/internet/free_email.js":81}],126:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\internet\\free_email.js":81}],126:[function(require,module,exports){
 var internet = {};
 module['exports'] = internet;
 internet.free_email = require("./free_email");
@@ -18836,7 +18862,7 @@ module["exports"] = [
 
 },{}],128:[function(require,module,exports){
 arguments[4][87][0].apply(exports,arguments)
-},{"./first_name":127,"./last_name":129,"./name":130,"./prefix":131,"./suffix":132,"./title":133,"/Users/a/dev/faker.js/lib/locales/en/name/index.js":87}],129:[function(require,module,exports){
+},{"./first_name":127,"./last_name":129,"./name":130,"./prefix":131,"./suffix":132,"./title":133,"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\name\\index.js":87}],129:[function(require,module,exports){
 module["exports"] = [
   "Abeyta",
   "Abrego",
@@ -19496,7 +19522,7 @@ module["exports"] = [
 
 },{}],132:[function(require,module,exports){
 module.exports=require(91)
-},{"/Users/a/dev/faker.js/lib/locales/en/name/suffix.js":91}],133:[function(require,module,exports){
+},{"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\name\\suffix.js":91}],133:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Jefe",
@@ -19598,7 +19624,7 @@ module["exports"] = [
 
 },{}],135:[function(require,module,exports){
 arguments[4][94][0].apply(exports,arguments)
-},{"./formats":134,"/Users/a/dev/faker.js/lib/locales/en/phone_number/index.js":94}],136:[function(require,module,exports){
+},{"./formats":134,"D:\\@VSProjects\\webstorm\\faker.js\\lib\\locales\\en\\phone_number\\index.js":94}],136:[function(require,module,exports){
 
 /**
  *
@@ -19684,7 +19710,7 @@ var Lorem = function (faker) {
    *
    * @method faker.lorem.paragraphs
    * @param {number} paragraphCount defaults to 3
-   * @param {string} separatora defaults to `'\n \r'`
+   * @param {string} separator defaults to `'\n \r'`
    */
   self.paragraphs = function (paragraphCount, separator) {
     if (typeof separator === "undefined") {
@@ -20147,10 +20173,20 @@ function Random (faker, seed) {
    * alphaNumeric
    *
    * @method faker.random.alphaNumeric
+   * @param {number} count defaults to 1
    */
-  this.alphaNumeric = function alphaNumeric() {
-    return faker.random.arrayElement(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]);
-  }
+  this.alphaNumeric = function alphaNumeric(count) {
+    if (typeof count === "undefined") {
+      count = 1;
+    }
+
+    var wholeString = "";
+    for(var i = 0; i < count; i++) {
+      wholeString += faker.random.arrayElement(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]);
+    }
+
+    return wholeString;
+  };
 
   return this;
 
