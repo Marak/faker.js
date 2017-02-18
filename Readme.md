@@ -21,6 +21,13 @@
 curl http://faker.hook.io?property=name.findName&locale=de
 ```
 
+## Test data generation library
+[http://fixture-factory.readme.io](http://fixture-factory.readme.io)
+ - Supports all Faker API Methods
+ - Provides easy dev interface for creating multiple complex objects
+ - Provides mechanism for nesting, referencing and defining own generators
+
+
 ## Usage
 
 ### Browser
@@ -267,7 +274,7 @@ faker.locale = "de";
 
 ### Individual Localization Packages
 
-As of vesion `v3.0.0` faker.js supports incremental loading of locales. 
+As of vesion `v3.0.0` faker.js supports incremental loading of locales.
 
 By default, requiring `faker` will include *all* locale data.
 
@@ -366,5 +373,3 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
