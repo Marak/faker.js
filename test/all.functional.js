@@ -46,3 +46,8 @@ describe("functional tests", function () {
     }
 
 });
+
+describe("load modules", function() {
+  faker.load(__dirname + '/test_lib')
+  assert.ok(faker.test.meaning_of_life() == 42);
+});
