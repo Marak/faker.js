@@ -57,6 +57,26 @@ describe("company.js", function () {
         });
     });
 
+    describe("segmentName()", function () {
+        it("returns a generic term without a level specified", function () {
+            var segName = faker.company.segmentName();
+            assert.ok(faker.definitions.company.segment_name[0].includes(segName));
+            assert.ok(segName.length > 0);
+        });
+
+        it("returns a proper level term when level is specified", function () {
+            var segName = faker.company.segmentName(6);
+            assert.ok(faker.definitions.company.segment_name[6].includes(segName));
+            assert.ok(segName.length > 0);
+        });
+
+        it("returns one of all of the defined level names if false is passed", function () {
+            var segName = faker.company.segmentName(false);
+            assert.ok([].concat.apply([], faker.definitions.company.segment_name).includes(segName));
+            assert.ok(segName.length > 0);
+        })
+    });
+
     describe("catchPhrase()", function () {
         it("returns phrase comprising of a catch phrase adjective, descriptor, and noun", function () {
             sinon.spy(faker.random, 'arrayElement');
