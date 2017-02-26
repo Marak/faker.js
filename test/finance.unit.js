@@ -201,13 +201,77 @@ describe('finance.js', function () {
 
             assert.ok(currencyCode.match(/[A-Z]{3}/));
         });
-    })
+    });
 
     describe("bitcoinAddress()", function(){
         it("returns a random bitcoin address", function(){
             var bitcoinAddress = faker.finance.bitcoinAddress();
-            
+
             assert.ok(bitcoinAddress.match(/^[A-Z0-9.]{27,34}$/));
         });
+    });
+
+    describe("creditCardNumber()", function(){
+      var luhnFormula = require("./support/luhnCheck.js");
+      it("returns a random credit card number", function(){
+        var number = faker.finance.creditCardNumber();
+        number = number.replace(/\D/g,""); // remove formating
+        assert.ok(number.length >= 13 && number.length <= 19);
+        assert.ok(number.match(/^[0-9]{13,19}$/));
+        assert.ok(luhnFormula(number));
+      });
+      it("returns a valid credit card number", function(){
+        assert.ok(luhnFormula(faker.finance.creditCardNumber("")));
+        assert.ok(luhnFormula(faker.finance.creditCardNumber()));
+        assert.ok(luhnFormula(faker.finance.creditCardNumber()));
+        assert.ok(luhnFormula(faker.finance.creditCardNumber()));
+      });
+      it("returns a correct credit card number when issuer provided", function(){
+        //TODO: implement checks for each format with regexp
+        var visa = faker.finance.creditCardNumber("visa");
+        assert.ok(visa.match(/^4(([0-9]){12}|([0-9]){3}(\-([0-9]){4}){3})$/));
+        assert.ok(luhnFormula(visa));
+
+
+        var mastercard = faker.finance.creditCardNumber("mastercard");
+        assert.ok(mastercard.match(/^(5[1-5]\d{2}|6771)(\-\d{4}){3}$/));
+        assert.ok(luhnFormula(mastercard));
+
+        var discover = faker.finance.creditCardNumber("discover");
+
+        assert.ok(luhnFormula(discover));
+
+        var american_express = faker.finance.creditCardNumber("american_express");
+        assert.ok(luhnFormula(american_express));
+        var diners_club = faker.finance.creditCardNumber("diners_club");
+        assert.ok(luhnFormula(diners_club));
+        var jcb = faker.finance.creditCardNumber("jcb");
+        assert.ok(luhnFormula(jcb));
+        var switchC = faker.finance.creditCardNumber("mastercard");
+        assert.ok(luhnFormula(switchC));
+        var solo = faker.finance.creditCardNumber("solo");
+        assert.ok(luhnFormula(solo));
+        var maestro = faker.finance.creditCardNumber("maestro");
+        assert.ok(luhnFormula(maestro));
+        var laser = faker.finance.creditCardNumber("laser");
+        assert.ok(luhnFormula(laser));
+        var instapayment = faker.finance.creditCardNumber("instapayment");
+        assert.ok(luhnFormula(instapayment));
+      });
+      it("returns custom formated strings",function(){
+        var number = faker.finance.creditCardNumber("###-###-##L");
+        assert.ok(number.match(/^\d{3}\-\d{3}\-\d{3}$/));
+        assert.ok(luhnFormula(number));
+        number =faker.finance.creditCardNumber("234[5-9]#{999}L");
+        assert.ok(number.match(/^234[5-9]\d{1000}$/));
+        assert.ok(luhnFormula(number));
+      });
+    });
+    describe("creditCardCVV()", function(){
+      it("returns a random credit card CVV", function(){
+        var cvv = faker.finance.creditCardCVV();
+        assert.ok(cvv.length === 3);
+        assert.ok(cvv.match(/^[0-9]{3}$/));
+      });
     });
 });

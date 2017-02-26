@@ -62,6 +62,57 @@ describe("helpers.js", function () {
         });
     });
 
+    describe("replaceCreditCardSymbols()", function () {
+      var luhnCheck = require("./support/luhnCheck.js");
+      it("returns a credit card number given a schema", function () {
+        var number = faker.helpers.replaceCreditCardSymbols("6453-####-####-####-###L");
+        assert.ok(number.match(/^6453\-([0-9]){4}\-([0-9]){4}\-([0-9]){4}\-([0-9]){4}$/));
+        assert.ok(luhnCheck(number));
+      });
+      it("supports different symbols", function () {
+        var number = faker.helpers.replaceCreditCardSymbols("6453-****-****-****-***L","*");
+        assert.ok(number.match(/^6453\-([0-9]){4}\-([0-9]){4}\-([0-9]){4}\-([0-9]){4}$/));
+        assert.ok(luhnCheck(number));
+      });
+      it("handles regexp style input", function () {
+        var number = faker.helpers.replaceCreditCardSymbols("6453-*{4}-*{4}-*{4}-*{3}L","*");
+        assert.ok(number.match(/^6453\-([0-9]){4}\-([0-9]){4}\-([0-9]){4}\-([0-9]){4}$/));
+        assert.ok(luhnCheck(number));
+        number = faker.helpers.replaceCreditCardSymbols("645[5-9]-#{4,6}-#{1,2}-#{4,6}-#{3}L");
+        assert.ok(number.match(/^645[5-9]\-([0-9]){4,6}\-([0-9]){1,2}\-([0-9]){4,6}\-([0-9]){4}$/));
+        assert.ok(luhnCheck(number));
+      });
+    });
+
+    describe("regexpStyleStringParse()", function () {
+      it("returns an empty string when called without param", function () {
+        assert.ok(faker.helpers.regexpStyleStringParse() === "");
+      });
+      it("deals with range repeat", function () {
+        var string = faker.helpers.regexpStyleStringParse("#{5,10}");
+        assert.ok(string.length <= 10 && string.length >= 5);
+        assert.ok(string.match(/^\#{5,10}$/));
+      });
+      it("flips teh range when min > max", function () {
+        var string = faker.helpers.regexpStyleStringParse("#{10,5}");
+        assert.ok(string.length <= 10 && string.length >= 5);
+        assert.ok(string.match(/^\#{5,10}$/));
+      });
+      it("repeats string {n} number of times", function () {
+        assert.ok(faker.helpers.regexpStyleStringParse("%{10}") === "%".repeat(10));
+        assert.ok(faker.helpers.regexpStyleStringParse("%{30}") === "%".repeat(30));
+        assert.ok(faker.helpers.regexpStyleStringParse("%{5}") === "%".repeat(5));
+      });
+      it("creates a numerical range", function () {
+        var string = faker.helpers.regexpStyleStringParse("Hello[0-9]");
+        assert.ok(string.match(/^Hello[0-9]$/));
+      });
+      it("deals with multiple tokens in one string", function () {
+        var string = faker.helpers.regexpStyleStringParse("Test#{5}%{2,5}Testing**[1-5]**{10}END");
+        assert.ok(string.match(/^Test\#{5}%{2,5}Testing\*\*[1-5]\*\*{10}END$/));
+      });
+    });
+
   describe("createTransaction()", function() {
     it("should create a random transaction", function() {
       var transaction = faker.helpers.createTransaction();
