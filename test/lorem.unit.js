@@ -32,6 +32,20 @@ describe("lorem.js", function () {
                 assert.equal(words.length, 7);
             });
         });
+
+        context("when 'exclude' param passed in'", function () {
+          it("excludes the requested words", function () {
+            var exclude = faker.definitions.lorem.words.slice(1);
+            assert.ok(Array.isArray(exclude));
+            var str = faker.lorem.words(2, exclude);
+            assert.ok(str);
+            var words = str.split(' ');
+            assert.ok(Array.isArray(words));
+            assert.equal(words.length, 2);
+            assert.equal(words[0], faker.definitions.lorem.words[0]);
+            assert.equal(words[1], faker.definitions.lorem.words[0]);
+          });
+        });
     });
 
     describe("slug()", function () {
@@ -107,7 +121,7 @@ describe("lorem.js", function () {
                 assert.ok(typeof sentence === 'string');
                 var parts = sentence.split(' ');
                 assert.equal(parts.length, 14); // requested 10 plus stubbed 4.
-                assert.ok(faker.random.number.calledWith(4)); // random.number should be called with the 'range' we passed. 
+                assert.ok(faker.random.number.calledWith(4)); // random.number should be called with the 'range' we passed.
                 assert.ok(faker.lorem.words.calledWith(14));
 
                 faker.lorem.words.restore();
@@ -183,7 +197,7 @@ describe("lorem.js", function () {
         });
     });
     */
-    
+
     /*
 
     describe("paragraphs()", function () {
