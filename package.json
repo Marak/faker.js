@@ -36,5 +36,13 @@
   },
   "license": "MIT",
   "main": "index.js",
-  "dependencies": {}
+  "dependencies": {},
+  "files": [
+    "index.js",
+    "locale",
+    "vendor",
+    "lib",
+    "Readme.md",
+    "MIT-LICENSE.txt"
+  ]
 }
