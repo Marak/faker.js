@@ -223,8 +223,8 @@ This will interpolate the format string with the value of methods `name.lastName
   * commonFileExt
   * fileType
   * fileExt
-  * directoryPath
-  * filePath
+  * directoryPath [NOT IMPLEMENTED]
+  * filePath [NOT IMPLEMENTED]
   * semver
 
 
