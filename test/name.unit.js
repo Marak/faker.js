@@ -6,6 +6,16 @@ if (typeof module !== 'undefined') {
 }
 
 describe("name.js", function () {
+
+    describe("firstNameLocale()", function () {
+        it("returns russian random name", function () {
+            var russian_first_names = faker.locales["ru"].name.male_first_name
+            faker.locale = "ru";
+            var first_name = faker.name.firstName();
+            assert.notEqual(russian_first_names.indexOf(first_name), -1, "Random russian name is wrong");
+        });
+    });
+
     describe("firstName()", function () {
         it("returns a random name", function () {
             sinon.stub(faker.name, 'firstName').returns('foo');
