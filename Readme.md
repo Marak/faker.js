@@ -24,6 +24,14 @@
 curl http://faker.hook.io?property=name.findName&locale=de
 ```
 
+## Installation
+
+Use npm to install it to your devDependencies
+
+```
+npm install faker --save-dev
+```
+
 ## Usage
 
 ### Browser
