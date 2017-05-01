@@ -28,7 +28,7 @@ curl http://faker.hook.io?property=name.findName&locale=de
 
 ### Browser
 
-    <script src = "faker.js" type = "text/javascript"></script>
+    <script src="faker.js" type="text/javascript"></script>
     <script>
       var randomName = faker.name.findName(); // Caitlyn Kerluke
       var randomEmail = faker.internet.email(); // Rusty@arne.info
