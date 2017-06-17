@@ -3,6 +3,7 @@ if (typeof module !== 'undefined') {
     var sinon = require('sinon');
     var _ = require('lodash');
     var faker = require('../index');
+    var Faker = require('../lib');
 }
 
 
@@ -189,4 +190,19 @@ describe("random.js", function () {
       assert.ok(hex.match(/^(0x)[0-9a-f]+$/i));
     })
   })
+
+  describe('independent', function() {
+
+    it('generates independent sequences', function () {
+      var faker1 = new Faker();
+      faker1.seed(1);
+
+      var faker2 = new Faker();
+      faker2.seed(1);
+
+      assert.equal(faker1.random.number(), faker2.random.number());
+    })
+
+  })
+
 });
