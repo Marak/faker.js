@@ -349,7 +349,7 @@ var randomCard = faker.helpers.createCard(); // random contact card containing m
 
 ## Building faker.js
 
-faker uses [gulp](http://gulpjs.com/) to automate it's build process. Running the following build command will generate new browser builds, documentation, and code examples for the project.
+faker uses [gulp](http://gulpjs.com/) to automate its build process. Running the following build command will generate new browser builds, documentation, and code examples for the project.
 
 ```
 npm run-script build
