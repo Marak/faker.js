@@ -2,7 +2,7 @@
 
 ![Faker.js](https://raw.githubusercontent.com/Marak/faker.js/master/logo.png)
 
-[![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/faker.js)
+[![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/faker.js) [![Coverage Status](https://coveralls.io/repos/github/Marak/faker.js/badge.svg?branch=master)](https://coveralls.io/github/Marak/faker.js?branch=master)
 
 [![npm version](https://badge.fury.io/js/faker.svg)](http://badge.fury.io/js/faker)
 
@@ -112,6 +112,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * future
   * between
   * recent
+  * soon
   * month
   * weekday
 * fake
@@ -125,6 +126,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * currencyName
   * currencySymbol
   * bitcoinAddress
+  * ethereumAddress
   * iban
   * bic
 * hacker
@@ -215,6 +217,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * image
   * locale
   * alphaNumeric
+  * hexaDecimal
 * system
   * fileName
   * commonFileName
@@ -238,6 +241,8 @@ Setting a new locale is simple:
 
 ```js
 // sets locale to de
+faker.setLocale("de");
+// or
 faker.locale = "de";
 ```
 

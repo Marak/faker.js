@@ -227,16 +227,25 @@ describe('finance.js', function () {
         });
     });
 
+    describe("ethereumAddress()", function(){
+        it("returns a random ethereum address", function(){
+            var ethereumAddress = faker.finance.ethereumAddress();
+            assert.ok(ethereumAddress.match(/^(0x)[0-9a-f]{40}$/i));
+        });
+    });
+
     describe("creditCardNumber()", function(){
       var luhnFormula = require("./support/luhnCheck.js");
+
       it("returns a random credit card number", function(){
         var number = faker.finance.creditCardNumber();
         number = number.replace(/\D/g,""); // remove formating
         console.log("version:", process.version, number, number.length);
-        assert.ok(number.length >= 13 && number.length <= 19);
-        assert.ok(number.match(/^[0-9]{13,19}$/));
+        assert.ok(number.length >= 13 && number.length <= 20);
+        assert.ok(number.match(/^[0-9]{13,20}$/));
         assert.ok(luhnFormula(number));
       });
+
       it("returns a valid credit card number", function(){
         assert.ok(luhnFormula(faker.finance.creditCardNumber("")));
         assert.ok(luhnFormula(faker.finance.creditCardNumber()));
@@ -288,6 +297,7 @@ describe('finance.js', function () {
         assert.ok(luhnFormula(number));
       });
     });
+    
     describe("creditCardCVV()", function(){
       it("returns a random credit card CVV", function(){
         var cvv = faker.finance.creditCardCVV();
@@ -295,6 +305,7 @@ describe('finance.js', function () {
         assert.ok(cvv.match(/^[0-9]{3}$/));
       });
     });
+      
 
     describe("iban()", function () {
         var ibanLib = require('../lib/iban');

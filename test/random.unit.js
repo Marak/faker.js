@@ -3,6 +3,7 @@ if (typeof module !== 'undefined') {
     var sinon = require('sinon');
     var _ = require('lodash');
     var faker = require('../index');
+    var Faker = require('../lib');
 }
 
 
@@ -56,6 +57,14 @@ describe("random.js", function () {
 
     });
 
+    it("provides numbers with a with exact precision", function() {
+      var options = { min: 0.5, max: 0.99, precision: 0.01 };
+      for(var i = 0; i < 100; i++) {
+        var number = faker.random.number(options);
+        assert.equal(number, Number(number.toFixed(2)));
+      }
+    });
+
     it("should not modify the input object", function() {
       var min = 1;
       var max = 2;
@@ -86,6 +95,46 @@ describe("random.js", function () {
     it('returns a random element in the array when there is only 1', function() {
       var testArray = ['hello'];
       assert.ok(testArray.indexOf(faker.random.arrayElement(testArray)) > -1);
+    });
+  });
+
+  describe('arrayElements', function() {
+    it('returns a subset with random elements in the array', function() {
+      var testArray = ['hello', 'to', 'you', 'my', 'friend'];
+      var subset = faker.random.arrayElements(testArray);
+
+      // Check length
+      assert.ok(subset.length >= 1 && subset.length <= testArray.length);
+
+      // Check elements
+      subset.forEach(function(element) {
+        assert.ok(testArray.indexOf(element) > -1);
+      });
+
+      // Check uniqueness
+      subset.forEach(function(element) {
+        assert.ok(!this.hasOwnProperty(element));
+        this[element] = true;
+      }, {});
+    });
+
+    it('returns a subset of fixed length with random elements in the array', function() {
+      var testArray = ['hello', 'to', 'you', 'my', 'friend'];
+      var subset = faker.random.arrayElements(testArray, 3);
+
+      // Check length
+      assert.ok(subset.length === 3);
+
+      // Check elements
+      subset.forEach(function(element) {
+        assert.ok(testArray.indexOf(element) > -1);
+      });
+
+      // Check uniqueness
+      subset.forEach(function(element) {
+        assert.ok(!this.hasOwnProperty(element));
+        this[element] = true;
+      }, {});
     });
   });
 
@@ -127,4 +176,33 @@ describe("random.js", function () {
       assert.ok(alphaNumeric(5).length === 5);
     })
   })
+
+  describe('hexaDecimal', function() {
+    var hexaDecimal = faker.random.hexaDecimal;
+
+    it('should generate single hex character when no additional argument was provided', function() {
+      var hex = hexaDecimal();
+      assert.ok(hex.match(/^(0x)[0-9a-f]{1}$/i));
+    })
+
+    it('should generate a random hex string', function() {
+      var hex = hexaDecimal(5);
+      assert.ok(hex.match(/^(0x)[0-9a-f]+$/i));
+    })
+  })
+
+  describe('independent', function() {
+
+    it('generates independent sequences', function () {
+      var faker1 = new Faker();
+      faker1.seed(1);
+
+      var faker2 = new Faker();
+      faker2.seed(1);
+
+      assert.equal(faker1.random.number(), faker2.random.number());
+    })
+
+  })
+
 });

@@ -13,10 +13,37 @@
     "lint": "node_modules/.bin/jshint ./lib --config ./.jshintrc",
     "test": "node_modules/.bin/mocha test/*.*.js",
     "build": "cd build && ../node_modules/.bin/gulp && cd ../",
-    "doc": "jsdoc -c conf.json -t ./node_modules/ink-docstrap/template -R README.md lib"
+    "doc": "jsdoc -c conf.json -t ./node_modules/ink-docstrap/template -R README.md lib",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "nyc": {
+    "all": false,
+    "include": [
+      "lib/**/*.js",
+      "vendor/*.js"
+    ],
+    "exclude": [
+      "coverage",
+      "locales",
+      "modules",
+      "white",
+      "docs",
+      "docker",
+      "public",
+      "reports",
+      "tests",
+      "node_modules"
+    ],
+    "reporter": [
+      "html",
+      "lcov",
+      "clover"
+    ],
+    "report-dir": "./reports/coverage"
   },
   "devDependencies": {
     "browserify": "5.11.1",
+    "coveralls": "^2.13.1",
     "gulp": "^3.9.1",
     "gulp-gh-pages": "^0.5.4",
     "gulp-jsdoc3": "^0.2.1",

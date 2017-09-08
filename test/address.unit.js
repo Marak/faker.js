@@ -265,6 +265,19 @@ describe("address.js", function () {
                 faker.random.number.restore();
             }
         });
+
+        it("returns latitude with min and max", function () {
+            for (var i = 0; i < 100; i++) {
+                sinon.spy(faker.random, 'number');
+                var latitude = faker.address.latitude(-5, 5);
+                assert.ok(typeof latitude === 'string');
+                var latitude_float = parseFloat(latitude);
+                assert.ok(latitude_float >= -5);
+                assert.ok(latitude_float <= 5);
+                assert.ok(faker.random.number.called);
+                faker.random.number.restore();
+            }
+        });
     });
 
     describe("longitude()", function () {
@@ -276,6 +289,19 @@ describe("address.js", function () {
                 var longitude_float = parseFloat(longitude);
                 assert.ok(longitude_float >= -180.0);
                 assert.ok(longitude_float <= 180.0);
+                assert.ok(faker.random.number.called);
+                faker.random.number.restore();
+            }
+        });
+
+        it("returns random longitude with min and max", function () {
+            for (var i = 0; i < 100; i++) {
+                sinon.spy(faker.random, 'number');
+                var longitude = faker.address.longitude(100, -30);
+                assert.ok(typeof longitude === 'string');
+                var longitude_float = parseFloat(longitude);
+                assert.ok(longitude_float >= -30);
+                assert.ok(longitude_float <= 100);
                 assert.ok(faker.random.number.called);
                 faker.random.number.restore();
             }

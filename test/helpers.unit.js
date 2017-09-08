@@ -21,6 +21,15 @@ describe("helpers.js", function () {
         });
     });
 
+    describe("replaceSymbols()", function () {
+        context("when '*' passed", function () {
+            it("replaces it with alphanumeric", function(){
+                var num = faker.helpers.replaceSymbols('*AB');
+                assert.ok(num.match(/\wAB/));
+            });
+        });
+    });
+
     describe("shuffle()", function () {
         it("the output is the same length as the input", function () {
             sinon.spy(faker.random, 'number');
