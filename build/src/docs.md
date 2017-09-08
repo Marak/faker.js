@@ -45,7 +45,7 @@ curl http://faker.hook.io?property=name.findName&locale=de
 
 ### Faker.fake()
 
-faker.js contains a super useful generator method `Faker.fake` for combining faker API methods using a mustache string format.
+faker.js contains a super useful generator method `Faker.fake` for combining faker API methods using a [mustache](https://mustache.github.io/) string format.
 
 **Example:**
 
@@ -56,7 +56,7 @@ console.log(faker.fake("{{name.lastName}}, {{name.firstName}} {{name.suffix}}"))
 ```
 <%={{ }}=%>
 
-This will interpolate the format string with the value of methods `name.lastName()`, `name.firstName()`, and `name.suffix()`
+This will interpolate the format string with the value of methods `name.lastName()`, `name.firstName()`, and `name.suffix()`.
 
 ### JSDoc API Browser
 
@@ -83,7 +83,7 @@ faker.locale = "de";
 
 ### Individual Localization Packages
 
-As of vesion `v3.0.0` faker.js supports incremental loading of locales. 
+As of version `v3.0.0` faker.js supports incremental loading of locales. 
 
 By default, requiring `faker` will include *all* locale data.
 
@@ -103,7 +103,7 @@ faker.seed(123);
 
 var firstRandom = faker.random.number();
 
-// Setting the seed again resets the sequence.
+// setting the seed again resets the sequence.
 faker.seed(123);
 
 var secondRandom = faker.random.number();
@@ -127,7 +127,7 @@ See: https://github.com/pateketrueke/json-schema-faker/
 
 ### CLI
 
-Run faker generators from Command Line.
+Run faker generators from the command-line.
 See: https://github.com/lestoni/faker-cli
 
 **Want to see your project added here? Let us know!**
@@ -150,7 +150,7 @@ var randomCard = faker.helpers.createCard(); // random contact card containing m
 
 ## Building faker.js
 
-faker uses [gulp](http://gulpjs.com/) to automate it's build process. Running the following build command will generate new browser builds, documentation, and code examples for the project.
+faker uses [gulp](http://gulpjs.com/) to automate its build process. Running the following build command will generate new browser builds, documentation, and code examples for the project.
 
 ```
 npm run-script build
@@ -166,20 +166,19 @@ npm run-script doc
 
 faker.js is a popular project used by many organizations and individuals in production settings. Major and Minor version releases are generally on a monthly schedule. Bugs fixes are addressed by severity and fixed as soon as possible.
 
-If you require the absolute latest version of `faker.js` the `master` branch @ http://github.com/marak/faker.js/ should always be up to date and working.
+If you require the absolute latest version of `faker.js` the `master` branch @ http://github.com/marak/faker.js/ should always be up-to-date and working.
 
 ## Maintainer
 
 #### Marak Squires
 
-faker.js - Copyright (c) 2017
-Marak Squires
+faker.js - Copyright (c) 2017 Marak Squires
 http://github.com/marak/faker.js/
 
 faker.js was inspired by and has used data definitions from:
 
  * https://github.com/stympy/faker/ - Copyright (c) 2007-2010 Benjamin Curtis
- * http://search.cpan.org/~jasonk/Data-Faker-0.07/ - Copyright 2004-2005 by Jason Kohles
+ * http://search.cpan.org/~jasonk/Data-Faker-0.07/ - Copyright (c) 2004-2005 Jason Kohles
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
