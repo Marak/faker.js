@@ -134,5 +134,30 @@ describe("random.js", function () {
     it('should generate many random characters', function() {
       assert.ok(alphaNumeric(5).length === 5);
     })
-  })
+  });
+
+  describe('cpf', function () {
+    var cpf = faker.random.cpf;
+
+    it('should generate a valid cpf', function() {
+      assert.ok(cpf().length === 11);
+    });
+
+    it('should generate a valid cpf with mask', function() {
+      assert.ok(cpf(true).length === 14);
+    });
+
+    it('should not generate a cpf with mask passing invalid parameters', function () {
+      assert.ok(cpf(1).length !== 14);
+      assert.ok(cpf({}).length !== 14);
+      assert.ok(cpf([]).length !== 14);
+      assert.ok(cpf('').length !== 14);
+      assert.ok(cpf('faker.js is awesome').length !== 14);
+      assert.ok(cpf(false).length !== 14);
+      assert.ok(cpf(null).length !== 14);
+      assert.ok(cpf(undefined).length !== 14);
+      assert.ok(cpf(0.5).length !== 14);
+      assert.ok(cpf(NaN).length !== 14);
+    });
+  });
 });
