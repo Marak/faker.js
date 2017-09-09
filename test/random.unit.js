@@ -203,6 +203,19 @@ describe("random.js", function () {
       assert.equal(faker1.random.number(), faker2.random.number());
     })
 
+    it('has different default seeds across invocations', function (done) {
+      var faker1 = new Faker();
+
+      // Execute the rest of the test after a short delay, so the second
+      // instance gets a different random seed.
+      setTimeout(function() {
+        var faker2 = new Faker();
+
+        assert.notEqual(faker1.random.number(), faker2.random.number());
+        done();
+      }, 1);
+    })
+
   })
 
 });
