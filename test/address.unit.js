@@ -206,6 +206,16 @@ describe("address.js", function () {
             faker.address.country.restore();
         });
     });
+    
+    describe("defaultCountry()", function () {
+        it("returns random defaultCountry", function () {
+            sinon.spy(faker.address, 'defaultCountry');
+            var defaultCountry = faker.address.defaultCountry();
+            assert.ok(defaultCountry);
+            assert.ok(faker.address.defaultCountry.called);
+            faker.address.defaultCountry.restore();
+        });
+    });
 
     describe("countryCode()", function () {
         it("returns random countryCode", function () {
