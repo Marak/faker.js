@@ -315,6 +315,8 @@ var secondRandom = faker.random.number();
 console.log(firstRandom === secondRandom);
 ```
 
+_Note_: Setting the seed to `0` (`faker.seed(0)`) is the same as not having a seed. The seed must be greater than zero.
+
 ## Tests
 
     npm install .
