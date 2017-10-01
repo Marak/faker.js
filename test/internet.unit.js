@@ -32,6 +32,33 @@ describe("internet.js", function () {
       });
     });
 
+    describe("trulyRandomEmailProvider", function () {
+        it("returns an email with random provider", function () {
+            var email = faker.internet.email();
+            var res = email.split("@");
+            res = res[1];
+            const freeEmailProviders = faker.definitions.internet.free_email
+            freeEmailProviders.forEach(provider => {
+                assert.notEqual(res, provider)
+            })
+        });
+      });
+      
+    describe("onlyFreeEmailProvider", function () {
+        it("returns an email with one of the free providers", function () {
+            var email1 = faker.internet.email(undefined, undefined, undefined, true);
+            var email2 = faker.internet.email(faker.name.firstName(), faker.name.lastName(), [], true);
+            var email3 = faker.internet.email(faker.name.firstName(), faker.name.lastName(), undefined, true);
+            var res1 = email1.split("@")[1];
+            var res2 = email2.split("@")[1];
+            var res3 = email3.split("@")[1];
+            const freeEmailProviders = faker.definitions.internet.free_email
+            assert.ok(freeEmailProviders.includes(res1))
+            assert.ok(freeEmailProviders.includes(res2))
+            assert.ok(freeEmailProviders.includes(res3))
+        });
+      });
+
     describe("userName()", function () {
         it("occasionally returns a single firstName", function () {
             sinon.stub(faker.random, 'number').returns(0);
