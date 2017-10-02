@@ -64,6 +64,15 @@ describe("address.js", function () {
         });
     });
 
+	describe("cityName()", function () {
+        it("returns random cityName", function () {
+            sinon.spy(faker.address, 'cityName');
+            var cityName = faker.address.cityName();
+            assert.ok(cityName);
+            assert.ok(faker.address.cityName.called);
+            faker.address.cityName.restore();
+        });
+    });
 
     describe("streetName()", function () {
         beforeEach(function () {
