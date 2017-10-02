@@ -14,7 +14,14 @@ describe("lorem.js", function () {
             faker.helpers.shuffle.restore();
         });
 
-        context("when 'num' param passed in", function () {
+        context("when no 'length' param passed in", function () {
+            it("returns a word with a random length", function () {
+                var str = faker.lorem.word();
+                assert.ok(typeof str === 'string');
+            });
+        });
+
+        context("when 'length' param passed in", function () {
             it("returns a word with the requested length", function () {
                 var str = faker.lorem.word(5);
                 assert.ok(typeof str === 'string');
