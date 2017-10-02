@@ -6,13 +6,6 @@ if (typeof module !== 'undefined') {
 
 describe("lorem.js", function () {
     describe("word()", function () {
-        beforeEach(function () {
-            sinon.spy(faker.helpers, 'shuffle');
-        });
-
-        afterEach(function () {
-            faker.helpers.shuffle.restore();
-        });
 
         context("when no 'length' param passed in", function () {
             it("returns a word with a random length", function () {
