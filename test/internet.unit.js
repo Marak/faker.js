@@ -37,7 +37,7 @@ describe("internet.js", function () {
             var email = faker.internet.email();
             var res = email.split("@")[1];
             var freeEmailProviders = faker.definitions.internet.free_email
-            freeEmailProviders.forEach(provider => {
+            freeEmailProviders.forEach(function (provider) {
                 assert.notEqual(res, provider)
             })
         });
@@ -49,7 +49,7 @@ describe("internet.js", function () {
             var res = email.split("@")[1];
             var freeEmailProviders = faker.definitions.internet.free_email
             var match = false
-            match = freeEmailProviders.some(provider => {
+            match = freeEmailProviders.some(function (provider) {
                 return provider === res
             })
             assert.equal(match, true)
