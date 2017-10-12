@@ -24,6 +24,19 @@
 curl http://faker.hook.io?property=name.findName&locale=de
 ```
 
+## Installation
+
+### NPM5
+```bash
+npm install faker
+```
+For older versions of npm add a `--save` option.
+
+### Yarn
+```bash
+yarn add faker
+```
+
 ## Usage
 
 ### Browser
