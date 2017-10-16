@@ -36,6 +36,12 @@ curl http://faker.hook.io?property=name.findName&locale=de
     </script>
 
 ### Node.js
+#### Install faker
+```shell
+npm i faker --save-dev
+or 
+yarn add faker --save-dev
+```
 
     var faker = require('faker');
 
