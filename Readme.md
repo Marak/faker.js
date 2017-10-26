@@ -287,7 +287,7 @@ faker.locale = "de";
 
 ### Individual Localization Packages
 
-As of vesion `v3.0.0` faker.js supports incremental loading of locales. 
+As of version `v3.0.0` faker.js supports incremental loading of locales. 
 
 By default, requiring `faker` will include *all* locale data.
 
