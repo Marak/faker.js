@@ -137,7 +137,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * ingverb
   * phrase
 * helpers
-  * randomize
+  * randomize ```faker.helpers.randomize([1,2,3]) // Returns random value from the array```
   * slugify
   * replaceSymbolWithNumber
   * replaceSymbols
