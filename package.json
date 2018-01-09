@@ -57,7 +57,7 @@
     "mocha": "^3.2.0",
     "node-minify": "*",
     "optimist": "0.3.5",
-    "sinon": "1.4.2",
+    "sinon": "^4.1.4",
     "through2": "2.0.0",
     "vinyl-transform": "0.0.1"
   },
