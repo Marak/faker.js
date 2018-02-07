@@ -67,6 +67,16 @@ describe("date.js", function () {
 
     });
 
+    describe("soon()", function () {
+        it("returns a date N days into the future", function () {
+
+            var date = faker.date.soon(30);
+
+            assert.ok(date >= new Date());
+        });
+
+    });
+
     describe("between()", function () {
         it("returns a random date between the dates given", function () {
 

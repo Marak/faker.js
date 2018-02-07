@@ -173,5 +173,23 @@ describe("internet.js", function () {
             var mac = faker.internet.mac();
             assert.ok(mac.match(/^([a-f0-9]{2}:){5}[a-f0-9]{2}$/));
         });
+
+        it("uses the dash separator if we pass it in as our separator", function () {
+            var mac = faker.internet.mac('-');
+            assert.ok(mac.match(/^([a-f0-9]{2}-){5}[a-f0-9]{2}$/));
+        });
+
+        it("uses no separator if we pass in an empty string", function() {
+            var mac = faker.internet.mac('');
+            assert.ok(mac.match(/^[a-f0-9]{12}$/));
+        });
+
+        it("uses the default colon (:) if we provide an unacceptable separator", function() {
+            var mac = faker.internet.mac('!');
+            assert.ok(mac.match(/^([a-f0-9]{2}:){5}[a-f0-9]{2}$/));
+
+            mac = faker.internet.mac('&');
+            assert.ok(mac.match(/^([a-f0-9]{2}:){5}[a-f0-9]{2}$/));
+        });
     });
 });

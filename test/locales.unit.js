@@ -7,3 +7,14 @@ if (typeof module !== 'undefined') {
 // TODO: make some tests for getting / setting locales
 
 // Remark: actual use of locales functionality is currently tested in all.functional.js test
+
+describe("locale", function () {
+    describe("setLocale()", function () {
+        it("setLocale() changes faker.locale", function () {
+          for(var locale in faker.locales) {
+            faker.setLocale(locale)
+            assert.equal(faker.locale, locale);
+          }
+        });
+    });
+});

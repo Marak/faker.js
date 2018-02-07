@@ -2748,55 +2748,62 @@ function Faker (opts) {
 
   self.definitions = {};
 
+  function bindAll(obj) {
+      Object.keys(obj).forEach(function(meth) {
+          if (typeof obj[meth] === 'function') {
+              obj[meth] = obj[meth].bind(obj);
+          }
+      });
+      return obj;
+  }
+
   var Fake = require('./fake');
   self.fake = new Fake(self).fake;
 
   var Random = require('./random');
-  self.random = new Random(self, opts.seed);
-  // self.random = require('./random');
+  self.random = bindAll(new Random(self));
 
   var Helpers = require('./helpers');
   self.helpers = new Helpers(self);
 
   var Name = require('./name');
-  self.name = new Name(self);
-  // self.name = require('./name');
+  self.name = bindAll(new Name(self));
 
   var Address = require('./address');
-  self.address = new Address(self);
+  self.address = bindAll(new Address(self));
 
   var Company = require('./company');
-  self.company = new Company(self);
+  self.company = bindAll(new Company(self));
 
   var Finance = require('./finance');
-  self.finance = new Finance(self);
+  self.finance = bindAll(new Finance(self));
 
   var Image = require('./image');
-  self.image = new Image(self);
+  self.image = bindAll(new Image(self));
 
   var Lorem = require('./lorem');
-  self.lorem = new Lorem(self);
+  self.lorem = bindAll(new Lorem(self));
 
   var Hacker = require('./hacker');
-  self.hacker = new Hacker(self);
+  self.hacker = bindAll(new Hacker(self));
 
   var Internet = require('./internet');
-  self.internet = new Internet(self);
+  self.internet = bindAll(new Internet(self));
 
   var Database = require('./database');
-  self.database = new Database(self);
+  self.database = bindAll(new Database(self));
 
   var Phone = require('./phone_number');
-  self.phone = new Phone(self);
+  self.phone = bindAll(new Phone(self));
 
   var _Date = require('./date');
-  self.date = new _Date(self);
+  self.date = bindAll(new _Date(self));
 
   var Commerce = require('./commerce');
-  self.commerce = new Commerce(self);
+  self.commerce = bindAll(new Commerce(self));
 
   var System = require('./system');
-  self.system = new System(self);
+  self.system = bindAll(new System(self));
 
   var _definitions = {
     "name": ["first_name", "last_name", "prefix", "suffix", "title", "male_first_name", "female_first_name", "male_middle_name", "female_middle_name", "male_last_name", "female_last_name"],

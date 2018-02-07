@@ -265,6 +265,19 @@ describe("address.js", function () {
                 faker.random.number.restore();
             }
         });
+
+        it("returns latitude with min and max", function () {
+            for (var i = 0; i < 100; i++) {
+                sinon.spy(faker.random, 'number');
+                var latitude = faker.address.latitude(-5, 5);
+                assert.ok(typeof latitude === 'string');
+                var latitude_float = parseFloat(latitude);
+                assert.ok(latitude_float >= -5);
+                assert.ok(latitude_float <= 5);
+                assert.ok(faker.random.number.called);
+                faker.random.number.restore();
+            }
+        });
     });
 
     describe("longitude()", function () {
@@ -280,6 +293,72 @@ describe("address.js", function () {
                 faker.random.number.restore();
             }
         });
+
+        it("returns random longitude with min and max", function () {
+            for (var i = 0; i < 100; i++) {
+                sinon.spy(faker.random, 'number');
+                var longitude = faker.address.longitude(100, -30);
+                assert.ok(typeof longitude === 'string');
+                var longitude_float = parseFloat(longitude);
+                assert.ok(longitude_float >= -30);
+                assert.ok(longitude_float <= 100);
+                assert.ok(faker.random.number.called);
+                faker.random.number.restore();
+            }
+        });
     });
 
+    describe("direction()", function () {
+        it("returns random direction", function () {
+            sinon.stub(faker.address, 'direction').returns('North');
+            var direction = faker.address.direction();
+
+            assert.equal(direction, 'North');
+            faker.address.direction.restore();
+        })
+
+        it("returns abbreviation when useAbbr is true", function () {
+            sinon.stub(faker.address, 'direction').returns('N');
+            var direction = faker.address.direction(true);
+
+            assert.equal(direction, 'N');
+            faker.address.direction.restore();
+        })
+    })
+
+    describe("ordinalDirection()", function () {
+        it("returns random ordinal direction", function () {
+            sinon.stub(faker.address, 'ordinalDirection').returns('West');
+            var ordinalDirection = faker.address.ordinalDirection();
+
+            assert.equal(ordinalDirection, 'West');
+            faker.address.ordinalDirection.restore();
+        })
+
+        it("returns abbreviation when useAbbr is true", function () {
+            sinon.stub(faker.address, 'ordinalDirection').returns('W');
+            var ordinalDirection = faker.address.ordinalDirection(true);
+
+            assert.equal(ordinalDirection, 'W');
+            faker.address.ordinalDirection.restore();
+        })
+    })
+
+    describe("cardinalDirection()", function () {
+        it("returns random cardinal direction", function () {
+            sinon.stub(faker.address, 'cardinalDirection').returns('Northwest');
+            var cardinalDirection = faker.address.cardinalDirection();
+
+            assert.equal(cardinalDirection, 'Northwest');
+            faker.address.cardinalDirection.restore();
+        })
+
+        it("returns abbreviation when useAbbr is true", function () {
+            sinon.stub(faker.address, 'cardinalDirection').returns('NW');
+            var cardinalDirection = faker.address.cardinalDirection(true);
+
+            assert.equal(cardinalDirection, 'NW');
+            faker.address.cardinalDirection.restore();
+        })
+    })
 });

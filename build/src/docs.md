@@ -130,6 +130,11 @@ See: https://github.com/pateketrueke/json-schema-faker/
 Run faker generators from Command Line.
 See: https://github.com/lestoni/faker-cli
 
+### Mocker data generator
+
+Minimal JSON data generator, fakerJs is one of the providers.
+See:  https://github.com/danibram/mocker-data-generator
+
 **Want to see your project added here? Let us know!**
 
 ### Meteor
