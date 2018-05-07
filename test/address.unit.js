@@ -117,46 +117,32 @@ describe("address.js", function () {
     describe("streetAddress()", function () {
         beforeEach(function () {
             sinon.spy(faker.address, 'streetName');
+            sinon.spy(faker.address, 'buildingNumber');
             sinon.spy(faker.address, 'secondaryAddress');
         });
 
         afterEach(function () {
             faker.address.streetName.restore();
+            faker.address.buildingNumber.restore();
             faker.address.secondaryAddress.restore();
         });
 
-        it("occasionally returns a 5-digit street number", function () {
-            sinon.stub(faker.random, 'number').returns(0);
+        it("returns a street address with a building Number", function () {
             var address = faker.address.streetAddress();
-            var parts = address.split(' ');
 
-            assert.equal(parts[0].length, 5);
             assert.ok(faker.address.streetName.called);
-
-            faker.random.number.restore();
-        });
-
-        it("occasionally returns a 4-digit street number", function () {
-            sinon.stub(faker.random, 'number').returns(1);
-            var address = faker.address.streetAddress();
-            var parts = address.split(' ');
-
-            assert.equal(parts[0].length, 4);
-            assert.ok(faker.address.streetName.called);
-
-            faker.random.number.restore();
-        });
-
-        it("occasionally returns a 3-digit street number", function () {
-            sinon.stub(faker.random, 'number').returns(2);
-            var address = faker.address.streetAddress();
-            var parts = address.split(' ');
-
-            assert.equal(parts[0].length, 3);
-            assert.ok(faker.address.streetName.called);
+            assert.ok(faker.address.buildingNumber.called);
             assert.ok(!faker.address.secondaryAddress.called);
 
-            faker.random.number.restore();
+        });
+
+        it("returns a street address with a specific format", function () {
+          var address = faker.address.streetAddress(false, "{{address.streetName}}{{address.buildingNumber}}");
+
+          assert.ok(faker.address.streetName.called);
+          assert.ok(faker.address.buildingNumber.called);
+          assert.ok(!faker.address.secondaryAddress.called);
+
         });
 
         context("when useFulladdress is true", function () {
