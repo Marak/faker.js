@@ -247,6 +247,18 @@ describe('finance.js', function () {
         });
     });
 
+    describe("currencySymbol()", function () {
+        it("should return a random currency symbol", function () {
+            var currencySymbol = faker.finance.currencySymbol();
+            assert.ok(typeof currencySymbol === 'string');
+        });
+        it("should return a currency name for a given code", function () {
+            var currencyCode = 'EUR';
+            var currencySymbol = faker.finance.currencySymbol(currencyCode);
+            assert.ok(currencySymbol === '€');
+        });
+    });
+
     describe("bitcoinAddress()", function(){
         it("returns a random bitcoin address", function(){
             var bitcoinAddress = faker.finance.bitcoinAddress();
