@@ -234,12 +234,19 @@ describe('finance.js', function () {
         it("should return a random currency object with code, name and symbol", function () {
             var currency = faker.finance.currency();
             assert.ok(currency.hasOwnProperty('name'));
+            assert.ok(typeof currency.name === 'string');
             assert.ok(currency.hasOwnProperty('code'));
+            assert.ok(typeof currency.code === 'string');
             assert.ok(currency.hasOwnProperty('symbol'));
+            assert.ok(typeof currency.symbol === 'string');
         });
     });
 
     describe("currencyName()", function () {
+        it("should return a random currency name", function () {
+            var currencyName = faker.finance.currencyName();
+            assert.ok(typeof currencyName === 'string');
+        });
         it("should return a currency name for a given code", function () {
             var currencyCode = 'EUR';
             var currencyName = faker.finance.currencyName(currencyCode);
