@@ -240,6 +240,11 @@ describe('finance.js', function () {
             assert.ok(currency.hasOwnProperty('symbol'));
             assert.ok(typeof currency.symbol === 'string');
         });
+
+        it("should return a random currency object with symbol value", function () {
+            var currency = faker.finance.currency();
+            assert.ok(currency.symbol !== '');
+        });
     });
 
     describe("currencyName()", function () {
