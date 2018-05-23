@@ -230,6 +230,14 @@ describe('finance.js', function () {
         });
     });
 
+    describe("currencyName()", function () {
+        it("returns a currency name for a given code", function () {
+            var currencyCode = 'EUR';
+            var currencyName = faker.finance.currencyName(currencyCode);
+            assert.ok(currencyName === 'Euro');
+        });
+    });
+
     describe("bitcoinAddress()", function(){
         it("returns a random bitcoin address", function(){
             var bitcoinAddress = faker.finance.bitcoinAddress();
