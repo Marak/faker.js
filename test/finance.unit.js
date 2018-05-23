@@ -230,8 +230,17 @@ describe('finance.js', function () {
         });
     });
 
+    describe("currency()", function () {
+        it("should return a random currency object with code, name and symbol", function () {
+            var currency = faker.finance.currency();
+            assert.ok(currency.hasOwnProperty('name'));
+            assert.ok(currency.hasOwnProperty('code'));
+            assert.ok(currency.hasOwnProperty('symbol'));
+        });
+    });
+
     describe("currencyName()", function () {
-        it("returns a currency name for a given code", function () {
+        it("should return a currency name for a given code", function () {
             var currencyCode = 'EUR';
             var currencyName = faker.finance.currencyName(currencyCode);
             assert.ok(currencyName === 'Euro');
