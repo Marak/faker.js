@@ -16,8 +16,8 @@ describe("git.js", function() {
       faker.hacker.verb.restore();
     });
 
-    it("returns a branch with hacker noun, adj and verb", function() {
-      var message = faker.git.branch();
+    it("returns a branch with hacker noun and verb", function() {
+      faker.git.branch();
 
       assert.ok(faker.hacker.noun.calledOnce);
       assert.ok(faker.hacker.verb.calledOnce);
@@ -45,7 +45,7 @@ describe("git.js", function() {
     });
 
     it("returns a commit message with hacker noun, adj and verb", function() {
-      var message = faker.git.commitMessage();
+      faker.git.commitMessage();
 
       assert.ok(faker.hacker.verb.calledOnce);
       assert.ok(faker.hacker.adjective.calledOnce);
@@ -55,8 +55,8 @@ describe("git.js", function() {
 
   describe("shortSha()", function() {
     it("returns a random short SHA", function() {
-      var commitSha = faker.git.shortSha();
-      assert.ok(commitSha.match(/^[a-z0-9]{7}$/));
+      var shortSha = faker.git.shortSha();
+      assert.ok(shortSha.match(/^[a-z0-9]{7}$/));
     });
   });
 });
