@@ -112,14 +112,14 @@ describe("git.js", function() {
   describe("commitSha()", function() {
     it("returns a random commit SHA", function() {
       var commitSha = faker.git.commitSha();
-      assert.ok(commitSha.match(/^[a-z0-9]{40}$/));
+      assert.ok(commitSha.match(/^[a-f0-9]{40}$/));
     });
   });
 
   describe("shortSha()", function() {
     it("returns a random short SHA", function() {
       var shortSha = faker.git.shortSha();
-      assert.ok(shortSha.match(/^[a-z0-9]{7}$/));
+      assert.ok(shortSha.match(/^[a-f0-9]{7}$/));
     });
   });
 });
