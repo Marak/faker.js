@@ -5,6 +5,11 @@ if (typeof module !== 'undefined') {
 
 }
 
+function assertInArray(value, array) {
+    var idx = array.indexOf(value);
+    assert.notEqual(idx, -1);
+}
+
 describe("name.js", function () {
     describe("firstName()", function () {
         it("returns a random name", function () {
@@ -14,6 +19,24 @@ describe("name.js", function () {
             assert.equal(first_name, 'foo');
 
             faker.name.firstName.restore();
+        });
+        
+        it("returns a gender-specific name when passed a number", function () {
+            for (var q = 0; q < 30; q++) {
+                var gender = Math.floor(Math.random() * 2);
+                var name = faker.name.firstName(gender);
+                if (gender === 0) assertInArray(name, faker.definitions.name.male_first_name);
+                else assertInArray(name, faker.definitions.name.female_first_name);
+            }
+        });
+        
+        it("returns a gender-specific name when passed a string", function () {
+            for (var q = 0; q < 30; q++) {
+                var gender = Math.floor(Math.random() * 2);
+                var genderString = (gender === 0 ? 'male' : 'female');
+                var name = faker.name.firstName(genderString);
+                assertInArray(name, faker.definitions.name[genderString + '_first_name']);
+            }
         });
     });
 
