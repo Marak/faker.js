@@ -29,6 +29,19 @@ describe("date.js", function () {
             assert.ok(date < refDate && date > new Date()); // date should be before date given but after the current time
         });
 
+        it('should return deterministic results when seeded', function() {
+            var refDate = new Date();
+
+            faker.seed(100);
+            var firstDate = faker.date.recent(75, refDate.toJSON()).valueOf();
+
+            for(var i=0; i<100;i++){
+              faker.seed(100);
+              assert.equal(firstDate, faker.date.recent(75, refDate.toJSON()).valueOf());
+            }
+
+        });
+
     });
 
     describe("future()", function () {
@@ -55,6 +68,17 @@ describe("date.js", function () {
 
             assert.ok(date > refDate && date < new Date()); // date should be after the date given, but before the current time
         });
+
+        it('should return deterministic results when seeded', function() {
+            faker.seed(100);
+            var firstDate = faker.date.future(75).valueOf();
+
+            for(var i=0; i<100;i++){
+              faker.seed(100);
+              assert.equal(firstDate, faker.date.future(75).valueOf());
+            }
+
+        });
     });
 
     describe("recent()", function () {
@@ -65,6 +89,17 @@ describe("date.js", function () {
             assert.ok(date <= new Date());
         });
 
+        it('should return deterministic results when seeded', function() {
+            faker.seed(100);
+            var firstDate = faker.date.recent(10).valueOf();
+
+            for(var i=0; i<100;i++){
+              faker.seed(100);
+              assert.equal(firstDate, faker.date.recent(10).valueOf());
+            }
+
+        });
+
     });
 
     describe("soon()", function () {
@@ -73,6 +108,17 @@ describe("date.js", function () {
             var date = faker.date.soon(30);
 
             assert.ok(date >= new Date());
+        });
+
+        it('should return deterministic results when seeded', function() {
+            faker.seed(100);
+            var firstDate = faker.date.soon(30).valueOf();
+
+            for(var i=0; i<100;i++){
+              faker.seed(100);
+              assert.equal(firstDate, faker.date.soon(30).valueOf());
+            }
+
         });
 
     });
