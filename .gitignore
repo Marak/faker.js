@@ -7,6 +7,7 @@ REVISION
 .project
 .tasks-cache
 .svn
+.vscode/
 *DONOTVERSION*
 /nbproject
 /.idea
@@ -15,7 +16,7 @@ node_modules/
 /npm-debug.log
 /coverage
 /.npm
-
+/package-lock.json
 
 # meteor specific
 .build*

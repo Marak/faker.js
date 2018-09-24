@@ -24,4 +24,24 @@ describe("system.js", function () {
             faker.random.words.restore();
         });
     });
+
+    describe("directoryPath()", function () {
+        it("returns unix fs directory full path", function () {
+            sinon.stub(faker.random, 'words').returns('24/7');
+            var directoryPath = faker.system.directoryPath();
+            assert.equal(directoryPath.indexOf('/'), 0, 'generated directoryPath should start with /');
+
+            faker.random.words.restore();
+        });
+    });
+
+    describe("filePath()", function () {
+        it("returns unix fs file full path", function () {
+            sinon.stub(faker.random, 'words').returns('24/7');
+            var filePath = faker.system.filePath();
+            assert.equal(filePath.indexOf('/'), 0, 'generated filePath should start with /');
+
+            faker.random.words.restore();
+        });
+    });
 });

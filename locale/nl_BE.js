@@ -1,5 +1,5 @@
 var Faker = require('../lib');
-var faker = new Faker({ locale: 'nl_BE', localeFallback: 'nl' });
+var faker = new Faker({ locale: 'nl_BE', localeFallback: 'en' });
 faker.locales['nl_BE'] = require('../lib/locales/nl_BE');
-faker.locales['nl'] = require('../lib/locales/nl');
+faker.locales['en'] = require('../lib/locales/en');
 module['exports'] = faker;
