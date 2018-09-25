@@ -27,22 +27,22 @@ curl http://faker.hook.io?property=name.findName&locale=de
 ## Usage
 
 ### Browser
-
-    <script src = "faker.js" type = "text/javascript"></script>
-    <script>
-      var randomName = faker.name.findName(); // Caitlyn Kerluke
-      var randomEmail = faker.internet.email(); // Rusty@arne.info
-      var randomCard = faker.helpers.createCard(); // random contact card containing many properties
-    </script>
-
+```html
+<script src="faker.js" type="text/javascript"></script>
+<script>
+  var randomName = faker.name.findName(); // Caitlyn Kerluke
+  var randomEmail = faker.internet.email(); // Rusty@arne.info
+  var randomCard = faker.helpers.createCard(); // random contact card containing many properties
+</script>
+```
 ### Node.js
+```js
+var faker = require('faker');
 
-    var faker = require('faker');
-
-    var randomName = faker.name.findName(); // Rowan Nikolaus
-    var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
-    var randomCard = faker.helpers.createCard(); // random contact card containing many properties
-
+var randomName = faker.name.findName(); // Rowan Nikolaus
+var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
+var randomCard = faker.helpers.createCard(); // random contact card containing many properties
+```
 ## API
 
 
@@ -318,10 +318,10 @@ console.log(firstRandom === secondRandom);
 ```
 
 ## Tests
-
+```bash
     npm install .
     make test
-
+```
 You can view a code coverage report generated in coverage/lcov-report/index.html.
 
 ## Projects Built with faker.js
@@ -342,7 +342,7 @@ See: https://github.com/lestoni/faker-cli
 
 #### Meteor Installation
 
-```
+```bash
 meteor add practicalmeteor:faker
 ```
 
@@ -358,13 +358,13 @@ var randomCard = faker.helpers.createCard(); // random contact card containing m
 
 faker uses [gulp](http://gulpjs.com/) to automate it's build process. Running the following build command will generate new browser builds, documentation, and code examples for the project.
 
-```
+```bash
 npm run-script build
 ```
 
 ## Building JSDocs
 
-```
+```bash
 npm run-script doc
 ```
 
