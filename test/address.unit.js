@@ -300,14 +300,29 @@ describe("address.js", function () {
             }
         });
 
-        it("returns latitude with min and max", function () {
+        it("returns latitude with min and max and default precision", function () {
             for (var i = 0; i < 100; i++) {
                 sinon.spy(faker.random, 'number');
                 var latitude = faker.address.latitude(-5, 5);
                 assert.ok(typeof latitude === 'string');
+                assert.equal(latitude.split('.')[1].length, 4);
                 var latitude_float = parseFloat(latitude);
                 assert.ok(latitude_float >= -5);
                 assert.ok(latitude_float <= 5);
+                assert.ok(faker.random.number.called);
+                faker.random.number.restore();
+            }
+        });
+
+        it("returns random latitude with custome precision", function () {
+            for (var i = 0; i < 100; i++) {
+                sinon.spy(faker.random, 'number');
+                var latitude = faker.address.latitude(undefined, undefined, 7);
+                assert.ok(typeof latitude === 'string');
+                assert.equal(latitude.split('.')[1].length, 7);
+                var latitude_float = parseFloat(latitude);
+                assert.ok(latitude_float >= -180);
+                assert.ok(latitude_float <= 180);
                 assert.ok(faker.random.number.called);
                 faker.random.number.restore();
             }
@@ -328,14 +343,29 @@ describe("address.js", function () {
             }
         });
 
-        it("returns random longitude with min and max", function () {
+        it("returns random longitude with min and max and default precision", function () {
             for (var i = 0; i < 100; i++) {
                 sinon.spy(faker.random, 'number');
                 var longitude = faker.address.longitude(100, -30);
                 assert.ok(typeof longitude === 'string');
+                assert.equal(longitude.split('.')[1].length, 4);
                 var longitude_float = parseFloat(longitude);
                 assert.ok(longitude_float >= -30);
                 assert.ok(longitude_float <= 100);
+                assert.ok(faker.random.number.called);
+                faker.random.number.restore();
+            }
+        });
+
+        it("returns random longitude with custome precision", function () {
+            for (var i = 0; i < 100; i++) {
+                sinon.spy(faker.random, 'number');
+                var longitude = faker.address.longitude(undefined, undefined, 7);
+                assert.ok(typeof longitude === 'string');
+                assert.equal(longitude.split('.')[1].length, 7);
+                var longitude_float = parseFloat(longitude);
+                assert.ok(longitude_float >= -180);
+                assert.ok(longitude_float <= 180);
                 assert.ok(faker.random.number.called);
                 faker.random.number.restore();
             }
