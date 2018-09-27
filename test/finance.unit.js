@@ -6,7 +6,7 @@ if (typeof module !== 'undefined') {
 }
 
 describe('finance.js', function () {
-    before(() => {
+    before(function () {
         seeder();
     });
 
