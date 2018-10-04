@@ -207,6 +207,7 @@ This will interpolate the format string with the value of methods `name.lastName
   * phoneNumberFormat
   * phoneFormats
 * random
+  * time
   * number
   * float
   * arrayElement
