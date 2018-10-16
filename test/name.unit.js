@@ -52,6 +52,51 @@ describe("name.js", function () {
         });
     });
 
+    describe("middleName()", function () {
+
+        it("returns a random middle name", function () {
+            sinon.stub(faker.name, 'middleName').returns('foo');
+
+            var middle_name = faker.name.middleName();
+
+            assert.equal(middle_name, 'foo');
+
+            faker.name.middleName.restore();
+        });
+
+        describe('when using a locale with gender specific middle names', function () {
+            beforeEach(function(){
+                this.oldLocale = faker.locale;
+                faker.locale = 'TEST';
+
+                faker.locales['TEST'] = {
+                    name: {
+                        male_middle_name: ['Genaddiesvich'],
+                        female_middle_name: ['Genaddievna']
+                    }
+                };
+            });
+
+            afterEach(function () {
+                faker.locale = this.oldLocale;
+                delete faker.locale['TEST'];
+            })
+
+            it("returns male prefix", function () {
+                var middle_name = faker.name.middleName(0);
+
+                assert.equal(middle_name, 'Genaddiesvich')
+            });
+
+            it("returns female prefix", function () {
+                var middle_name = faker.name.middleName(1);
+
+                assert.equal(middle_name, 'Genaddievna');
+            });
+        });
+    });
+
+
     describe("findName()", function () {
         it("usually returns a first name and last name", function () {
             sinon.stub(faker.random, 'number').returns(5);
