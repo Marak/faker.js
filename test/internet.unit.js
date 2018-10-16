@@ -1,5 +1,6 @@
 if (typeof module !== 'undefined') {
     var assert = require('assert');
+    var _ = require('lodash');
     var sinon = require('sinon');
     var faker = require('../index');
 }
@@ -61,6 +62,42 @@ describe("internet.js", function () {
             faker.name.firstName.restore();
             faker.name.lastName.restore();
             faker.random.arrayElement.restore();
+        });
+
+        describe('occasionally returns', function () {
+            beforeEach(function(){
+                this.oldLocale = faker.locale;
+                faker.locale = 'TEST';
+
+                faker.locales['TEST'] = {
+                    name: {
+                        male_last_name: ['Ivanov'],
+                        male_first_name: ['Ivan'],
+                        female_last_name: ['Ivanova'],
+                        female_first_name: ['Anna'],
+                        firstName: ['Sasha'],     // gender agnostic first name
+                        lastName: ['Soldatenko']  // gender agnostic last name
+                    }
+                };
+            });
+
+            afterEach(function () {
+                faker.locale = this.oldLocale;
+                delete faker.locale['TEST'];
+            })
+
+            it("name parts from other locale", function () {
+
+                faker.seed(100);
+
+                var user_name = faker.internet.userName();
+
+                var locale_names = Object.values(faker.locales ['TEST'].name);
+
+                var name_parts = user_name.split('.');
+
+                assert.ok(_.includes(locale_names, name_parts), 'userName ' + user_name + ' is not locale specific, expected one of the following parts: ' + locale_names.toString());
+            });
         });
     });
 
