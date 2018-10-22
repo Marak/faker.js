@@ -61,6 +61,14 @@
     "through2": "2.0.0",
     "vinyl-transform": "0.0.1"
   },
+  "files": [
+    "lib",
+    "build/build/faker.js",
+    "build/build/faker.min.js",
+    "locale",
+    "!locale/.publish",
+    "vendor"
+  ],
   "license": "MIT",
   "main": "index.js",
   "dependencies": {}
