@@ -6,8 +6,17 @@ if (typeof module !== 'undefined') {
     var mersenne = require('../vendor/mersenne');
 }
 
+var sandbox;
 
 describe("random.js", function () {
+  beforeEach(function(){
+    sandbox = sinon.sandbox.create();
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+  });
+
   describe("number", function() {
 
     it("returns a random number given a maximum value as Number", function() {
@@ -321,4 +330,14 @@ describe("random.js", function () {
     });
   })
 
+  describe("word", function () {
+    it("should return single word", function () {
+      var words = ['test', 'word'];
+      sandbox.stub(faker, 'fake').returns(words.join(' '));
+
+      var random = faker.random.word();
+
+      assert.ok(words.indexOf(random) > -1);
+    });
+  });
 });
