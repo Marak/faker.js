@@ -176,6 +176,18 @@ describe("random.js", function () {
     });
   });
 
+  describe('arrayOf', function() {
+    it('returns a random array of whatever you pass it including faker functions', function() {
+      var testObject = {
+        entity: faker.company.companyName,
+        id: faker.random.uuid,
+      };
+      var fake = faker.random.arrayOf(testObject, 7)
+      var RFC4122 = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+      fake.forEach(f => assert.ok(typeof fake[0].entity === 'string' && RFC4122.test(fake[0].id)));
+    });
+  });
+    
   describe('arrayElement', function() {
     it('returns a random element in the array', function() {
       var testArray = ['hello', 'to', 'you', 'my', 'friend'];
