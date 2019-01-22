@@ -68,7 +68,7 @@
               $('#buttons').append(str);
 
              $('.fakerButton').click(function(e){
-                var inputID = $(this).attr('id') + "_value";
+                var inputID = n('id') + "_value";
                 var arr = inputID.split('_');
                 var module = arr[1];
                 var method = arr[2];
@@ -105,8 +105,7 @@
             $('.locale').val("en");
 
             $('.locale').change(function(e){
-              var locale = $(this).attr('value');
-              faker.locale = locale;
+              faker.locale = this.value;
               drawButtons();
               generateName();
             });
