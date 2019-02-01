@@ -43,6 +43,10 @@ curl http://faker.hook.io?property=name.findName&locale=de
     var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
     var randomCard = faker.helpers.createCard(); // random contact card containing many properties
 
+## Documentation
+
+The documentation can be found in the [GitHub wiki](https://github.com/Marak/faker.js/wiki).
+
 ## API
 
 
