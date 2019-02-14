@@ -48,7 +48,7 @@ curl http://faker.hook.io?property=name.findName&locale=de
 
 ### Faker.fake()
 
-faker.js contains a super useful generator method `Faker.fake` for combining faker API methods using a mustache string format.
+faker.js contains a super useful generator method `faker.fake` for combining faker API methods using a mustache string format.
 
 **Example:**
 
