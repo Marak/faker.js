@@ -115,6 +115,19 @@ describe("date.js", function () {
         });
     });
 
+    describe("betweens()", function () {
+        it("returns an array of 3 dates ( by default ) of sorted randoms dates between the dates given", function () {
+
+            var from = new Date(1990, 5, 7, 9, 11, 0, 0);
+            var to = new Date(2000, 6, 8, 10, 12, 0, 0);
+
+            var dates = faker.date.betweens(from, to );
+            
+            assert.ok(dates[0] > from && dates[0] < to);
+            assert.ok(dates[1] > dates[0] && dates[2] > dates[1]);
+        });
+    });
+
     describe("month()", function () {
         it("returns random value from date.month.wide array by default", function () {
             var month = faker.date.month();
