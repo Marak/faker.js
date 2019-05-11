@@ -11,7 +11,7 @@
 
 ## Demo
 
-[https://rawgit.com/Marak/faker.js/master/examples/browser/index.html](https://rawgit.com/Marak/faker.js/master/examples/browser/index.html)
+https://raw.githack.com/Marak/faker.js/master/examples/browser/index.html
 
 ## Hosted API Microservice
 
