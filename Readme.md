@@ -355,6 +355,11 @@ var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
 var randomCard = faker.helpers.createCard(); // random contact card containing many properties
 ```
 
+### factory
+
+Like Laravel's `factory` method, but for JavaScript.
+See: https://github.com/grahamsutton/factory
+
 ## Building faker.js
 
 faker uses [gulp](http://gulpjs.com/) to automate its build process. Running the following build command will generate new browser builds, documentation, and code examples for the project.
