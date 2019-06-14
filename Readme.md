@@ -290,7 +290,7 @@ faker.locale = "de";
 
 ### Individual Localization Packages
 
-As of vesion `v3.0.0` faker.js supports incremental loading of locales.
+As of version `v3.0.0` faker.js supports incremental loading of locales.
 
 By default, requiring `faker` will include *all* locale data.
 
@@ -323,7 +323,7 @@ console.log(firstRandom === secondRandom);
     npm install .
     make test
 
-You can view a code coverage report generated in coverage/lcov-report/index.html.
+You can view a code coverage report generated in `coverage/lcov-report/index.html`.
 
 ## Projects Built with faker.js
 
@@ -373,7 +373,7 @@ npm run-script doc
 
 faker.js is a popular project used by many organizations and individuals in production settings. Major and Minor version releases are generally on a monthly schedule. Bugs fixes are addressed by severity and fixed as soon as possible.
 
-If you require the absolute latest version of `faker.js` the `master` branch @ http://github.com/marak/faker.js/ should always be up to date and working.
+If you require the absolute latest version of `faker.js`, the `master` branch @ http://github.com/marak/faker.js/ should always be up to date and working.
 
 ## Maintainer
 
