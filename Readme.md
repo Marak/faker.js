@@ -59,6 +59,15 @@ console.log(faker.fake("{{name.lastName}}, {{name.firstName}} {{name.suffix}}"))
 
 This will interpolate the format string with the value of methods `name.lastName()`, `name.firstName()`, and `name.suffix()`
 
+If you want to pass parameters to the method you called in `Faker.fake`, just pass them in a valid JSON format. That is to say, strings and object keys must be written in double quotes.
+
+**Example:**
+
+``` js
+console.log(faker.fake('{{helpers.randomize(["randomA","randomB"])}}'));
+// outputs "randomA" or "randomB"
+```
+
 ### JSDoc API Browser
 
 [http://marak.github.io/faker.js/](http://marak.github.io/faker.js/)
