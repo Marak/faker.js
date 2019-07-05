@@ -9,6 +9,10 @@
 [![OpenCollective](https://opencollective.com/fakerjs/backers/badge.svg)](#backers)
 [![OpenCollective](https://opencollective.com/fakerjs/sponsors/badge.svg)](#sponsors)
 
+## Readme for current release (4.1.0)
+
+The information below is for the forthcoming 5.0.0 release. If you are using the 4.1.0 release, see [faker.js readme @ 4.1.0](https://github.com/Marak/faker.js/blob/57a16b10307f0765fd13a23a3dcc95ec5db19c13/Readme.md)
+
 ## Demo
 
 [https://rawgit.com/Marak/faker.js/master/examples/browser/index.html](https://rawgit.com/Marak/faker.js/master/examples/browser/index.html)
