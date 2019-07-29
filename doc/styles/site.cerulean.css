@@ -6724,7 +6724,7 @@ button.close {
     display: none !important;
   }
 }
-.navbar {
+.navbar-default {
   background-image: -webkit-linear-gradient(#54b4eb, #2FA4E7 60%, #1d9ce5);
   background-image: -o-linear-gradient(#54b4eb, #2FA4E7 60%, #1d9ce5);
   background-image: linear-gradient(#54b4eb, #2FA4E7 60%, #1d9ce5);

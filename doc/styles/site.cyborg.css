@@ -3888,7 +3888,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   line-height: 1;
   color: #888;
   text-align: center;
-  background-color: #ADAFAE;
+  background-color: #424242;
   border: 1px solid #282828;
   border-radius: 4px;
 }
@@ -6008,7 +6008,7 @@ button.close {
   padding: 3px 8px;
   color: #fff;
   text-align: center;
-  background-color: #000;
+  background-color: #2c2c2c;
   border-radius: 4px;
 }
 .tooltip-arrow {
@@ -6023,56 +6023,56 @@ button.close {
   left: 50%;
   margin-left: -5px;
   border-width: 5px 5px 0;
-  border-top-color: #000;
+  border-top-color: #2c2c2c;
 }
 .tooltip.top-left .tooltip-arrow {
   bottom: 0;
   right: 5px;
   margin-bottom: -5px;
   border-width: 5px 5px 0;
-  border-top-color: #000;
+  border-top-color: #2c2c2c;
 }
 .tooltip.top-right .tooltip-arrow {
   bottom: 0;
   left: 5px;
   margin-bottom: -5px;
   border-width: 5px 5px 0;
-  border-top-color: #000;
+  border-top-color: #2c2c2c;
 }
 .tooltip.right .tooltip-arrow {
   top: 50%;
   left: 0;
   margin-top: -5px;
   border-width: 5px 5px 5px 0;
-  border-right-color: #000;
+  border-right-color: #2c2c2c;
 }
 .tooltip.left .tooltip-arrow {
   top: 50%;
   right: 0;
   margin-top: -5px;
   border-width: 5px 0 5px 5px;
-  border-left-color: #000;
+  border-left-color: #2c2c2c;
 }
 .tooltip.bottom .tooltip-arrow {
   top: 0;
   left: 50%;
   margin-left: -5px;
   border-width: 0 5px 5px;
-  border-bottom-color: #000;
+  border-bottom-color: #2c2c2c;
 }
 .tooltip.bottom-left .tooltip-arrow {
   top: 0;
   right: 5px;
   margin-top: -5px;
   border-width: 0 5px 5px;
-  border-bottom-color: #000;
+  border-bottom-color: #2c2c2c;
 }
 .tooltip.bottom-right .tooltip-arrow {
   top: 0;
   left: 5px;
   margin-top: -5px;
   border-width: 0 5px 5px;
-  border-bottom-color: #000;
+  border-bottom-color: #2c2c2c;
 }
 .popover {
   position: absolute;
@@ -6098,9 +6098,9 @@ button.close {
   word-spacing: normal;
   word-wrap: normal;
   font-size: 14px;
-  background-color: #202020;
+  background-color: #2c2c2c;
   background-clip: padding-box;
-  border: 1px solid #999;
+  border: 1px solid #2c2c2c;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
@@ -6122,8 +6122,8 @@ button.close {
   margin: 0;
   padding: 8px 14px;
   font-size: 14px;
-  background-color: #181818;
-  border-bottom: 1px solid #0b0b0b;
+  background-color: #252525;
+  border-bottom: 1px solid #181818;
   border-radius: 5px 5px 0 0;
 }
 .popover-content {
@@ -6149,8 +6149,8 @@ button.close {
   left: 50%;
   margin-left: -11px;
   border-bottom-width: 0;
-  border-top-color: #666666;
-  border-top-color: rgba(0, 0, 0, 0.25);
+  border-top-color: #2c2c2c;
+  border-top-color: rgba(0, 0, 0, 0.2);
   bottom: -11px;
 }
 .popover.top > .arrow:after {
@@ -6158,29 +6158,29 @@ button.close {
   bottom: 1px;
   margin-left: -10px;
   border-bottom-width: 0;
-  border-top-color: #202020;
+  border-top-color: #2c2c2c;
 }
 .popover.right > .arrow {
   top: 50%;
   left: -11px;
   margin-top: -11px;
   border-left-width: 0;
-  border-right-color: #666666;
-  border-right-color: rgba(0, 0, 0, 0.25);
+  border-right-color: #2c2c2c;
+  border-right-color: rgba(0, 0, 0, 0.2);
 }
 .popover.right > .arrow:after {
   content: " ";
   left: 1px;
   bottom: -10px;
   border-left-width: 0;
-  border-right-color: #202020;
+  border-right-color: #2c2c2c;
 }
 .popover.bottom > .arrow {
   left: 50%;
   margin-left: -11px;
   border-top-width: 0;
-  border-bottom-color: #666666;
-  border-bottom-color: rgba(0, 0, 0, 0.25);
+  border-bottom-color: #2c2c2c;
+  border-bottom-color: rgba(0, 0, 0, 0.2);
   top: -11px;
 }
 .popover.bottom > .arrow:after {
@@ -6188,21 +6188,21 @@ button.close {
   top: 1px;
   margin-left: -10px;
   border-top-width: 0;
-  border-bottom-color: #202020;
+  border-bottom-color: #2c2c2c;
 }
 .popover.left > .arrow {
   top: 50%;
   right: -11px;
   margin-top: -11px;
   border-right-width: 0;
-  border-left-color: #666666;
-  border-left-color: rgba(0, 0, 0, 0.25);
+  border-left-color: #2c2c2c;
+  border-left-color: rgba(0, 0, 0, 0.2);
 }
 .popover.left > .arrow:after {
   content: " ";
   right: 1px;
   border-right-width: 0;
-  border-left-color: #202020;
+  border-left-color: #2c2c2c;
   bottom: -10px;
 }
 .carousel {
@@ -6827,9 +6827,6 @@ table .text-muted,
 }
 legend {
   color: #fff;
-}
-.input-group-addon {
-  background-color: #424242;
 }
 .nav-tabs a,
 .nav-pills a,

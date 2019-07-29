@@ -33,21 +33,30 @@
 			<li class="dropdown">
 				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="faker.html">faker</a></li><li><a href="faker.address.html">faker.address</a></li><li><a href="faker.commerce.html">faker.commerce</a></li><li><a href="faker.company.html">faker.company</a></li><li><a href="faker.database.html">faker.database</a></li><li><a href="faker.date.html">faker.date</a></li><li><a href="faker.finance.html">faker.finance</a></li><li><a href="faker.hacker.html">faker.hacker</a></li><li><a href="faker.helpers.html">faker.helpers</a></li><li><a href="faker.image.html">faker.image</a></li><li><a href="faker.internet.html">faker.internet</a></li><li><a href="faker.lorem.html">faker.lorem</a></li><li><a href="faker.name.html">faker.name</a></li><li><a href="faker.phone.html">faker.phone</a></li><li><a href="faker.random.html">faker.random</a></li><li><a href="faker.system.html">faker.system</a></li>
+					<li><a href="faker.html">faker</a></li><li><a href="faker.address.html">faker.address</a></li><li><a href="faker.commerce.html">faker.commerce</a></li><li><a href="faker.company.html">faker.company</a></li><li><a href="faker.database.html">faker.database</a></li><li><a href="faker.date.html">faker.date</a></li><li><a href="faker.finance.html">faker.finance</a></li><li><a href="faker.git.html">faker.git</a></li><li><a href="faker.hacker.html">faker.hacker</a></li><li><a href="faker.helpers.html">faker.helpers</a></li><li><a href="faker.image.html">faker.image</a></li><li><a href="faker.internet.html">faker.internet</a></li><li><a href="faker.lorem.html">faker.lorem</a></li><li><a href="faker.name.html">faker.name</a></li><li><a href="faker.phone.html">faker.phone</a></li><li><a href="faker.random.html">faker.random</a></li><li><a href="faker.system.html">faker.system</a></li><li><a href="faker.unique.html">faker.unique</a></li><li><a href="faker.vehicle.html">faker.vehicle</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html#unique">unique</a></li>
 				</ul>
 			</li>
 			
 		</ul>
-		<div class="col-sm-3 col-md-3">
-            <form class="navbar-form" role="search">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
-                    <div class="input-group-btn">
-                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+        
+            <div class="col-sm-3 col-md-3">
+                <form class="navbar-form" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
                     </div>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
+        
 	</div>
 
 </div>
@@ -143,6 +152,134 @@
         <h3 class="subsection-title">Methods</h3>
 
         <dl>
+            
+<hr>
+<dt>
+    <h4 class="name" id=".cardinalDirection"><span class="type-signature">&lt;static> </span>cardinalDirection(useAbbr)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>cardinal direction</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>useAbbr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>return direction abbreviation. defaults to false</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
             
 <hr>
 <dt>
@@ -673,7 +810,7 @@ order to build the city name.</p>
             
 <hr>
 <dt>
-    <h4 class="name" id=".latitude"><span class="type-signature">&lt;static> </span>latitude()</h4>
+    <h4 class="name" id=".direction"><span class="type-signature">&lt;static> </span>direction(useAbbr)</h4>
     
     
 </dt>
@@ -681,7 +818,7 @@ order to build the city name.</p>
 
     
     <div class="description">
-        <p>latitude</p>
+        <p>direction</p>
     </div>
     
 
@@ -690,6 +827,56 @@ order to build the city name.</p>
     
 
     
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>useAbbr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>return direction abbreviation. defaults to false</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
     
 
     
@@ -751,7 +938,183 @@ order to build the city name.</p>
             
 <hr>
 <dt>
-    <h4 class="name" id=".longitude"><span class="type-signature">&lt;static> </span>longitude()</h4>
+    <h4 class="name" id=".latitude"><span class="type-signature">&lt;static> </span>latitude(max, min, precision)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>latitude</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>max</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Double</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>default is 90</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>min</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Double</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>default is -90</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>precision</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>default is 4</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".longitude"><span class="type-signature">&lt;static> </span>longitude(max, min, precision)</h4>
     
     
 </dt>
@@ -768,6 +1131,232 @@ order to build the city name.</p>
     
 
     
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>max</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Double</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>default is 180</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>min</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Double</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>default is -180</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>precision</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>default is 4</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".ordinalDirection"><span class="type-signature">&lt;static> </span>ordinalDirection(useAbbr)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>ordinal direction</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>useAbbr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>return direction abbreviation. defaults to false</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
     
 
     
@@ -1600,6 +2189,138 @@ locale's zip format is used.</p>
     
 </dd>
 
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".zipCodeByState"><span class="type-signature">&lt;static> </span>zipCodeByState(state)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Generates random zipcode from state abbreviation. If state abbreviation is
+not specified, a random zip code is generated according to the locale's zip format.
+Only works for locales with postcode_by_state definition. If a locale does not
+have a postcode_by_state definition, a random zip code is generated according
+to the locale's zip format.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>state</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
         </dl>
     
 
@@ -1627,28 +2348,30 @@ locale's zip format is used.</p>
 </div>
 </div>
 
-<div class="modal fade" id="searchResults">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Search results</h4>
-      </div>
-      <div class="modal-body"></div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div>
+
+    <div class="modal fade" id="searchResults">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Search results</h4>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div>
+
 
 <footer>
 
 
 <span class="jsdoc-message">
-	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.2</a>
 	
-		on 2017-02-21T13:01:35-05:00
+		on 2019-07-07T12:21:50+01:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
@@ -1656,7 +2379,9 @@ locale's zip format is used.</p>
 
 <script src="scripts/docstrap.lib.js"></script>
 <script src="scripts/toc.js"></script>
-<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+    <script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
 
 <script>
 $( function () {
@@ -1666,7 +2391,7 @@ $( function () {
 		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
 	} );
 
-	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+	$( ".tutorial-section pre, .readme-section pre, pre.prettyprint.source" ).each( function () {
 		var $this = $( this );
 
 		var example = $this.find( "code" );
@@ -1702,8 +2427,7 @@ $( function () {
 	} );
 	$( "#toc" ).toc( {
 		anchorName  : function ( i, heading, prefix ) {
-			var id = $( heading ).attr( "id" );
-			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+			return $( heading ).attr( "id" ) || ( prefix + i );
 		},
 		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
 		showAndHide : false,
@@ -1729,11 +2453,13 @@ $( function () {
 <!--Google Analytics-->
 
 
-<script type="text/javascript">
-	$(document).ready(function() {
-		SearcherDisplay.init();
-	});
-</script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            SearcherDisplay.init();
+        });
+    </script>
+
 
 </body>
 </html>

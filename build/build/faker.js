@@ -3,7 +3,7 @@
 var Faker = require('./lib');
 var faker = new Faker({ locales: require('./lib/locales') });
 module['exports'] = faker;
-},{"./lib":13,"./lib/locales":15}],2:[function(require,module,exports){
+},{"./lib":16,"./lib/locales":18}],2:[function(require,module,exports){
 /**
  *
  * @namespace faker.address
@@ -33,12 +33,30 @@ function Address (faker) {
   }
 
   /**
+   * Generates random zipcode from state abbreviation. If state abbreviation is
+   * not specified, a random zip code is generated according to the locale's zip format.
+   * Only works for locales with postcode_by_state definition. If a locale does not
+   * have a postcode_by_state definition, a random zip code is generated according
+   * to the locale's zip format.
+   *
+   * @method faker.address.zipCodeByState
+   * @param {String} state
+   */
+  this.zipCodeByState = function (state) {
+    var zipRange = faker.definitions.address.postcode_by_state[state];
+    if (zipRange) {
+      return faker.random.number(zipRange);
+    }
+    return faker.address.zipCode();
+  }
+
+  /**
    * Generates a random localized city name. The format string can contain any
    * method provided by faker wrapped in `{{}}`, e.g. `{{name.firstName}}` in
    * order to build the city name.
    *
    * If no format string is provided one of the following is randomly used:
-   * 
+   *
    * * `{{address.cityPrefix}} {{name.firstName}}{{address.citySuffix}}`
    * * `{{address.cityPrefix}} {{name.firstName}}`
    * * `{{name.firstName}}{{address.citySuffix}}`
@@ -137,7 +155,7 @@ function Address (faker) {
   this.streetSuffix = function () {
       return faker.random.arrayElement(faker.definitions.address.street_suffix);
   }
-  
+
   /**
    * streetPrefix
    *
@@ -211,23 +229,158 @@ function Address (faker) {
    * latitude
    *
    * @method faker.address.latitude
+   * @param {Double} max default is 90
+   * @param {Double} min default is -90
+   * @param {number} precision default is 4
    */
-  this.latitude = function () {
-      return (faker.random.number(180 * 10000) / 10000.0 - 90.0).toFixed(4);
+  this.latitude = function (max, min, precision) {
+      max       = max || 90
+      min       = min || -90
+      precision = precision || 4
+
+      return faker.random.number({
+        max: max,
+        min: min,
+        precision: parseFloat((0.0).toPrecision(precision) + '1')
+      }).toFixed(precision);
   }
 
   /**
    * longitude
    *
    * @method faker.address.longitude
+   * @param {Double} max default is 180
+   * @param {Double} min default is -180
+   * @param {number} precision default is 4
    */
-  this.longitude = function () {
-      return (faker.random.number(360 * 10000) / 10000.0 - 180.0).toFixed(4);
+  this.longitude = function (max, min, precision) {
+      max       = max || 180
+      min       = min || -180
+      precision = precision || 4
+
+      return faker.random.number({
+        max: max,
+        min: min,
+        precision: parseFloat((0.0).toPrecision(precision) + '1')
+      }).toFixed(precision);
   }
-  
+
+  /**
+   *  direction
+   *
+   * @method faker.address.direction
+   * @param {Boolean} useAbbr return direction abbreviation. defaults to false
+   */
+  this.direction = function (useAbbr) {
+    if (typeof useAbbr === 'undefined' || useAbbr === false) {
+      return faker.random.arrayElement(faker.definitions.address.direction);
+    }
+    return faker.random.arrayElement(faker.definitions.address.direction_abbr);
+  }
+
+  this.direction.schema = {
+    "description": "Generates a direction. Use optional useAbbr bool to return abbrevation",
+    "sampleResults": ["Northwest", "South", "SW", "E"]
+  };
+
+  /**
+   * cardinal direction
+   *
+   * @method faker.address.cardinalDirection
+   * @param {Boolean} useAbbr return direction abbreviation. defaults to false
+   */
+  this.cardinalDirection = function (useAbbr) {
+    if (typeof useAbbr === 'undefined' || useAbbr === false) {
+      return (
+        faker.random.arrayElement(faker.definitions.address.direction.slice(0, 4))
+      );
+    }
+    return (
+      faker.random.arrayElement(faker.definitions.address.direction_abbr.slice(0, 4))
+    );
+  }
+
+  this.cardinalDirection.schema = {
+    "description": "Generates a cardinal direction. Use optional useAbbr boolean to return abbrevation",
+    "sampleResults": ["North", "South", "E", "W"]
+  };
+
+  /**
+   * ordinal direction
+   *
+   * @method faker.address.ordinalDirection
+   * @param {Boolean} useAbbr return direction abbreviation. defaults to false
+   */
+  this.ordinalDirection = function (useAbbr) {
+    if (typeof useAbbr === 'undefined' || useAbbr === false) {
+      return (
+        faker.random.arrayElement(faker.definitions.address.direction.slice(4, 8))
+      );
+    }
+    return (
+      faker.random.arrayElement(faker.definitions.address.direction_abbr.slice(4, 8))
+    );
+  }
+
+  this.ordinalDirection.schema = {
+    "description": "Generates an ordinal direction. Use optional useAbbr boolean to return abbrevation",
+    "sampleResults": ["Northwest", "Southeast", "SW", "NE"]
+  };
+
+  this.nearbyGPSCoordinate = function(coordinate, radius, isMetric) {
+        function randomFloat(min, max) {
+            return Math.random() * (max-min) + min;
+        }
+        function degreesToRadians(degrees) {
+            return degrees * (Math.PI/180.0);
+        }
+        function radiansToDegrees(radians) {
+            return radians * (180.0/Math.PI);
+        }
+        function kilometersToMiles(miles) {
+            return miles * 0.621371;
+        }
+        function coordinateWithOffset(coordinate, bearing, distance, isMetric) {
+            var R = 6378.137; // Radius of the Earth (http://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html)
+            var d = isMetric ? distance : kilometersToMiles(distance); // Distance in km
+
+            var lat1 = degreesToRadians(coordinate[0]); //Current lat point converted to radians
+            var lon1 = degreesToRadians(coordinate[1]); //Current long point converted to radians
+
+            var lat2 = Math.asin(Math.sin(lat1) * Math.cos(d/R) +
+                Math.cos(lat1) * Math.sin(d/R) * Math.cos(bearing));
+
+            var lon2 = lon1 + Math.atan2(
+                Math.sin(bearing) * Math.sin(d/R) * Math.cos(lat1),
+                Math.cos(d/R) - Math.sin(lat1) * Math.sin(lat2));
+
+            // Keep longitude in range [-180, 180]
+            if (lon2 > degreesToRadians(180)) {
+                lon2 = lon2 - degreesToRadians(360);
+            } else if (lon2 < degreesToRadians(-180)) {
+                lon2 = lon2 + degreesToRadians(360);
+            }
+
+            return [radiansToDegrees(lat2), radiansToDegrees(lon2)];
+        }
+
+        // If there is no coordinate, the best we can do is return a random GPS coordinate.
+        if (coordinate === undefined) {
+            return [faker.address.latitude(), faker.address.longitude()]
+        }
+        radius = radius || 10.0;
+        isMetric = isMetric || false;
+
+        // TODO: implement either a gaussian/uniform distribution of points in cicular region.
+        // Possibly include param to function that allows user to choose between distributions.
+
+        // This approach will likely result in a higher density of points near the center.
+        var randomCoord = coordinateWithOffset(coordinate, degreesToRadians(Math.random() * 360.0), radius, isMetric);
+        return [randomCoord[0].toFixed(4), randomCoord[1].toFixed(4)];
+    }
+
   return this;
 }
-
 
 module.exports = Address;
 
@@ -280,7 +433,7 @@ var Commerce = function (faker) {
    * @return {string}
    */
   self.price = function(min, max, dec, symbol) {
-      min = min || 0;
+      min = min || 1;
       max = max || 1000;
       dec = dec === undefined ? 2 : dec;
       symbol = symbol || '';
@@ -417,7 +570,7 @@ var Company = function (faker) {
    * @method faker.company.bs
    */
   this.bs = function () {
-    return f('{{company.bsAdjective}} {{company.bsBuzz}} {{company.bsNoun}}');
+    return f('{{company.bsBuzz}} {{company.bsAdjective}} {{company.bsNoun}}');
   }
 
   /**
@@ -558,7 +711,11 @@ var _Date = function (faker) {
    * @param {date} refDate
    */
   self.past = function (years, refDate) {
-      var date = (refDate) ? new Date(Date.parse(refDate)) : new Date();
+      var date = new Date();
+      if (typeof refDate !== "undefined") {
+          date = new Date(Date.parse(refDate));
+      }
+
       var range = {
         min: 1000,
         max: (years || 1) * 365 * 24 * 3600 * 1000
@@ -579,7 +736,11 @@ var _Date = function (faker) {
    * @param {date} refDate
    */
   self.future = function (years, refDate) {
-      var date = (refDate) ? new Date(Date.parse(refDate)) : new Date();
+      var date = new Date();
+      if (typeof refDate !== "undefined") {
+          date = new Date(Date.parse(refDate));
+      }
+
       var range = {
         min: 1000,
         max: (years || 1) * 365 * 24 * 3600 * 1000
@@ -613,9 +774,14 @@ var _Date = function (faker) {
    *
    * @method faker.date.recent
    * @param {number} days
+   * @param {date} refDate
    */
-  self.recent = function (days) {
+  self.recent = function (days, refDate) {
       var date = new Date();
+      if (typeof refDate !== "undefined") {
+          date = new Date(Date.parse(refDate));
+      }
+
       var range = {
         min: 1000,
         max: (days || 1) * 24 * 3600 * 1000
@@ -623,6 +789,31 @@ var _Date = function (faker) {
 
       var future = date.getTime();
       future -= faker.random.number(range); // some time from now to N days ago, in milliseconds
+      date.setTime(future);
+
+      return date;
+  };
+
+  /**
+   * soon
+   *
+   * @method faker.date.soon
+   * @param {number} days
+   * @param {date} refDate
+   */
+  self.soon = function (days, refDate) {
+      var date = new Date();
+      if (typeof refDate !== "undefined") {
+          date = new Date(Date.parse(refDate));
+      }
+
+      var range = {
+        min: 1000,
+        max: (days || 1) * 24 * 3600 * 1000
+      };
+
+      var future = date.getTime();
+      future += faker.random.number(range); // some time from now to N days later, in milliseconds
       date.setTime(future);
 
       return date;
@@ -671,12 +862,13 @@ var _Date = function (faker) {
 
       return faker.random.arrayElement(source);
   };
-  
+
   return self;
-  
+
 };
 
 module['exports'] = _Date;
+
 },{}],7:[function(require,module,exports){
 /*
   fake.js - generator method for combining faker methods based on string input
@@ -708,8 +900,7 @@ function Fake (faker) {
 
     // if incoming str parameter is not provided, return error message
     if (typeof str !== 'string' || str.length === 0) {
-      res = 'string parameter is required!';
-      return res;
+      throw new Error('string parameter is required!');
     }
 
     // find first matching {{ and }}
@@ -825,6 +1016,27 @@ var Finance = function (faker) {
   };
 
   /**
+   * routingNumber
+   *
+   * @method faker.finance.routingNumber
+   */
+  self.routingNumber = function () {
+
+      var routingNumber = Helpers.replaceSymbolWithNumber('########');
+
+      // Modules 10 straight summation.
+      var sum = 0;
+
+      for (var i = 0; i < routingNumber.length; i += 3) {
+        sum += Number(routingNumber[i]) * 3;
+        sum += Number(routingNumber[i + 1]) * 7;
+        sum += Number(routingNumber[i + 2]) || 0;
+      }
+
+      return routingNumber + (Math.ceil(sum / 10) * 10 - sum);
+  }
+
+  /**
    * mask
    *
    * @method faker.finance.mask
@@ -929,12 +1141,69 @@ var Finance = function (faker) {
    * @method  faker.finance.bitcoinAddress
    */
   self.bitcoinAddress = function () {
-    var addressLength = faker.random.number({ min: 27, max: 34 });
+    var addressLength = faker.random.number({ min: 25, max: 34 });
 
     var address = faker.random.arrayElement(['1', '3']);
 
     for (var i = 0; i < addressLength - 1; i++)
-      address += faker.random.alphaNumeric().toUpperCase();
+      address += faker.random.arrayElement('123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'.split(''));
+
+    return address;
+  }
+
+  /**
+   * Credit card number
+   * @method faker.finance.creditCardNumber
+   * @param {string} provider | scheme
+  */
+  self.creditCardNumber = function(provider){
+    provider = provider || "";
+    var format, formats;
+    var localeFormat = faker.definitions.finance.credit_card;
+    if (provider in localeFormat) {
+      formats = localeFormat[provider]; // there chould be multiple formats
+      if (typeof formats === "string") {
+        format = formats;
+      } else {
+        format = faker.random.arrayElement(formats);
+      }
+    } else if (provider.match(/#/)) { // The user chose an optional scheme
+      format = provider;
+    } else { // Choose a random provider
+      if (typeof localeFormat === 'string') {
+        format = localeFormat;
+      } else if( typeof localeFormat === "object") {
+        // Credit cards are in a object structure
+        formats = faker.random.objectElement(localeFormat, "value"); // There chould be multiple formats
+        if (typeof formats === "string") {
+          format = formats;
+        } else {
+          format = faker.random.arrayElement(formats);
+        }
+      }
+    }
+    format = format.replace(/\//g,"")
+    return Helpers.replaceCreditCardSymbols(format);
+  };
+  /**
+   * Credit card CVV
+   * @method faker.finance.creditCardNumber
+  */
+  self.creditCardCVV = function() {
+    var cvv = "";
+    for (var i = 0; i < 3; i++) {
+      cvv += faker.random.number({max:9}).toString();
+    }
+    return cvv;
+  };
+
+  /**
+   * ethereumAddress
+   *
+   * @method  faker.finance.ethereumAddress
+   */
+  self.ethereumAddress = function () {
+    var address = faker.random.hexaDecimal(40).toLowerCase();
 
     return address;
   };
@@ -1007,7 +1276,96 @@ var Finance = function (faker) {
 
 module['exports'] = Finance;
 
-},{"./iban":11}],9:[function(require,module,exports){
+},{"./iban":12}],9:[function(require,module,exports){
+/**
+ * @namespace faker.git
+ */
+
+var Git = function(faker) {
+  var self = this;
+  var f = faker.fake;
+
+  var hexChars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
+
+  /**
+   * branch
+   *
+   * @method faker.git.branch
+   */
+  self.branch = function() {
+    var noun = faker.hacker.noun().replace(' ', '-');
+    var verb = faker.hacker.verb().replace(' ', '-');
+    return noun + '-' + verb;
+  }
+
+  /**
+   * commitEntry
+   *
+   * @method faker.git.commitEntry
+   * @param {object} options
+   */
+  self.commitEntry = function(options) {
+    options = options || {};
+
+    var entry = 'commit {{git.commitSha}}\r\n';
+
+    if (options.merge || (faker.random.number({ min: 0, max: 4 }) === 0)) {
+      entry += 'Merge: {{git.shortSha}} {{git.shortSha}}\r\n';
+    }
+
+    entry += 'Author: {{name.firstName}} {{name.lastName}} <{{internet.email}}>\r\n';
+    entry += 'Date: ' + faker.date.recent().toString() + '\r\n';
+    entry += '\r\n\xa0\xa0\xa0\xa0{{git.commitMessage}}\r\n';
+
+    return f(entry);
+  };
+
+  /**
+   * commitMessage
+   *
+   * @method faker.git.commitMessage
+   */
+  self.commitMessage = function() {
+    var format = '{{hacker.verb}} {{hacker.adjective}} {{hacker.noun}}';
+    return f(format);
+  };
+
+  /**
+   * commitSha
+   *
+   * @method faker.git.commitSha
+   */
+  self.commitSha = function() {
+    var commit = "";
+
+    for (var i = 0; i < 40; i++) {
+      commit += faker.random.arrayElement(hexChars);
+    }
+
+    return commit;
+  };
+
+  /**
+   * shortSha
+   *
+   * @method faker.git.shortSha
+   */
+  self.shortSha = function() {
+    var shortSha = "";
+
+    for (var i = 0; i < 7; i++) {
+      shortSha += faker.random.arrayElement(hexChars);
+    }
+
+    return shortSha;
+  };
+
+  return self;
+}
+
+module['exports'] = Git;
+
+},{}],10:[function(require,module,exports){
 /**
  *
  * @namespace faker.hacker
@@ -1075,25 +1433,15 @@ var Hacker = function (faker) {
       verb: self.verb
     };
 
-    var phrase = faker.random.arrayElement([ "If we {{verb}} the {{noun}}, we can get to the {{abbreviation}} {{noun}} through the {{adjective}} {{abbreviation}} {{noun}}!",
-      "We need to {{verb}} the {{adjective}} {{abbreviation}} {{noun}}!",
-      "Try to {{verb}} the {{abbreviation}} {{noun}}, maybe it will {{verb}} the {{adjective}} {{noun}}!",
-      "You can't {{verb}} the {{noun}} without {{ingverb}} the {{adjective}} {{abbreviation}} {{noun}}!",
-      "Use the {{adjective}} {{abbreviation}} {{noun}}, then you can {{verb}} the {{adjective}} {{noun}}!",
-      "The {{abbreviation}} {{noun}} is down, {{verb}} the {{adjective}} {{noun}} so we can {{verb}} the {{abbreviation}} {{noun}}!",
-      "{{ingverb}} the {{noun}} won't do anything, we need to {{verb}} the {{adjective}} {{abbreviation}} {{noun}}!",
-      "I'll {{verb}} the {{adjective}} {{abbreviation}} {{noun}}, that should {{noun}} the {{abbreviation}} {{noun}}!"
-   ]);
-
-   return faker.helpers.mustache(phrase, data);
-
+    var phrase = faker.random.arrayElement(faker.definitions.hacker.phrase);
+    return faker.helpers.mustache(phrase, data);
   };
   
   return self;
 };
 
 module['exports'] = Hacker;
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /**
  *
  * @namespace faker.helpers
@@ -1142,6 +1490,8 @@ var Helpers = function (faker) {
       for (var i = 0; i < string.length; i++) {
           if (string.charAt(i) == symbol) {
               str += faker.random.number(9);
+          } else if (string.charAt(i) == "!"){
+              str += faker.random.number({min: 2, max: 9});
           } else {
               str += string.charAt(i);
           }
@@ -1150,7 +1500,8 @@ var Helpers = function (faker) {
   };
 
   /**
-   * parses string for symbols (numbers or letters) and replaces them appropriately
+   * parses string for symbols (numbers or letters) and replaces them appropriately (# will be replaced with number,
+   * ? with letter and * will be replaced with number or letter)
    *
    * @method faker.helpers.replaceSymbols
    * @param {string} string
@@ -1165,12 +1516,124 @@ var Helpers = function (faker) {
               str += faker.random.number(9);
           } else if (string.charAt(i) == "?") {
               str += faker.random.arrayElement(alpha);
+          } else if (string.charAt(i) == "*") {
+            str += faker.random.boolean() ? faker.random.arrayElement(alpha) : faker.random.number(9);
           } else {
               str += string.charAt(i);
           }
       }
       return str;
   };
+
+  /**
+   * replace symbols in a credit card schems including Luhn checksum
+   *
+   * @method faker.helpers.replaceCreditCardSymbols
+   * @param {string} string
+   * @param {string} symbol
+   */
+
+   self.replaceCreditCardSymbols = function(string, symbol) {
+     symbol = symbol || "#";
+
+     // Function calculating the Luhn checksum of a number string
+     var getCheckBit = function(number) {
+       number.reverse();
+       number = number.map(function(num, index){
+         if(index%2 === 0) {
+           num *= 2;
+           if(num>9) {
+             num -= 9;
+           }
+         }
+         return num;
+       });
+       var sum = number.reduce(function(prev,curr){return prev + curr;});
+       return sum % 10;
+     };
+
+     string = string || "";
+     string = faker.helpers.regexpStyleStringParse(string); // replace [4-9] with a random number in range etc...
+     string = faker.helpers.replaceSymbolWithNumber(string, symbol); // replace ### with random numbers
+
+     var numberList = string.replace(/\D/g,"").split("").map(function(num){return parseInt(num);});
+     var checkNum = getCheckBit(numberList);
+     return string.replace("L",checkNum);
+   };
+
+   /** string repeat helper, alternative to String.prototype.repeat.... See PR #382
+   *
+   * @method faker.helpers.repeatString
+   * @param {string} string
+   * @param {number} num
+   */
+   self.repeatString = function(string,num) {
+     if(typeof num ==="undefined") {
+       num = 0;
+     }
+     var text = "";
+     for(var i = 0; i < num; i++){
+       text += string.toString();
+     }
+     return text;
+   };
+
+   /**
+    * parse string paterns in a similar way to RegExp
+    *
+    * e.g. "#{3}test[1-5]" -> "###test4"
+    *
+    * @method faker.helpers.regexpStyleStringParse
+    * @param {string} string
+    */
+   self.regexpStyleStringParse = function(string){
+     string = string || "";
+     // Deal with range repeat `{min,max}`
+     var RANGE_REP_REG = /(.)\{(\d+)\,(\d+)\}/;
+     var REP_REG = /(.)\{(\d+)\}/;
+     var RANGE_REG = /\[(\d+)\-(\d+)\]/;
+     var min, max, tmp, repetitions;
+     var token = string.match(RANGE_REP_REG);
+     while(token !== null){
+       min = parseInt(token[2]);
+       max =  parseInt(token[3]);
+       // switch min and max
+       if(min>max) {
+         tmp = max;
+         max = min;
+         min = tmp;
+       }
+       repetitions = faker.random.number({min:min,max:max});
+       string = string.slice(0,token.index) + faker.helpers.repeatString(token[1], repetitions) + string.slice(token.index+token[0].length);
+       token = string.match(RANGE_REP_REG);
+     }
+     // Deal with repeat `{num}`
+     token = string.match(REP_REG);
+     while(token !== null){
+       repetitions = parseInt(token[2]);
+       string = string.slice(0,token.index)+ faker.helpers.repeatString(token[1], repetitions) + string.slice(token.index+token[0].length);
+       token = string.match(REP_REG);
+     }
+     // Deal with range `[min-max]` (only works with numbers for now)
+     //TODO: implement for letters e.g. [0-9a-zA-Z] etc.
+
+     token = string.match(RANGE_REG);
+     while(token !== null){
+       min = parseInt(token[1]); // This time we are not capturing the char befor `[]`
+       max =  parseInt(token[2]);
+       // switch min and max
+       if(min>max) {
+         tmp = max;
+         max = min;
+         min = tmp;
+       }
+        string = string.slice(0,token.index) +
+          faker.random.number({min:min, max:max}).toString() +
+          string.slice(token.index+token[0].length);
+        token = string.match(RANGE_REG);
+     }
+     return string;
+   };
 
   /**
    * takes an array and returns it randomized
@@ -1356,7 +1819,7 @@ String.prototype.capitalize = function () { //v1.0
 
 module['exports'] = Helpers;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 module["exports"] = {
   alpha: [
     'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
@@ -2493,14 +2956,19 @@ module["exports"] = {
     "YE", "YT", "YU", "ZA", "ZM", "ZR", "ZW"
   ]
 }
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /**
  *
  * @namespace faker.image
+ * @property {object} lorempixel - faker.image.lorempixel
+ * @property {object} unsplash - faker.image.unsplash
+ * @default Default provider is unsplash image provider
  */
 var Image = function (faker) {
 
   var self = this;
+  var Lorempixel = require('./image_providers/lorempixel');
+  var Unsplash = require('./image_providers/unsplash');
 
   /**
    * image
@@ -2543,8 +3011,11 @@ var Image = function (faker) {
         url += '/' + category;
       }
 
-      if (randomize) {
-        url += '?' + faker.random.number()
+      if (typeof faker.seedValue !== 'undefined') {
+        // lorempixel provides numbers of 1-10 to provide consistent results
+        url += '/' + faker.random.number({ min: 1, max: 10 });
+      } else if (randomize) {
+        url += '?' + faker.random.number();
       }
 
       return url;
@@ -2697,17 +3168,358 @@ var Image = function (faker) {
    *
    * @param {number} width
    * @param {number} height
-   * @method faker.image.dataurl
+   * @param {string} color
+   * @method faker.image.dataUri
    */
-  self.dataUri = function (width, height) {
+  self.dataUri = function (width, height, color) {
+    color = color || 'grey';
+    var svgString = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" baseProfile="full" width="' + width + '" height="' + height + '"><rect width="100%" height="100%" fill="' + color + '"/><text x="' + width / 2 + '" y="' + height / 2 + '" font-size="20" alignment-baseline="middle" text-anchor="middle" fill="white">' + width + 'x' + height + '</text></svg>';
     var rawPrefix = 'data:image/svg+xml;charset=UTF-8,';
-    var svgString = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" baseProfile="full" width="' + width + '" height="' + height + '"> <rect width="100%" height="100%" fill="grey"/>  <text x="0" y="20" font-size="20" text-anchor="start" fill="white">' + width + 'x' + height + '</text> </svg>';
     return rawPrefix + encodeURIComponent(svgString);
+  };
+
+  self.lorempixel = new Lorempixel(faker);
+  self.unsplash = new Unsplash(faker);
+
+  // Object.assign(self, self.unsplash);
+  // How to set default as unsplash? should be image.default?
+}
+
+
+module["exports"] = Image;
+},{"./image_providers/lorempixel":14,"./image_providers/unsplash":15}],14:[function(require,module,exports){
+/**
+ *
+ * @namespace lorempixel
+ * @memberof faker.image
+ */
+var Lorempixel = function (faker) {
+
+  var self = this;
+
+  /**
+   * image
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.image
+   */
+  self.image = function (width, height, randomize) {
+    var categories = ["abstract", "animals", "business", "cats", "city", "food", "nightlife", "fashion", "people", "nature", "sports", "technics", "transport"];
+    return self[faker.random.arrayElement(categories)](width, height, randomize);
+  };
+  /**
+   * avatar
+   *
+   * @method faker.image.lorempixel.avatar
+   */
+  self.avatar = function () {
+    return faker.internet.avatar();
+  };
+  /**
+   * imageUrl
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {string} category
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.imageUrl
+   */
+  self.imageUrl = function (width, height, category, randomize) {
+      var width = width || 640;
+      var height = height || 480;
+
+      var url ='http://lorempixel.com/' + width + '/' + height;
+      if (typeof category !== 'undefined') {
+        url += '/' + category;
+      }
+
+      if (randomize) {
+        url += '?' + faker.random.number()
+      }
+
+      return url;
+  };
+  /**
+   * abstract
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.abstract
+   */
+  self.abstract = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'abstract', randomize);
+  };
+  /**
+   * animals
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.animals
+   */
+  self.animals = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'animals', randomize);
+  };
+  /**
+   * business
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.business
+   */
+  self.business = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'business', randomize);
+  };
+  /**
+   * cats
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.cats
+   */
+  self.cats = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'cats', randomize);
+  };
+  /**
+   * city
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.city
+   */
+  self.city = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'city', randomize);
+  };
+  /**
+   * food
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.food
+   */
+  self.food = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'food', randomize);
+  };
+  /**
+   * nightlife
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.nightlife
+   */
+  self.nightlife = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'nightlife', randomize);
+  };
+  /**
+   * fashion
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.fashion
+   */
+  self.fashion = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'fashion', randomize);
+  };
+  /**
+   * people
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.people
+   */
+  self.people = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'people', randomize);
+  };
+  /**
+   * nature
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.nature
+   */
+  self.nature = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'nature', randomize);
+  };
+  /**
+   * sports
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.sports
+   */
+  self.sports = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'sports', randomize);
+  };
+  /**
+   * technics
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.technics
+   */
+  self.technics = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'technics', randomize);
+  };
+  /**
+   * transport
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.lorempixel.transport
+   */
+  self.transport = function (width, height, randomize) {
+    return faker.image.lorempixel.imageUrl(width, height, 'transport', randomize);
+  }
+}
+
+module["exports"] = Lorempixel;
+
+},{}],15:[function(require,module,exports){
+/**
+ *
+ * @namespace unsplash
+ * @memberof faker.image
+ */
+var Unsplash = function (faker) {
+
+  var self = this;
+  var categories = ["food", "nature", "people", "technology", "objects", "buildings"];
+
+  /**
+   * image
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {string} keyword
+   * @method faker.image.unsplash.image
+   * @description search image from unsplash
+   */
+  self.image = function (width, height, keyword) {
+    return self.imageUrl(width, height, undefined, keyword);
+  };
+  /**
+   * avatar
+   *
+   * @method faker.image.unsplash.avatar
+   */
+  self.avatar = function () {
+    return faker.internet.avatar();
+  };
+  /**
+   * imageUrl
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {string} category
+   * @param {string} keyword
+   * @method faker.image.unsplash.imageUrl
+   */
+  self.imageUrl = function (width, height, category, keyword) {
+      var width = width || 640;
+      var height = height || 480;
+
+      var url ='https://source.unsplash.com';
+
+      if (typeof category !== 'undefined') {
+          url += '/category/' + category;
+      }
+
+      url += '/' + width + 'x' + height;
+
+      if (typeof keyword !== 'undefined') {
+          var keywordFormat = new RegExp('^([A-Za-z0-9].+,[A-Za-z0-9]+)$|^([A-Za-z0-9]+)$');
+          if (keywordFormat.test(keyword)) {
+            url += '?' + keyword;
+          }
+      }
+
+      return url;
+  };
+  /**
+   * food
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {string} keyword
+   * @method faker.image.unsplash.food
+   */
+  self.food = function (width, height, keyword) {
+    return faker.image.unsplash.imageUrl(width, height, 'food', keyword);
+  };
+  /**
+   * people
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {string} keyword
+   * @method faker.image.unsplash.people
+   */
+  self.people = function (width, height, keyword) {
+    return faker.image.unsplash.imageUrl(width, height, 'people', keyword);
+  };
+  /**
+   * nature
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {string} keyword
+   * @method faker.image.unsplash.nature
+   */
+  self.nature = function (width, height, keyword) {
+    return faker.image.unsplash.imageUrl(width, height, 'nature', keyword);
+  };
+  /**
+   * technology
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {string} keyword
+   * @method faker.image.unsplash.technology
+   */
+  self.technology = function (width, height, keyword) {
+    return faker.image.unsplash.imageUrl(width, height, 'technology', keyword);
+  };
+  /**
+   * objects
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {string} keyword
+   * @method faker.image.unsplash.objects
+   */
+  self.objects = function (width, height, keyword) {
+    return faker.image.unsplash.imageUrl(width, height, 'objects', keyword);
+  };
+  /**
+   * buildings
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {string} keyword
+   * @method faker.image.unsplash.buildings
+   */
+  self.buildings = function (width, height, keyword) {
+    return faker.image.unsplash.imageUrl(width, height, 'buildings', keyword);
   };
 }
 
-module["exports"] = Image;
-},{}],13:[function(require,module,exports){
+module["exports"] = Unsplash;
+
+},{}],16:[function(require,module,exports){
 /*
 
    this index.js file is used for including the faker library as a CommonJS module, instead of a bundle
@@ -2748,76 +3560,77 @@ function Faker (opts) {
 
   self.definitions = {};
 
-  function bindAll(obj) {
-      Object.keys(obj).forEach(function(meth) {
-          if (typeof obj[meth] === 'function') {
-              obj[meth] = obj[meth].bind(obj);
-          }
-      });
-      return obj;
-  }
-
   var Fake = require('./fake');
   self.fake = new Fake(self).fake;
 
+  var Unique = require('./unique');
+  self.unique = new Unique(self).unique;
+
   var Random = require('./random');
-  self.random = bindAll(new Random(self));
+  self.random = new Random(self);
 
   var Helpers = require('./helpers');
   self.helpers = new Helpers(self);
 
   var Name = require('./name');
-  self.name = bindAll(new Name(self));
+  self.name = new Name(self);
 
   var Address = require('./address');
-  self.address = bindAll(new Address(self));
+  self.address = new Address(self);
 
   var Company = require('./company');
-  self.company = bindAll(new Company(self));
+  self.company = new Company(self);
 
   var Finance = require('./finance');
-  self.finance = bindAll(new Finance(self));
+  self.finance = new Finance(self);
 
   var Image = require('./image');
-  self.image = bindAll(new Image(self));
+  self.image = new Image(self);
 
   var Lorem = require('./lorem');
-  self.lorem = bindAll(new Lorem(self));
+  self.lorem = new Lorem(self);
 
   var Hacker = require('./hacker');
-  self.hacker = bindAll(new Hacker(self));
+  self.hacker = new Hacker(self);
 
   var Internet = require('./internet');
-  self.internet = bindAll(new Internet(self));
+  self.internet = new Internet(self);
 
   var Database = require('./database');
-  self.database = bindAll(new Database(self));
+  self.database = new Database(self);
 
   var Phone = require('./phone_number');
-  self.phone = bindAll(new Phone(self));
+  self.phone = new Phone(self);
 
   var _Date = require('./date');
-  self.date = bindAll(new _Date(self));
+  self.date = new _Date(self);
 
   var Commerce = require('./commerce');
-  self.commerce = bindAll(new Commerce(self));
+  self.commerce = new Commerce(self);
 
   var System = require('./system');
-  self.system = bindAll(new System(self));
+  self.system = new System(self);
+
+  var Git = require('./git');
+  self.git = new Git(self);
+
+  var Vehicle = require('./vehicle');
+  self.vehicle = new Vehicle(self);
 
   var _definitions = {
-    "name": ["first_name", "last_name", "prefix", "suffix", "title", "male_first_name", "female_first_name", "male_middle_name", "female_middle_name", "male_last_name", "female_last_name"],
-    "address": ["city_prefix", "city_suffix", "street_suffix", "county", "country", "country_code", "state", "state_abbr", "street_prefix", "postcode"],
+    "name": ["first_name", "last_name", "prefix", "suffix", "gender", "title", "male_prefix", "female_prefix", "male_first_name", "female_first_name", "male_middle_name", "female_middle_name", "male_last_name", "female_last_name"],
+    "address": ["city_prefix", "city_suffix", "street_suffix", "county", "country", "country_code", "state", "state_abbr", "street_prefix", "postcode", "postcode_by_state", "direction", "direction_abbr"],
     "company": ["adjective", "noun", "descriptor", "bs_adjective", "bs_noun", "bs_verb", "suffix"],
     "lorem": ["words"],
-    "hacker": ["abbreviation", "adjective", "noun", "verb", "ingverb"],
+    "hacker": ["abbreviation", "adjective", "noun", "verb", "ingverb", "phrase"],
     "phone_number": ["formats"],
-    "finance": ["account_type", "transaction_type", "currency", "iban"],
+    "finance": ["account_type", "transaction_type", "currency", "iban", "credit_card"],
     "internet": ["avatar_uri", "domain_suffix", "free_email", "example_email", "password"],
     "commerce": ["color", "department", "product_name", "price", "categories"],
     "database": ["collation", "column", "engine", "type"],
-    "system": ["mimeTypes"],
+    "system": ["mimeTypes", "directoryPaths"],
     "date": ["month", "weekday"],
+    "vehicle": ["vehicle", "manufacturer", "model", "type", "fuel", "vin", "color"],
     "title": "",
     "separator": ""
   };
@@ -2852,6 +3665,10 @@ function Faker (opts) {
 
 };
 
+Faker.prototype.setLocale = function (locale) {
+  this.locale = locale;
+}
+
 Faker.prototype.seed = function(value) {
   var Random = require('./random');
   this.seedValue = value;
@@ -2859,7 +3676,7 @@ Faker.prototype.seed = function(value) {
 }
 module['exports'] = Faker;
 
-},{"./address":2,"./commerce":3,"./company":4,"./database":5,"./date":6,"./fake":7,"./finance":8,"./hacker":9,"./helpers":10,"./image":12,"./internet":14,"./lorem":1042,"./name":1043,"./phone_number":1044,"./random":1045,"./system":1046}],14:[function(require,module,exports){
+},{"./address":2,"./commerce":3,"./company":4,"./database":5,"./date":6,"./fake":7,"./finance":8,"./git":9,"./hacker":10,"./helpers":11,"./image":13,"./internet":17,"./lorem":1228,"./name":1229,"./phone_number":1230,"./random":1231,"./system":1232,"./unique":1233,"./vehicle":1234}],17:[function(require,module,exports){
 var random_ua = require('../vendor/user-agent');
 
 /**
@@ -3167,13 +3984,23 @@ var Internet = function (faker) {
    * mac
    *
    * @method faker.internet.mac
+   * @param {string} sep
    */
-  self.mac = function(){
-      var i, mac = "";
+  self.mac = function(sep){
+      var i, 
+        mac = "",
+        validSep = ':';
+
+      // if the client passed in a different separator than `:`, 
+      // we will use it if it is in the list of acceptable separators (dash or no separator)
+      if (['-', ''].indexOf(sep) !== -1) {
+        validSep = sep;
+      } 
+
       for (i=0; i < 12; i++) {
           mac+= faker.random.number(15).toString(16);
           if (i%2==1 && i != 11) {
-              mac+=":";
+              mac+=validSep;
           }
       }
       return mac;
@@ -3279,8 +4106,9 @@ var Internet = function (faker) {
 
 module["exports"] = Internet;
 
-},{"../vendor/user-agent":1048}],15:[function(require,module,exports){
+},{"../vendor/user-agent":1237}],18:[function(require,module,exports){
 exports['az'] = require('./locales/az');
+exports['ar'] = require('./locales/ar');
 exports['cz'] = require('./locales/cz');
 exports['de'] = require('./locales/de');
 exports['de_AT'] = require('./locales/de_AT');
@@ -3293,12 +4121,14 @@ exports['en_GB'] = require('./locales/en_GB');
 exports['en_IE'] = require('./locales/en_IE');
 exports['en_IND'] = require('./locales/en_IND');
 exports['en_US'] = require('./locales/en_US');
+exports['en_ZA'] = require('./locales/en_ZA');
 exports['en_au_ocker'] = require('./locales/en_au_ocker');
 exports['es'] = require('./locales/es');
 exports['es_MX'] = require('./locales/es_MX');
 exports['fa'] = require('./locales/fa');
 exports['fr'] = require('./locales/fr');
 exports['fr_CA'] = require('./locales/fr_CA');
+exports['fr_CH'] = require('./locales/fr_CH');
 exports['ge'] = require('./locales/ge');
 exports['id_ID'] = require('./locales/id_ID');
 exports['it'] = require('./locales/it');
@@ -3306,9 +4136,12 @@ exports['ja'] = require('./locales/ja');
 exports['ko'] = require('./locales/ko');
 exports['nb_NO'] = require('./locales/nb_NO');
 exports['nep'] = require('./locales/nep');
+exports['nl_BE'] = require('./locales/nl_BE');
 exports['nl'] = require('./locales/nl');
 exports['pl'] = require('./locales/pl');
 exports['pt_BR'] = require('./locales/pt_BR');
+exports['pt_PT'] = require('./locales/pt_PT');
+exports['ro'] = require('./locales/ro');
 exports['ru'] = require('./locales/ru');
 exports['sk'] = require('./locales/sk');
 exports['sv'] = require('./locales/sv');
@@ -3318,17 +4151,487 @@ exports['vi'] = require('./locales/vi');
 exports['zh_CN'] = require('./locales/zh_CN');
 exports['zh_TW'] = require('./locales/zh_TW');
 
-},{"./locales/az":40,"./locales/cz":79,"./locales/de":117,"./locales/de_AT":150,"./locales/de_CH":169,"./locales/en":249,"./locales/en_AU":281,"./locales/en_BORK":289,"./locales/en_CA":297,"./locales/en_GB":310,"./locales/en_IE":320,"./locales/en_IND":332,"./locales/en_US":344,"./locales/en_au_ocker":364,"./locales/es":396,"./locales/es_MX":440,"./locales/fa":459,"./locales/fr":485,"./locales/fr_CA":505,"./locales/ge":531,"./locales/id_ID":560,"./locales/it":597,"./locales/ja":619,"./locales/ko":640,"./locales/nb_NO":670,"./locales/nep":690,"./locales/nl":714,"./locales/pl":754,"./locales/pt_BR":783,"./locales/ru":820,"./locales/sk":860,"./locales/sv":907,"./locales/tr":933,"./locales/uk":966,"./locales/vi":993,"./locales/zh_CN":1016,"./locales/zh_TW":1035}],16:[function(require,module,exports){
+},{"./locales/ar":35,"./locales/az":62,"./locales/cz":101,"./locales/de":138,"./locales/de_AT":171,"./locales/de_CH":190,"./locales/en":274,"./locales/en_AU":315,"./locales/en_BORK":323,"./locales/en_CA":331,"./locales/en_GB":344,"./locales/en_IE":354,"./locales/en_IND":366,"./locales/en_US":378,"./locales/en_ZA":394,"./locales/en_au_ocker":421,"./locales/es":457,"./locales/es_MX":501,"./locales/fa":533,"./locales/fr":559,"./locales/fr_CA":578,"./locales/fr_CH":591,"./locales/ge":616,"./locales/id_ID":645,"./locales/it":682,"./locales/ja":704,"./locales/ko":725,"./locales/nb_NO":755,"./locales/nep":775,"./locales/nl":799,"./locales/nl_BE":829,"./locales/pl":865,"./locales/pt_BR":893,"./locales/pt_PT":928,"./locales/ro":962,"./locales/ru":1007,"./locales/sk":1047,"./locales/sv":1093,"./locales/tr":1119,"./locales/uk":1152,"./locales/vi":1179,"./locales/zh_CN":1202,"./locales/zh_TW":1221}],19:[function(require,module,exports){
+module["exports"] = [
+  "#####",
+  "####",
+  "###"
+];
+
+},{}],20:[function(require,module,exports){
+module["exports"] = [
+  "#{city_name}"
+];
+
+},{}],21:[function(require,module,exports){
+module["exports"] = [
+  "أفغانستان",
+  "ألبانيا",
+  "الجزائر",
+  "أمريكا ساماو",
+  "أندورا",
+  "أنجولا",
+  "أنجويلا",
+  "أنتاركتيكا",
+  "أنتيغوا وباربودا",
+  "الأرجنتين",
+  "أرمينيا",
+  "أروبا",
+  "أرستراليا",
+  "أستريا",
+  "أذرابيجان",
+  "بهماس",
+  "البحرين",
+  "بنغلادش",
+  "بربادوس",
+  "بلاروسيا",
+  "بلجيكا",
+  "بليز",
+  "بينين",
+  "برمودا",
+  "بوتان",
+  "بوليفيا",
+  "البوسنة والهرسك",
+  "بوتسوانا",
+  "جزيرة بوفيه",
+  "البرازيل",
+  "إقليم المحيط الهندي البريطاني",
+  "برونوي دار السلام",
+  "بلغاريا",
+  "بوركينا فاسو",
+  "بوروندي",
+  "كمبوديا",
+  "كاميرون",
+  "كندا",
+  "الرأس الأخضر",
+  "جزر كايمان",
+  "جمهورية إفريقيا الوسطى",
+  "التشاد",
+  "شيلي",
+  "الصين",
+  "جزيرة عيد الميلاد",
+  "جزر كوكوس",
+  "كولومبيا",
+  "Comoros",
+  "كونجو",
+  "جزر كوك",
+  "كوستا ريكا",
+  "ساحل العاج",
+  "كرواتيا",
+  "كوبا",
+  "قبرص",
+  "التشيك",
+  "دنمارك",
+  "جيبوتي",
+  "دومينيكا",
+  "جمهورية الدومينيكان",
+  "إكوادور",
+  "مصر",
+  "السلفادور",
+  "غينيا الاستوائية",
+  "إريتريا",
+  "إستونيا",
+  "أثيوبيا",
+  "جزر فارو",
+  "جزر فوكلاند",
+  "فيجي",
+  "فلندا",
+  "فرنست",
+  "غويانا الفرنسية",
+  "بولينزيا الفرنسية",
+  "أراض فرنسية جنوبية وأنتارتيكية",
+  "جابون",
+  "غمبيا",
+  "جورجيا",
+  "ألمانيا",
+  "غانا",
+  "جبل طارق",
+  "اليونان",
+  "الأرض الخضراء",
+  "غرينادا",
+  "غوادلوب",
+  "غوام",
+  "غواتيمالا",
+  "غيرنزي",
+  "غينيا",
+  "غينيا بيساو",
+  "غيانا",
+  "هايتي",
+  "جزيرة هيرد وجزر ماكدونالد",
+  "الفاتيكان",
+  "هندوراس",
+  "هونكونغ",
+  "هنقاريا",
+  "إسلاند",
+  "الهند",
+  "أندونيسيا",
+  "إيران",
+  "العراق",
+  "إيرلامدا",
+  "جزيرة مان",
+  "إيطاليا",
+  "جامايكا",
+  "اليابان",
+  "جيرزي",
+  "الأردن",
+  "كازاخستان",
+  "كنيا",
+  "كيريباتي",
+  "كوريا الشمالية",
+  "كوريا الجنوبية",
+  "الكويت",
+  "قيرغيزستان",
+  "لاوس",
+  "لتفيا",
+  "لبنان",
+  "ليسوتو",
+  "ليبيريا",
+  "ليبيا",
+  "ليختنشتاين",
+  "ليتيواتيا",
+  "ليكسمبورغ",
+  "ماكاو",
+  "مقدونيا",
+  "مدغشقر",
+  "ملاوي",
+  "ماليزيا",
+  "ملديف",
+  "مالي",
+  "مالطا",
+  "جزر مارشال",
+  "مارتينيك",
+  "موريتانيا",
+  "موريشيوس",
+  "مايوت",
+  "المكسيك",
+  "ولايات ميكرونيسيا المتحدة",
+  "مولدوفا",
+  "موناكو",
+  "منغوليا",
+  "مونتينيغرو",
+  "مونتسرات",
+  "المغرب",
+  "موزنبيق",
+  "ميانمار",
+  "ناميبيا",
+  "ناورو",
+  "نيبال",
+  "جزر الأنتيل الهولندية",
+  "هولاندا",
+  "كالودونيا الجديدة",
+  "زيلاندا الجديدة",
+  "نيكاراغوا",
+  "النيجر",
+  "نيجيريا",
+  "نييوي",
+  "جزيرة نورفولك",
+  "جزر ماريانا الشمالية",
+  "نورواي",
+  "عمان",
+  "باكستان",
+  "بالاو",
+  "فلسطين",
+  "بانما",
+  "بابوا غينيا الجديدة",
+  "باراغواي",
+  "بيرو",
+  "الفيليبين",
+  "جزر بيتكيرن",
+  "بولندا",
+  "البرتغال",
+  "بورتو ريكو",
+  "قطر",
+  "لا ريونيون",
+  "رومانيا",
+  "روسيا",
+  "روندا",
+  "سان بارتيلمي",
+  "سانت هيلانة",
+  "سانت كيتس ونيفيس",
+  "سانت لوسيا",
+  "سانت نرتان",
+  "سان بيير وميكلون",
+  "سانت فينسنت والغرينادين",
+  "ساماو",
+  "سان مارينو",
+  "ساو تومي وبرينسيب",
+  "السعودية",
+  "السنغال",
+  "صربيا",
+  "سيشال",
+  "سيراليون",
+  "سنغفورة",
+  "سلوفاكيا",
+  "سلوفينيا",
+  "جزر سليمان",
+  "الصومال",
+  "جنوب إفريقيا",
+  "جورجيا الجنوبية وجزر ساندويتش الجنوبية",
+  "إسبانيا",
+  "سيري لانكا",
+  "السودان",
+  "سيرينام",
+  "سفالبارد ويان ماين",
+  "سوازيلاند",
+  "السويد",
+  "سويسرا",
+  "سوريا",
+  "تايوات",
+  "طاجكستان",
+  "تنزانيا",
+  "تايلاند",
+  "تيمور الشرقية",
+  "توغو",
+  "توكيلاو",
+  "تونغوا",
+  "ترينيداد وتوباغو",
+  "تونس",
+  "تركيا",
+  "تركمنستان",
+  "جزر توركس وكايكوس",
+  "توفالو",
+  "أوغندا",
+  "أكرانيا",
+  "الإمارات العربية المتحدة",
+  "بريطانيا",
+  "أمريكا",
+  "جزر الولايات المتحدة الصغيرة النائية",
+  "أرغواي",
+  "أزباكستان",
+  "فانواتو",
+  "فينيزويلا",
+  "فيتنام",
+  "جزر العذراء البريطانية",
+  "جزر العذراء الأمريكية",
+  "واليس وفوتونا",
+  "اليمن",
+  "زمبيا",
+  "زمبابوي"
+];
+
+},{}],22:[function(require,module,exports){
+module["exports"] = [
+  "المملكة العربية السعودية"
+];
+
+},{}],23:[function(require,module,exports){
+var address = {};
+module['exports'] = address;
+address.country = require("./country");
+address.building_number = require("./building_number");
+address.secondary_address = require("./secondary_address");
+address.postcode = require("./postcode");
+address.postcode_by_state = require("./postcode_by_state");
+address.state = require("./state");
+address.city = require("./city");
+address.street_name = require("./street_name");
+address.street_address = require("./street_address");
+address.default_country = require("./default_country");
+},{"./building_number":19,"./city":20,"./country":21,"./default_country":22,"./postcode":24,"./postcode_by_state":25,"./secondary_address":26,"./state":27,"./street_address":28,"./street_name":29}],24:[function(require,module,exports){
+module["exports"] = [
+  "#####",
+  "#####-####"
+];
+
+},{}],25:[function(require,module,exports){
+module.exports=require(24)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/postcode.js":24}],26:[function(require,module,exports){
+module["exports"] = [
+  "### عمارة",
+  "### طابق"
+];
+
+},{}],27:[function(require,module,exports){
+module["exports"] = [
+  "تونس",
+  "بن عروس",
+  "أريانة",
+  "باجة",
+  "بنزرت",
+  "قابس",
+  "قفصة",
+  "جندوبة",
+  "القيروان",
+  "القصرين",
+  "قبلي",
+  "الكاف",
+  "المهدية",
+  "منوبة",
+  "مدنين",
+  "المنستير",
+  "نابل",
+  "صفاقس",
+  "بوزيد",
+  "سليانة",
+  "سوسة",
+  "تطاوين",
+  "توزر",
+  "زغوان",
+  "أدرار",
+  "الشلف",
+  "الأغواط",
+  "أم البواقي",
+  "باتنة",
+  "بجاية",
+  "بسكرة",
+  "بشار",
+  "البليدة",
+  "البويرة",
+  "تمنراست",
+  "تبسة",
+  "تلمسان",
+  "تيارت",
+  "تيزي وزو",
+  "الجزائر",
+  "الجلفة",
+  "جيجل",
+  "سطيف",
+  "سعيدة",
+  "سكيكدة",
+  "بلعباس",
+  "عنابة",
+  "قالمة",
+  "قسنطينة",
+  "المدية"
+];
+
+},{}],28:[function(require,module,exports){
+module["exports"] = [
+  "#{building_number} #{street_name}"
+];
+
+},{}],29:[function(require,module,exports){
+module["exports"] = [
+  "#{street_preffix} #{Name.first_name}",
+  "#{street_preffix} #{Name.last_name}"
+];
+
+},{}],30:[function(require,module,exports){
+module["exports"] = [
+  "###-###-####",
+  "(###) ###-####",
+  "1-###-###-####",
+  "###.###.####"
+];
+
+},{}],31:[function(require,module,exports){
+var cell_phone = {};
+module['exports'] = cell_phone;
+cell_phone.formats = require("./formats");
+
+},{"./formats":30}],32:[function(require,module,exports){
+module["exports"] = [
+  "أحمر",
+  "أخضر",
+  "أزرق",
+  "أصفر",
+  "purple",
+  "mint green",
+  "teal",
+  "أبيض",
+  "أسود",
+  "برتقالي",
+  "pink",
+  "بني",
+  "maroon",
+  "بنفسجي",
+  "turquoise",
+  "tan",
+  "sky blue",
+  "salmon",
+  "plum",
+  "orchid",
+  "olive",
+  "magenta",
+  "lime",
+  "ivory",
+  "indigo",
+  "ذهبي",
+  "fuchsia",
+  "cyan",
+  "azure",
+  "lavender",
+  "فضي"
+];
+
+},{}],33:[function(require,module,exports){
+module["exports"] = [
+  "كتب",
+  "ألعاب",
+  "إلكترونيات",
+  "حواسيب",
+  "بيت",
+  "Garden",
+  "أدوات",
+  "Grocery",
+  "صحة",
+  "جمال",
+  "Toys",
+  "أطفال",
+  "رضع",
+  "ملابس",
+  "أحذية",
+  "Jewelery",
+  "أغراض رياضية",
+  "Outdoors",
+  "Automotive",
+  "صناعة"
+];
+
+},{}],34:[function(require,module,exports){
+var commerce = {};
+module['exports'] = commerce;
+commerce.color = require("./color");
+commerce.department = require("./department");
+},{"./color":32,"./department":33}],35:[function(require,module,exports){
+var ar = {};
+module['exports'] = ar;
+ar.title = "Arabic";
+ar.separator = " & ";
+ar.address = require("./address");
+ar.phone_number = require("./phone_number");
+ar.cell_phone = require("./cell_phone");
+ar.commerce = require("./commerce");
+},{"./address":23,"./cell_phone":31,"./commerce":34,"./phone_number":37}],36:[function(require,module,exports){
+module["exports"] = [
+  "###-###-####",
+  "(###) ###-####",
+  "1-###-###-####",
+  "###.###.####",
+  "###-###-####",
+  "(###) ###-####",
+  "1-###-###-####",
+  "###.###.####",
+  "###-###-#### x###",
+  "(###) ###-#### x###",
+  "1-###-###-#### x###",
+  "###.###.#### x###",
+  "###-###-#### x####",
+  "(###) ###-#### x####",
+  "1-###-###-#### x####",
+  "###.###.#### x####",
+  "###-###-#### x#####",
+  "(###) ###-#### x#####",
+  "1-###-###-#### x#####",
+  "###.###.#### x#####"
+];
+
+},{}],37:[function(require,module,exports){
+var phone_number = {};
+module['exports'] = phone_number;
+phone_number.formats = require("./formats");
+
+},{"./formats":36}],38:[function(require,module,exports){
 module["exports"] = [
   "###"
 ];
 
-},{}],17:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module["exports"] = [
   "#{Address.city_name}"
 ];
 
-},{}],18:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 module["exports"] = [
   "Ağcabədi",
   "Ağdam",
@@ -3410,7 +4713,7 @@ module["exports"] = [
   "Zərdab"
 ];
 
-},{}],19:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 module["exports"] = [
   "Akrotiri və Dekeliya",
   "Aland adaları",
@@ -3653,12 +4956,12 @@ module["exports"] = [
   "Zimbabve"
 ];
 
-},{}],20:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 module["exports"] = [
   "Azərbaycan"
 ];
 
-},{}],21:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -3674,33 +4977,33 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":16,"./city":17,"./city_name":18,"./country":19,"./default_country":20,"./postcode":22,"./secondary_address":23,"./state":24,"./street_address":25,"./street_name":26,"./street_suffix":27,"./street_title":28}],22:[function(require,module,exports){
+},{"./building_number":38,"./city":39,"./city_name":40,"./country":41,"./default_country":42,"./postcode":44,"./secondary_address":45,"./state":46,"./street_address":47,"./street_name":48,"./street_suffix":49,"./street_title":50}],44:[function(require,module,exports){
 module["exports"] = [
   "AZ####"
 ];
 
-},{}],23:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module["exports"] = [
   "m. ###"
 ];
 
-},{}],24:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 module["exports"] = [
 
 ];
 
-},{}],25:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}, #{building_number}"
 ];
 
-},{}],26:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Address.street_title}",
   "#{Address.street_title} #{street_suffix}"
 ];
 
-},{}],27:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 module["exports"] = [
   "küç.",
   "küçəsi",
@@ -3710,7 +5013,7 @@ module["exports"] = [
   "sh."
 ];
 
-},{}],28:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 module["exports"] = [
   "Abbas Fətullayev",
   "Abbas Mirzə Şərifzadə",
@@ -3949,7 +5252,7 @@ module["exports"] = [
   "Zərgərpalan"
 ];
 
-},{}],29:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module["exports"] = [
   "ala",
   "açıq bənövşəyi",
@@ -3971,7 +5274,7 @@ module["exports"] = [
   "çəhrayı"
 ];
 
-},{}],30:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 module["exports"] = [
   "Kitablar",
   "Filmlər",
@@ -3993,14 +5296,14 @@ module["exports"] = [
   "Avtomobil",
 ];
 
-},{}],31:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var commerce = {};
 module['exports'] = commerce;
 commerce.color = require("./color");
 commerce.department = require("./department");
 commerce.product_name = require("./product_name");
 
-},{"./color":29,"./department":30,"./product_name":32}],32:[function(require,module,exports){
+},{"./color":51,"./department":52,"./product_name":54}],54:[function(require,module,exports){
 module["exports"] = {
   "adjective": [
     "Balaca",
@@ -4035,14 +5338,14 @@ module["exports"] = {
   ]
 };
 
-},{}],33:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.prefix = require("./prefix");
 company.suffix = require("./suffix");
 company.name = require("./name");
 
-},{"./name":34,"./prefix":35,"./suffix":36}],34:[function(require,module,exports){
+},{"./name":56,"./prefix":57,"./suffix":58}],56:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.female_first_name}",
   "#{prefix} #{Name.male_first_name}",
@@ -4054,22 +5357,22 @@ module["exports"] = [
   "#{prefix} #{Address.city_name}#{suffix}#{suffix}#{suffix}"
 ];
 
-},{}],35:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 module["exports"] = [
   "ASC",
   "MMC",
   "QSC",
 ];
 
-},{}],36:[function(require,module,exports){
-module.exports=require(24)
-},{"/Users/a/dev/faker.js/lib/locales/az/address/state.js":24}],37:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
+module.exports=require(46)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/address/state.js":46}],59:[function(require,module,exports){
 var date = {};
 module["exports"] = date;
 date.month = require("./month");
 date.weekday = require("./weekday");
 
-},{"./month":38,"./weekday":39}],38:[function(require,module,exports){
+},{"./month":60,"./weekday":61}],60:[function(require,module,exports){
 // source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/ru.xml#L1734
 module["exports"] = {
   wide: [
@@ -4130,7 +5433,7 @@ module["exports"] = {
   ]
 };
 
-},{}],39:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 // source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/ru.xml#L1825
 module["exports"] = {
   wide: [
@@ -4171,7 +5474,7 @@ module["exports"] = {
   ]
 };
 
-},{}],40:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 var az = {};
 module['exports'] = az;
 az.title = "Azerbaijani";
@@ -4184,7 +5487,7 @@ az.commerce = require("./commerce");
 az.company = require("./company");
 az.date = require("./date");
 
-},{"./address":21,"./commerce":31,"./company":33,"./date":37,"./internet":43,"./name":46,"./phone_number":53}],41:[function(require,module,exports){
+},{"./address":43,"./commerce":53,"./company":55,"./date":59,"./internet":65,"./name":68,"./phone_number":75}],63:[function(require,module,exports){
 module["exports"] = [
   "com",
   "az",
@@ -4194,7 +5497,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],42:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 module["exports"] = [
   "box.az",
   "mail.az",
@@ -4203,13 +5506,13 @@ module["exports"] = [
   "hotmail.com"
 ];
 
-},{}],43:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 var internet = {};
 module['exports'] = internet;
 internet.free_email = require("./free_email");
 internet.domain_suffix = require("./domain_suffix");
 
-},{"./domain_suffix":41,"./free_email":42}],44:[function(require,module,exports){
+},{"./domain_suffix":63,"./free_email":64}],66:[function(require,module,exports){
 module["exports"] = [
   "Anna",
   "Adeliya",
@@ -4286,7 +5589,7 @@ module["exports"] = [
   "Ülkər"
 ];
 
-},{}],45:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 module["exports"] = [
   "Qasımova",
   "Əfəndiyeva",
@@ -4300,7 +5603,7 @@ module["exports"] = [
   "Vəsiyeva"
 ];
 
-},{}],46:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.male_first_name = require("./male_first_name");
@@ -4311,7 +5614,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./female_first_name":44,"./female_last_name":45,"./male_first_name":47,"./male_last_name":48,"./name":49,"./prefix":50,"./suffix":51}],47:[function(require,module,exports){
+},{"./female_first_name":66,"./female_last_name":67,"./male_first_name":69,"./male_last_name":70,"./name":71,"./prefix":72,"./suffix":73}],69:[function(require,module,exports){
 module["exports"] = [
   "Anar",
   "Amid",
@@ -4350,7 +5653,7 @@ module["exports"] = [
   "Nadir"
 ];
 
-},{}],48:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 module["exports"] = [
   "Əhmədov",
   "Ələkbərov",
@@ -4364,7 +5667,7 @@ module["exports"] = [
   "Rəhimov"
 ];
 
-},{}],49:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 module["exports"] = [
   "#{male_first_name}",
   "#{male_last_name} #{male_first_name}",
@@ -4374,34 +5677,28 @@ module["exports"] = [
   "#{female_last_name} #{female_first_name}",
 ];
 
-},{}],50:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 module["exports"] = [];
 
-},{}],51:[function(require,module,exports){
-module.exports=require(50)
-},{"/Users/a/dev/faker.js/lib/locales/az/name/prefix.js":50}],52:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
+module.exports=require(72)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/name/prefix.js":72}],74:[function(require,module,exports){
 module["exports"] = [
   "(9##)###-##-##"
 ];
 
-},{}],53:[function(require,module,exports){
-var phone_number = {};
-module['exports'] = phone_number;
-phone_number.formats = require("./formats");
-
-},{"./formats":52}],54:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":74,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],76:[function(require,module,exports){
 module["exports"] = [
   "#",
   "##",
   "###"
 ];
 
-},{}],55:[function(require,module,exports){
-module["exports"] = [
-  "#{city_name}"
-];
-
-},{}],56:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
+module.exports=require(20)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/city.js":20}],78:[function(require,module,exports){
 module["exports"] = [
   "Abertamy",
   "Adamov",
@@ -5007,7 +6304,7 @@ module["exports"] = [
   "Žulová",
 ];
 
-},{}],57:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 module["exports"] = [
   "Afghánistán",
   "Albánie",
@@ -5206,12 +6503,12 @@ module["exports"] = [
   "Zimbabwe",
 ];
 
-},{}],58:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 module["exports"] = [
   "Česká republika"
 ];
 
-},{}],59:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -5228,24 +6525,24 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":54,"./city":55,"./city_name":56,"./country":57,"./default_country":58,"./postcode":60,"./secondary_address":61,"./state":62,"./state_abbr":63,"./street":64,"./street_address":65,"./street_name":66,"./time_zone":67}],60:[function(require,module,exports){
+},{"./building_number":76,"./city":77,"./city_name":78,"./country":79,"./default_country":80,"./postcode":82,"./secondary_address":83,"./state":84,"./state_abbr":85,"./street":86,"./street_address":87,"./street_name":88,"./time_zone":89}],82:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "### ##",
   "###-##"
 ];
 
-},{}],61:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 module["exports"] = [
   "Apt. ###",
   "Suite ###"
 ];
 
-},{}],62:[function(require,module,exports){
-module.exports=require(50)
-},{"/Users/a/dev/faker.js/lib/locales/az/name/prefix.js":50}],63:[function(require,module,exports){
-module.exports=require(50)
-},{"/Users/a/dev/faker.js/lib/locales/az/name/prefix.js":50}],64:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
+module.exports=require(72)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/name/prefix.js":72}],85:[function(require,module,exports){
+module.exports=require(72)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/name/prefix.js":72}],86:[function(require,module,exports){
 module["exports"] = [
   "17. Listopadu",
   "17. Listopadu",
@@ -13560,17 +14857,17 @@ module["exports"] = [
   "Žďárská",
 ];
 
-},{}],65:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 module["exports"] = [
   "#{street_name} #{building_number}"
 ];
 
-},{}],66:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 module["exports"] = [
   "#{street}"
 ];
 
-},{}],67:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 module["exports"] = [
   "Pacific/Midway",
   "Pacific/Pago_Pago",
@@ -13717,7 +15014,7 @@ module["exports"] = [
   "Pacific/Apia"
 ];
 
-},{}],68:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 module["exports"] = [
   "Adaptive",
   "Advanced",
@@ -13821,7 +15118,7 @@ module["exports"] = [
   "Vision-oriented"
 ];
 
-},{}],69:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 module["exports"] = [
   "clicks-and-mortar",
   "value-added",
@@ -13934,7 +15231,7 @@ module["exports"] = [
   "methodologies"
 ];
 
-},{}],70:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 module["exports"] = [
   "implement",
   "utilize",
@@ -13998,7 +15295,7 @@ module["exports"] = [
   "recontextualize"
 ];
 
-},{}],71:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 module["exports"] = [
   "24 hour",
   "24/7",
@@ -14103,7 +15400,7 @@ module["exports"] = [
   "zero tolerance"
 ];
 
-},{}],72:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -14114,14 +15411,14 @@ company.bs_verb = require("./bs_verb");
 company.bs_noun = require("./bs_noun");
 company.name = require("./name");
 
-},{"./adjective":68,"./bs_noun":69,"./bs_verb":70,"./descriptor":71,"./name":73,"./noun":74,"./suffix":75}],73:[function(require,module,exports){
+},{"./adjective":90,"./bs_noun":91,"./bs_verb":92,"./descriptor":93,"./name":95,"./noun":96,"./suffix":97}],95:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name} #{suffix}",
   "#{Name.man_last_name} a #{Name.man_last_name} #{suffix}"
 ];
 
-},{}],74:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 module["exports"] = [
   "ability",
   "access",
@@ -14229,16 +15526,16 @@ module["exports"] = [
   "workforce"
 ];
 
-},{}],75:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 module["exports"] = [
   "s.r.o.",
   "a.s.",
   "v.o.s."
 ];
 
-},{}],76:[function(require,module,exports){
-arguments[4][37][0].apply(exports,arguments)
-},{"./month":77,"./weekday":78,"/Users/a/dev/faker.js/lib/locales/az/date/index.js":37}],77:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
+arguments[4][59][0].apply(exports,arguments)
+},{"./month":99,"./weekday":100,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/date/index.js":59}],99:[function(require,module,exports){
 // Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1799
 module["exports"] = {
   wide: [
@@ -14303,7 +15600,7 @@ module["exports"] = {
   ]
 };
 
-},{}],78:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 // Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1847
 module["exports"] = {
   wide: [
@@ -14348,7 +15645,7 @@ module["exports"] = {
   ]
 };
 
-},{}],79:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 var cz = {};
 module['exports'] = cz;
 cz.title = "Czech";
@@ -14360,7 +15657,7 @@ cz.name = require("./name");
 cz.phone_number = require("./phone_number");
 cz.date = require("./date");
 
-},{"./address":59,"./company":72,"./date":76,"./internet":82,"./lorem":83,"./name":88,"./phone_number":96}],80:[function(require,module,exports){
+},{"./address":81,"./company":94,"./date":98,"./internet":104,"./lorem":105,"./name":109,"./phone_number":117}],102:[function(require,module,exports){
 module["exports"] = [
   "cz",
   "com",
@@ -14369,7 +15666,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],81:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "seznam.cz",
@@ -14378,859 +15675,14 @@ module["exports"] = [
   "atlas.cz"
 ];
 
-},{}],82:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":80,"./free_email":81,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],83:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":102,"./free_email":103,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],105:[function(require,module,exports){
 var lorem = {};
 module['exports'] = lorem;
 lorem.words = require("./words");
-lorem.supplemental = require("./supplemental");
 
-},{"./supplemental":84,"./words":85}],84:[function(require,module,exports){
-module["exports"] = [
-  "abbas",
-  "abduco",
-  "abeo",
-  "abscido",
-  "absconditus",
-  "absens",
-  "absorbeo",
-  "absque",
-  "abstergo",
-  "absum",
-  "abundans",
-  "abutor",
-  "accedo",
-  "accendo",
-  "acceptus",
-  "accipio",
-  "accommodo",
-  "accusator",
-  "acer",
-  "acerbitas",
-  "acervus",
-  "acidus",
-  "acies",
-  "acquiro",
-  "acsi",
-  "adamo",
-  "adaugeo",
-  "addo",
-  "adduco",
-  "ademptio",
-  "adeo",
-  "adeptio",
-  "adfectus",
-  "adfero",
-  "adficio",
-  "adflicto",
-  "adhaero",
-  "adhuc",
-  "adicio",
-  "adimpleo",
-  "adinventitias",
-  "adipiscor",
-  "adiuvo",
-  "administratio",
-  "admiratio",
-  "admitto",
-  "admoneo",
-  "admoveo",
-  "adnuo",
-  "adopto",
-  "adsidue",
-  "adstringo",
-  "adsuesco",
-  "adsum",
-  "adulatio",
-  "adulescens",
-  "adultus",
-  "aduro",
-  "advenio",
-  "adversus",
-  "advoco",
-  "aedificium",
-  "aeger",
-  "aegre",
-  "aegrotatio",
-  "aegrus",
-  "aeneus",
-  "aequitas",
-  "aequus",
-  "aer",
-  "aestas",
-  "aestivus",
-  "aestus",
-  "aetas",
-  "aeternus",
-  "ager",
-  "aggero",
-  "aggredior",
-  "agnitio",
-  "agnosco",
-  "ago",
-  "ait",
-  "aiunt",
-  "alienus",
-  "alii",
-  "alioqui",
-  "aliqua",
-  "alius",
-  "allatus",
-  "alo",
-  "alter",
-  "altus",
-  "alveus",
-  "amaritudo",
-  "ambitus",
-  "ambulo",
-  "amicitia",
-  "amiculum",
-  "amissio",
-  "amita",
-  "amitto",
-  "amo",
-  "amor",
-  "amoveo",
-  "amplexus",
-  "amplitudo",
-  "amplus",
-  "ancilla",
-  "angelus",
-  "angulus",
-  "angustus",
-  "animadverto",
-  "animi",
-  "animus",
-  "annus",
-  "anser",
-  "ante",
-  "antea",
-  "antepono",
-  "antiquus",
-  "aperio",
-  "aperte",
-  "apostolus",
-  "apparatus",
-  "appello",
-  "appono",
-  "appositus",
-  "approbo",
-  "apto",
-  "aptus",
-  "apud",
-  "aqua",
-  "ara",
-  "aranea",
-  "arbitro",
-  "arbor",
-  "arbustum",
-  "arca",
-  "arceo",
-  "arcesso",
-  "arcus",
-  "argentum",
-  "argumentum",
-  "arguo",
-  "arma",
-  "armarium",
-  "armo",
-  "aro",
-  "ars",
-  "articulus",
-  "artificiose",
-  "arto",
-  "arx",
-  "ascisco",
-  "ascit",
-  "asper",
-  "aspicio",
-  "asporto",
-  "assentator",
-  "astrum",
-  "atavus",
-  "ater",
-  "atqui",
-  "atrocitas",
-  "atrox",
-  "attero",
-  "attollo",
-  "attonbitus",
-  "auctor",
-  "auctus",
-  "audacia",
-  "audax",
-  "audentia",
-  "audeo",
-  "audio",
-  "auditor",
-  "aufero",
-  "aureus",
-  "auris",
-  "aurum",
-  "aut",
-  "autem",
-  "autus",
-  "auxilium",
-  "avaritia",
-  "avarus",
-  "aveho",
-  "averto",
-  "avoco",
-  "baiulus",
-  "balbus",
-  "barba",
-  "bardus",
-  "basium",
-  "beatus",
-  "bellicus",
-  "bellum",
-  "bene",
-  "beneficium",
-  "benevolentia",
-  "benigne",
-  "bestia",
-  "bibo",
-  "bis",
-  "blandior",
-  "bonus",
-  "bos",
-  "brevis",
-  "cado",
-  "caecus",
-  "caelestis",
-  "caelum",
-  "calamitas",
-  "calcar",
-  "calco",
-  "calculus",
-  "callide",
-  "campana",
-  "candidus",
-  "canis",
-  "canonicus",
-  "canto",
-  "capillus",
-  "capio",
-  "capitulus",
-  "capto",
-  "caput",
-  "carbo",
-  "carcer",
-  "careo",
-  "caries",
-  "cariosus",
-  "caritas",
-  "carmen",
-  "carpo",
-  "carus",
-  "casso",
-  "caste",
-  "casus",
-  "catena",
-  "caterva",
-  "cattus",
-  "cauda",
-  "causa",
-  "caute",
-  "caveo",
-  "cavus",
-  "cedo",
-  "celebrer",
-  "celer",
-  "celo",
-  "cena",
-  "cenaculum",
-  "ceno",
-  "censura",
-  "centum",
-  "cerno",
-  "cernuus",
-  "certe",
-  "certo",
-  "certus",
-  "cervus",
-  "cetera",
-  "charisma",
-  "chirographum",
-  "cibo",
-  "cibus",
-  "cicuta",
-  "cilicium",
-  "cimentarius",
-  "ciminatio",
-  "cinis",
-  "circumvenio",
-  "cito",
-  "civis",
-  "civitas",
-  "clam",
-  "clamo",
-  "claro",
-  "clarus",
-  "claudeo",
-  "claustrum",
-  "clementia",
-  "clibanus",
-  "coadunatio",
-  "coaegresco",
-  "coepi",
-  "coerceo",
-  "cogito",
-  "cognatus",
-  "cognomen",
-  "cogo",
-  "cohaero",
-  "cohibeo",
-  "cohors",
-  "colligo",
-  "colloco",
-  "collum",
-  "colo",
-  "color",
-  "coma",
-  "combibo",
-  "comburo",
-  "comedo",
-  "comes",
-  "cometes",
-  "comis",
-  "comitatus",
-  "commemoro",
-  "comminor",
-  "commodo",
-  "communis",
-  "comparo",
-  "compello",
-  "complectus",
-  "compono",
-  "comprehendo",
-  "comptus",
-  "conatus",
-  "concedo",
-  "concido",
-  "conculco",
-  "condico",
-  "conduco",
-  "confero",
-  "confido",
-  "conforto",
-  "confugo",
-  "congregatio",
-  "conicio",
-  "coniecto",
-  "conitor",
-  "coniuratio",
-  "conor",
-  "conqueror",
-  "conscendo",
-  "conservo",
-  "considero",
-  "conspergo",
-  "constans",
-  "consuasor",
-  "contabesco",
-  "contego",
-  "contigo",
-  "contra",
-  "conturbo",
-  "conventus",
-  "convoco",
-  "copia",
-  "copiose",
-  "cornu",
-  "corona",
-  "corpus",
-  "correptius",
-  "corrigo",
-  "corroboro",
-  "corrumpo",
-  "coruscus",
-  "cotidie",
-  "crapula",
-  "cras",
-  "crastinus",
-  "creator",
-  "creber",
-  "crebro",
-  "credo",
-  "creo",
-  "creptio",
-  "crepusculum",
-  "cresco",
-  "creta",
-  "cribro",
-  "crinis",
-  "cruciamentum",
-  "crudelis",
-  "cruentus",
-  "crur",
-  "crustulum",
-  "crux",
-  "cubicularis",
-  "cubitum",
-  "cubo",
-  "cui",
-  "cuius",
-  "culpa",
-  "culpo",
-  "cultellus",
-  "cultura",
-  "cum",
-  "cunabula",
-  "cunae",
-  "cunctatio",
-  "cupiditas",
-  "cupio",
-  "cuppedia",
-  "cupressus",
-  "cur",
-  "cura",
-  "curatio",
-  "curia",
-  "curiositas",
-  "curis",
-  "curo",
-  "curriculum",
-  "currus",
-  "cursim",
-  "curso",
-  "cursus",
-  "curto",
-  "curtus",
-  "curvo",
-  "curvus",
-  "custodia",
-  "damnatio",
-  "damno",
-  "dapifer",
-  "debeo",
-  "debilito",
-  "decens",
-  "decerno",
-  "decet",
-  "decimus",
-  "decipio",
-  "decor",
-  "decretum",
-  "decumbo",
-  "dedecor",
-  "dedico",
-  "deduco",
-  "defaeco",
-  "defendo",
-  "defero",
-  "defessus",
-  "defetiscor",
-  "deficio",
-  "defigo",
-  "defleo",
-  "defluo",
-  "defungo",
-  "degenero",
-  "degero",
-  "degusto",
-  "deinde",
-  "delectatio",
-  "delego",
-  "deleo",
-  "delibero",
-  "delicate",
-  "delinquo",
-  "deludo",
-  "demens",
-  "demergo",
-  "demitto",
-  "demo",
-  "demonstro",
-  "demoror",
-  "demulceo",
-  "demum",
-  "denego",
-  "denique",
-  "dens",
-  "denuncio",
-  "denuo",
-  "deorsum",
-  "depereo",
-  "depono",
-  "depopulo",
-  "deporto",
-  "depraedor",
-  "deprecator",
-  "deprimo",
-  "depromo",
-  "depulso",
-  "deputo",
-  "derelinquo",
-  "derideo",
-  "deripio",
-  "desidero",
-  "desino",
-  "desipio",
-  "desolo",
-  "desparatus",
-  "despecto",
-  "despirmatio",
-  "infit",
-  "inflammatio",
-  "paens",
-  "patior",
-  "patria",
-  "patrocinor",
-  "patruus",
-  "pauci",
-  "paulatim",
-  "pauper",
-  "pax",
-  "peccatus",
-  "pecco",
-  "pecto",
-  "pectus",
-  "pecunia",
-  "pecus",
-  "peior",
-  "pel",
-  "ocer",
-  "socius",
-  "sodalitas",
-  "sol",
-  "soleo",
-  "solio",
-  "solitudo",
-  "solium",
-  "sollers",
-  "sollicito",
-  "solum",
-  "solus",
-  "solutio",
-  "solvo",
-  "somniculosus",
-  "somnus",
-  "sonitus",
-  "sono",
-  "sophismata",
-  "sopor",
-  "sordeo",
-  "sortitus",
-  "spargo",
-  "speciosus",
-  "spectaculum",
-  "speculum",
-  "sperno",
-  "spero",
-  "spes",
-  "spiculum",
-  "spiritus",
-  "spoliatio",
-  "sponte",
-  "stabilis",
-  "statim",
-  "statua",
-  "stella",
-  "stillicidium",
-  "stipes",
-  "stips",
-  "sto",
-  "strenuus",
-  "strues",
-  "studio",
-  "stultus",
-  "suadeo",
-  "suasoria",
-  "sub",
-  "subito",
-  "subiungo",
-  "sublime",
-  "subnecto",
-  "subseco",
-  "substantia",
-  "subvenio",
-  "succedo",
-  "succurro",
-  "sufficio",
-  "suffoco",
-  "suffragium",
-  "suggero",
-  "sui",
-  "sulum",
-  "sum",
-  "summa",
-  "summisse",
-  "summopere",
-  "sumo",
-  "sumptus",
-  "supellex",
-  "super",
-  "suppellex",
-  "supplanto",
-  "suppono",
-  "supra",
-  "surculus",
-  "surgo",
-  "sursum",
-  "suscipio",
-  "suspendo",
-  "sustineo",
-  "suus",
-  "synagoga",
-  "tabella",
-  "tabernus",
-  "tabesco",
-  "tabgo",
-  "tabula",
-  "taceo",
-  "tactus",
-  "taedium",
-  "talio",
-  "talis",
-  "talus",
-  "tam",
-  "tamdiu",
-  "tamen",
-  "tametsi",
-  "tamisium",
-  "tamquam",
-  "tandem",
-  "tantillus",
-  "tantum",
-  "tardus",
-  "tego",
-  "temeritas",
-  "temperantia",
-  "templum",
-  "temptatio",
-  "tempus",
-  "tenax",
-  "tendo",
-  "teneo",
-  "tener",
-  "tenuis",
-  "tenus",
-  "tepesco",
-  "tepidus",
-  "ter",
-  "terebro",
-  "teres",
-  "terga",
-  "tergeo",
-  "tergiversatio",
-  "tergo",
-  "tergum",
-  "termes",
-  "terminatio",
-  "tero",
-  "terra",
-  "terreo",
-  "territo",
-  "terror",
-  "tersus",
-  "tertius",
-  "testimonium",
-  "texo",
-  "textilis",
-  "textor",
-  "textus",
-  "thalassinus",
-  "theatrum",
-  "theca",
-  "thema",
-  "theologus",
-  "thermae",
-  "thesaurus",
-  "thesis",
-  "thorax",
-  "thymbra",
-  "thymum",
-  "tibi",
-  "timidus",
-  "timor",
-  "titulus",
-  "tolero",
-  "tollo",
-  "tondeo",
-  "tonsor",
-  "torqueo",
-  "torrens",
-  "tot",
-  "totidem",
-  "toties",
-  "totus",
-  "tracto",
-  "trado",
-  "traho",
-  "trans",
-  "tredecim",
-  "tremo",
-  "trepide",
-  "tres",
-  "tribuo",
-  "tricesimus",
-  "triduana",
-  "triginta",
-  "tripudio",
-  "tristis",
-  "triumphus",
-  "trucido",
-  "truculenter",
-  "tubineus",
-  "tui",
-  "tum",
-  "tumultus",
-  "tunc",
-  "turba",
-  "turbo",
-  "turpe",
-  "turpis",
-  "tutamen",
-  "tutis",
-  "tyrannus",
-  "uberrime",
-  "ubi",
-  "ulciscor",
-  "ullus",
-  "ulterius",
-  "ultio",
-  "ultra",
-  "umbra",
-  "umerus",
-  "umquam",
-  "una",
-  "unde",
-  "undique",
-  "universe",
-  "unus",
-  "urbanus",
-  "urbs",
-  "uredo",
-  "usitas",
-  "usque",
-  "ustilo",
-  "ustulo",
-  "usus",
-  "uter",
-  "uterque",
-  "utilis",
-  "utique",
-  "utor",
-  "utpote",
-  "utrimque",
-  "utroque",
-  "utrum",
-  "uxor",
-  "vaco",
-  "vacuus",
-  "vado",
-  "vae",
-  "valde",
-  "valens",
-  "valeo",
-  "valetudo",
-  "validus",
-  "vallum",
-  "vapulus",
-  "varietas",
-  "varius",
-  "vehemens",
-  "vel",
-  "velociter",
-  "velum",
-  "velut",
-  "venia",
-  "venio",
-  "ventito",
-  "ventosus",
-  "ventus",
-  "venustas",
-  "ver",
-  "verbera",
-  "verbum",
-  "vere",
-  "verecundia",
-  "vereor",
-  "vergo",
-  "veritas",
-  "vero",
-  "versus",
-  "verto",
-  "verumtamen",
-  "verus",
-  "vesco",
-  "vesica",
-  "vesper",
-  "vespillo",
-  "vester",
-  "vestigium",
-  "vestrum",
-  "vetus",
-  "via",
-  "vicinus",
-  "vicissitudo",
-  "victoria",
-  "victus",
-  "videlicet",
-  "video",
-  "viduata",
-  "viduo",
-  "vigilo",
-  "vigor",
-  "vilicus",
-  "vilis",
-  "vilitas",
-  "villa",
-  "vinco",
-  "vinculum",
-  "vindico",
-  "vinitor",
-  "vinum",
-  "vir",
-  "virga",
-  "virgo",
-  "viridis",
-  "viriliter",
-  "virtus",
-  "vis",
-  "viscus",
-  "vita",
-  "vitiosus",
-  "vitium",
-  "vito",
-  "vivo",
-  "vix",
-  "vobis",
-  "vociferor",
-  "voco",
-  "volaticus",
-  "volo",
-  "volubilis",
-  "voluntarius",
-  "volup",
-  "volutabrum",
-  "volva",
-  "vomer",
-  "vomica",
-  "vomito",
-  "vorago",
-  "vorax",
-  "voro",
-  "vos",
-  "votum",
-  "voveo",
-  "vox",
-  "vulariter",
-  "vulgaris",
-  "vulgivagus",
-  "vulgo",
-  "vulgus",
-  "vulnero",
-  "vulnus",
-  "vulpes",
-  "vulticulus",
-  "vultuosus",
-  "xiphias"
-];
-
-},{}],85:[function(require,module,exports){
+},{"./words":106}],106:[function(require,module,exports){
 module["exports"] = [
   "alias",
   "consequatur",
@@ -15483,7 +15935,7 @@ module["exports"] = [
   "repellat"
 ];
 
-},{}],86:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 module["exports"] = [
   "Abigail",
   "Ada",
@@ -16273,7 +16725,7 @@ module["exports"] = [
   "Žofie",
 ];
 
-},{}],87:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 module["exports"] = [
   "Adamová",
   "Adamcová",
@@ -17276,7 +17728,7 @@ module["exports"] = [
   "Zvěřinová",
 ];
 
-},{}],88:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.male_first_name = require("./male_first_name");
@@ -17288,7 +17740,7 @@ name.suffix = require("./suffix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./female_first_name":86,"./female_last_name":87,"./male_first_name":89,"./male_last_name":90,"./name":91,"./prefix":92,"./suffix":93,"./title":94}],89:[function(require,module,exports){
+},{"./female_first_name":107,"./female_last_name":108,"./male_first_name":110,"./male_last_name":111,"./name":112,"./prefix":113,"./suffix":114,"./title":115}],110:[function(require,module,exports){
 module["exports"] = [
   "Abadon",
   "Abdon",
@@ -18088,7 +18540,7 @@ module["exports"] = [
   "Živan",
 ];
 
-},{}],90:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 module["exports"] = [
   "Adam",
   "Adamec",
@@ -19091,7 +19543,7 @@ module["exports"] = [
   "Zvěřina",
 ];
 
-},{}],91:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{man_first_name} #{man_last_name}",
   "#{prefix} #{woman_first_name} #{woman_last_name}",
@@ -19105,7 +19557,7 @@ module["exports"] = [
   "#{woman_first_name} #{woman_last_name}"
 ];
 
-},{}],92:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 module["exports"] = [
   "Ing.",
   "Mgr.",
@@ -19113,12 +19565,12 @@ module["exports"] = [
   "MUDr."
 ];
 
-},{}],93:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 module["exports"] = [
   "Phd."
 ];
 
-},{}],94:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Lead",
@@ -19212,7 +19664,7 @@ module["exports"] = {
   ]
 };
 
-},{}],95:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 module["exports"] = [
   "601 ### ###",
   "737 ### ###",
@@ -19222,9 +19674,9 @@ module["exports"] = [
   "00420 ### ### ###"
 ];
 
-},{}],96:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":95,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],97:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":116,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],118:[function(require,module,exports){
 module["exports"] = [
   "###",
   "##",
@@ -19234,7 +19686,7 @@ module["exports"] = [
   "##c"
 ];
 
-},{}],98:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix} #{Name.first_name}#{city_suffix}",
   "#{city_prefix} #{Name.first_name}",
@@ -19242,7 +19694,7 @@ module["exports"] = [
   "#{Name.last_name}#{city_suffix}"
 ];
 
-},{}],99:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 module["exports"] = [
   "Nord",
   "Ost",
@@ -19253,7 +19705,7 @@ module["exports"] = [
   "Bad"
 ];
 
-},{}],100:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 module["exports"] = [
   "stadt",
   "dorf",
@@ -19262,7 +19714,7 @@ module["exports"] = [
   "burg"
 ];
 
-},{}],101:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 module["exports"] = [
   "Ägypten",
   "Äquatorialguinea",
@@ -19503,12 +19955,12 @@ module["exports"] = [
   "Zypern"
 ];
 
-},{}],102:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 module["exports"] = [
   "Deutschland"
 ];
 
-},{}],103:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -19525,20 +19977,20 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":97,"./city":98,"./city_prefix":99,"./city_suffix":100,"./country":101,"./default_country":102,"./postcode":104,"./secondary_address":105,"./state":106,"./state_abbr":107,"./street_address":108,"./street_name":109,"./street_root":110}],104:[function(require,module,exports){
+},{"./building_number":118,"./city":119,"./city_prefix":120,"./city_suffix":121,"./country":122,"./default_country":123,"./postcode":125,"./secondary_address":126,"./state":127,"./state_abbr":128,"./street_address":129,"./street_name":130,"./street_root":131}],125:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "#####"
 ];
 
-},{}],105:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 module["exports"] = [
   "Apt. ###",
   "Zimmer ###",
   "# OG"
 ];
 
-},{}],106:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 module["exports"] = [
   "Baden-Württemberg",
   "Bayern",
@@ -19558,7 +20010,7 @@ module["exports"] = [
   "Thüringen"
 ];
 
-},{}],107:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 module["exports"] = [
   "BW",
   "BY",
@@ -19578,14 +20030,14 @@ module["exports"] = [
   "TH"
 ];
 
-},{}],108:[function(require,module,exports){
-module.exports=require(65)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/street_address.js":65}],109:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],130:[function(require,module,exports){
 module["exports"] = [
   "#{street_root}"
 ];
 
-},{}],110:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 module["exports"] = [
   "Ackerweg",
   "Adalbert-Stifter-Str.",
@@ -20620,25 +21072,22 @@ module["exports"] = [
   "Zur alten Fabrik"
 ];
 
-},{}],111:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 module["exports"] = [
   "+49-1##-#######",
   "+49-1###-########"
 ];
 
-},{}],112:[function(require,module,exports){
-var cell_phone = {};
-module['exports'] = cell_phone;
-cell_phone.formats = require("./formats");
-
-},{"./formats":111}],113:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":132,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],134:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
 company.legal_form = require("./legal_form");
 company.name = require("./name");
 
-},{"./legal_form":114,"./name":115,"./suffix":116}],114:[function(require,module,exports){
+},{"./legal_form":135,"./name":136,"./suffix":137}],135:[function(require,module,exports){
 module["exports"] = [
   "GmbH",
   "AG",
@@ -20649,16 +21098,16 @@ module["exports"] = [
   "OHG"
 ];
 
-},{}],115:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} und #{Name.last_name}"
 ];
 
-},{}],116:[function(require,module,exports){
-module.exports=require(114)
-},{"/Users/a/dev/faker.js/lib/locales/de/company/legal_form.js":114}],117:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
+module.exports=require(135)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/company/legal_form.js":135}],138:[function(require,module,exports){
 var de = {};
 module['exports'] = de;
 de.title = "German";
@@ -20669,7 +21118,7 @@ de.lorem = require("./lorem");
 de.name = require("./name");
 de.phone_number = require("./phone_number");
 de.cell_phone = require("./cell_phone");
-},{"./address":103,"./cell_phone":112,"./company":113,"./internet":120,"./lorem":121,"./name":124,"./phone_number":130}],118:[function(require,module,exports){
+},{"./address":124,"./cell_phone":133,"./company":134,"./internet":141,"./lorem":142,"./name":145,"./phone_number":151}],139:[function(require,module,exports){
 module["exports"] = [
   "com",
   "info",
@@ -20680,23 +21129,20 @@ module["exports"] = [
   "ch"
 ];
 
-},{}],119:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
   "hotmail.com"
 ];
 
-},{}],120:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":118,"./free_email":119,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],121:[function(require,module,exports){
-var lorem = {};
-module['exports'] = lorem;
-lorem.words = require("./words");
-
-},{"./words":122}],122:[function(require,module,exports){
-module.exports=require(85)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/words.js":85}],123:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":139,"./free_email":140,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],142:[function(require,module,exports){
+module.exports=require(105)
+},{"./words":143,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],143:[function(require,module,exports){
+module.exports=require(106)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/words.js":106}],144:[function(require,module,exports){
 module["exports"] = [
   "Aaron",
   "Abdul",
@@ -21855,7 +22301,7 @@ module["exports"] = [
   "Zoé"
 ];
 
-},{}],124:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -21864,7 +22310,7 @@ name.prefix = require("./prefix");
 name.nobility_title_prefix = require("./nobility_title_prefix");
 name.name = require("./name");
 
-},{"./first_name":123,"./last_name":125,"./name":126,"./nobility_title_prefix":127,"./prefix":128}],125:[function(require,module,exports){
+},{"./first_name":144,"./last_name":146,"./name":147,"./nobility_title_prefix":148,"./prefix":149}],146:[function(require,module,exports){
 module["exports"] = [
   "Abel",
   "Abicht",
@@ -22158,7 +22604,6 @@ module["exports"] = [
   "Ehmann",
   "Ehrig",
   "Eich",
-  "Eichmann",
   "Eifert",
   "Einert",
   "Eisenlauer",
@@ -23557,7 +24002,7 @@ module["exports"] = [
   "Überacker"
 ];
 
-},{}],126:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{nobility_title_prefix} #{last_name}",
@@ -23567,7 +24012,7 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],127:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 module["exports"] = [
   "zu",
   "von",
@@ -23575,7 +24020,7 @@ module["exports"] = [
   "von der"
 ];
 
-},{}],128:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 module["exports"] = [
   "Hr.",
   "Fr.",
@@ -23583,7 +24028,7 @@ module["exports"] = [
   "Prof. Dr."
 ];
 
-},{}],129:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 module["exports"] = [
   "(0###) #########",
   "(0####) #######",
@@ -23591,13 +24036,13 @@ module["exports"] = [
   "+49-####-########"
 ];
 
-},{}],130:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":129,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],131:[function(require,module,exports){
-module.exports=require(97)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/building_number.js":97}],132:[function(require,module,exports){
-module.exports=require(55)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/city.js":55}],133:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":150,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],152:[function(require,module,exports){
+module.exports=require(118)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/address/building_number.js":118}],153:[function(require,module,exports){
+module.exports=require(20)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/city.js":20}],154:[function(require,module,exports){
 module["exports"] = [
   "Aigen im Mühlkreis",
   "Allerheiligen bei Wildon",
@@ -23644,6 +24089,7 @@ module["exports"] = [
   "Johnsbach",
   "Johnsdorf-Brunn",
   "Jungholz",
+  "Kindberg",
   "Kirchdorf am Inn",
   "Klagenfurt",
   "Kottes-Purk",
@@ -23719,14 +24165,14 @@ module["exports"] = [
   "Übersbach"
 ];
 
-},{}],134:[function(require,module,exports){
-module.exports=require(101)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/country.js":101}],135:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
+module.exports=require(122)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/address/country.js":122}],156:[function(require,module,exports){
 module["exports"] = [
   "Österreich"
 ];
 
-},{}],136:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -23742,14 +24188,14 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":131,"./city":132,"./city_name":133,"./country":134,"./default_country":135,"./postcode":137,"./secondary_address":138,"./state":139,"./state_abbr":140,"./street_address":141,"./street_name":142,"./street_root":143}],137:[function(require,module,exports){
+},{"./building_number":152,"./city":153,"./city_name":154,"./country":155,"./default_country":156,"./postcode":158,"./secondary_address":159,"./state":160,"./state_abbr":161,"./street_address":162,"./street_name":163,"./street_root":164}],158:[function(require,module,exports){
 module["exports"] = [
   "####"
 ];
 
-},{}],138:[function(require,module,exports){
-module.exports=require(105)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/secondary_address.js":105}],139:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
+module.exports=require(126)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/address/secondary_address.js":126}],160:[function(require,module,exports){
 module["exports"] = [
   "Burgenland",
   "Kärnten",
@@ -23762,7 +24208,7 @@ module["exports"] = [
   "Wien"
 ];
 
-},{}],140:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 module["exports"] = [
   "Bgld.",
   "Ktn.",
@@ -23775,11 +24221,11 @@ module["exports"] = [
   "W"
 ];
 
-},{}],141:[function(require,module,exports){
-module.exports=require(65)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/street_address.js":65}],142:[function(require,module,exports){
-module.exports=require(109)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_name.js":109}],143:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],163:[function(require,module,exports){
+module.exports=require(130)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/address/street_name.js":130}],164:[function(require,module,exports){
 module["exports"] = [
   "Ahorn",
   "Ahorngasse (St. Andrä)",
@@ -23981,7 +24427,7 @@ module["exports"] = [
   "Ötzbruck"
 ];
 
-},{}],144:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 module["exports"] = [
   "+43-6##-#######",
   "06##-########",
@@ -23989,17 +24435,17 @@ module["exports"] = [
   "06##########"
 ];
 
-},{}],145:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":144,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],146:[function(require,module,exports){
-module.exports=require(113)
-},{"./legal_form":147,"./name":148,"./suffix":149,"/Users/a/dev/faker.js/lib/locales/de/company/index.js":113}],147:[function(require,module,exports){
-module.exports=require(114)
-},{"/Users/a/dev/faker.js/lib/locales/de/company/legal_form.js":114}],148:[function(require,module,exports){
-module.exports=require(115)
-},{"/Users/a/dev/faker.js/lib/locales/de/company/name.js":115}],149:[function(require,module,exports){
-module.exports=require(114)
-},{"/Users/a/dev/faker.js/lib/locales/de/company/legal_form.js":114}],150:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":165,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],167:[function(require,module,exports){
+module.exports=require(134)
+},{"./legal_form":168,"./name":169,"./suffix":170,"/Users/kdzuin/Badoo/faker.js/lib/locales/de/company/index.js":134}],168:[function(require,module,exports){
+module.exports=require(135)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/company/legal_form.js":135}],169:[function(require,module,exports){
+module.exports=require(136)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/company/name.js":136}],170:[function(require,module,exports){
+module.exports=require(135)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/company/legal_form.js":135}],171:[function(require,module,exports){
 var de_AT = {};
 module['exports'] = de_AT;
 de_AT.title = "German (Austria)";
@@ -24010,7 +24456,7 @@ de_AT.name = require("./name");
 de_AT.phone_number = require("./phone_number");
 de_AT.cell_phone = require("./cell_phone");
 
-},{"./address":136,"./cell_phone":145,"./company":146,"./internet":153,"./name":155,"./phone_number":161}],151:[function(require,module,exports){
+},{"./address":157,"./cell_phone":166,"./company":167,"./internet":174,"./name":176,"./phone_number":182}],172:[function(require,module,exports){
 module["exports"] = [
   "com",
   "info",
@@ -24022,27 +24468,27 @@ module["exports"] = [
   "at"
 ];
 
-},{}],152:[function(require,module,exports){
-module.exports=require(119)
-},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":119}],153:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":151,"./free_email":152,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],154:[function(require,module,exports){
-module.exports=require(123)
-},{"/Users/a/dev/faker.js/lib/locales/de/name/first_name.js":123}],155:[function(require,module,exports){
-arguments[4][124][0].apply(exports,arguments)
-},{"./first_name":154,"./last_name":156,"./name":157,"./nobility_title_prefix":158,"./prefix":159,"/Users/a/dev/faker.js/lib/locales/de/name/index.js":124}],156:[function(require,module,exports){
-module.exports=require(125)
-},{"/Users/a/dev/faker.js/lib/locales/de/name/last_name.js":125}],157:[function(require,module,exports){
-module.exports=require(126)
-},{"/Users/a/dev/faker.js/lib/locales/de/name/name.js":126}],158:[function(require,module,exports){
-module.exports=require(127)
-},{"/Users/a/dev/faker.js/lib/locales/de/name/nobility_title_prefix.js":127}],159:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
+module.exports=require(140)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/internet/free_email.js":140}],174:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":172,"./free_email":173,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],175:[function(require,module,exports){
+module.exports=require(144)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/name/first_name.js":144}],176:[function(require,module,exports){
+arguments[4][145][0].apply(exports,arguments)
+},{"./first_name":175,"./last_name":177,"./name":178,"./nobility_title_prefix":179,"./prefix":180,"/Users/kdzuin/Badoo/faker.js/lib/locales/de/name/index.js":145}],177:[function(require,module,exports){
+module.exports=require(146)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/name/last_name.js":146}],178:[function(require,module,exports){
+module.exports=require(147)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/name/name.js":147}],179:[function(require,module,exports){
+module.exports=require(148)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/name/nobility_title_prefix.js":148}],180:[function(require,module,exports){
 module["exports"] = [
   "Dr.",
   "Prof. Dr."
 ];
 
-},{}],160:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 module["exports"] = [
   "01 #######",
   "01#######",
@@ -24054,9 +24500,9 @@ module["exports"] = [
   "+43 ########"
 ];
 
-},{}],161:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":160,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],162:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":181,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],183:[function(require,module,exports){
 module["exports"] = [
   "CH",
   "CH",
@@ -24070,19 +24516,19 @@ module["exports"] = [
   "VN"
 ];
 
-},{}],163:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 module["exports"] = [
   "Schweiz"
 ];
 
-},{}],164:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country_code = require("./country_code");
 address.postcode = require("./postcode");
 address.default_country = require("./default_country");
 
-},{"./country_code":162,"./default_country":163,"./postcode":165}],165:[function(require,module,exports){
+},{"./country_code":183,"./default_country":184,"./postcode":186}],186:[function(require,module,exports){
 module["exports"] = [
   "1###",
   "2###",
@@ -24095,15 +24541,15 @@ module["exports"] = [
   "9###"
 ];
 
-},{}],166:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
 company.name = require("./name");
 
-},{"./name":167,"./suffix":168}],167:[function(require,module,exports){
-module.exports=require(115)
-},{"/Users/a/dev/faker.js/lib/locales/de/company/name.js":115}],168:[function(require,module,exports){
+},{"./name":188,"./suffix":189}],188:[function(require,module,exports){
+module.exports=require(136)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/company/name.js":136}],189:[function(require,module,exports){
 module["exports"] = [
   "AG",
   "GmbH",
@@ -24115,7 +24561,7 @@ module["exports"] = [
   "Inc."
 ];
 
-},{}],169:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 var de_CH = {};
 module['exports'] = de_CH;
 de_CH.title = "German (Switzerland)";
@@ -24125,7 +24571,7 @@ de_CH.internet = require("./internet");
 de_CH.name = require("./name");
 de_CH.phone_number = require("./phone_number");
 
-},{"./address":164,"./company":166,"./internet":171,"./name":173,"./phone_number":178}],170:[function(require,module,exports){
+},{"./address":185,"./company":187,"./internet":192,"./name":194,"./phone_number":199}],191:[function(require,module,exports){
 module["exports"] = [
   "com",
   "net",
@@ -24138,12 +24584,12 @@ module["exports"] = [
   "ch"
 ];
 
-},{}],171:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 var internet = {};
 module['exports'] = internet;
 internet.domain_suffix = require("./domain_suffix");
 
-},{"./domain_suffix":170}],172:[function(require,module,exports){
+},{"./domain_suffix":191}],193:[function(require,module,exports){
 module["exports"] = [
     "Adolf",
     "Adrian",
@@ -24484,7 +24930,7 @@ module["exports"] = [
 
 ];
 
-},{}],173:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -24492,7 +24938,7 @@ name.last_name = require("./last_name");
 name.prefix = require("./prefix");
 name.name = require("./name");
 
-},{"./first_name":172,"./last_name":174,"./name":175,"./prefix":176}],174:[function(require,module,exports){
+},{"./first_name":193,"./last_name":195,"./name":196,"./prefix":197}],195:[function(require,module,exports){
 module["exports"] = [
     "Ackermann",
     "Aebi",
@@ -24705,7 +25151,7 @@ module["exports"] = [
     "Zürcher"
 ];
 
-},{}],175:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 module["exports"] = [
   "#{first_name} #{last_name}",
   "#{first_name} #{last_name}",
@@ -24715,14 +25161,14 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],176:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 module["exports"] = [
   "Hr.",
   "Fr.",
   "Dr."
 ];
 
-},{}],177:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 module["exports"] = [
   "0800 ### ###",
   "0800 ## ## ##",
@@ -24735,18 +25181,13 @@ module["exports"] = [
   "0041 79 ### ## ##"
 ];
 
-},{}],178:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":177,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],179:[function(require,module,exports){
-module["exports"] = [
-  "#####",
-  "####",
-  "###"
-];
-
-},{}],180:[function(require,module,exports){
-module.exports=require(98)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/city.js":98}],181:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":198,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],200:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/building_number.js":19}],201:[function(require,module,exports){
+module.exports=require(119)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/address/city.js":119}],202:[function(require,module,exports){
 module["exports"] = [
   "North",
   "East",
@@ -24757,7 +25198,7 @@ module["exports"] = [
   "Port"
 ];
 
-},{}],182:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 module["exports"] = [
   "town",
   "ton",
@@ -24780,7 +25221,7 @@ module["exports"] = [
   "shire"
 ];
 
-},{}],183:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 module["exports"] = [
   "Afghanistan",
   "Albania",
@@ -25028,7 +25469,7 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],184:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 module["exports"] = [
   "AD",
   "AE",
@@ -25282,7 +25723,7 @@ module["exports"] = [
   "ZW"
 ];
 
-},{}],185:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 module["exports"] = [
   "Avon",
   "Bedfordshire",
@@ -25292,12 +25733,36 @@ module["exports"] = [
   "Cambridgeshire"
 ];
 
-},{}],186:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 module["exports"] = [
   "United States of America"
 ];
 
-},{}],187:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
+module["exports"] = [
+  "North",
+  "East",
+  "South",
+  "West",
+  "Northeast",
+  "Northwest",
+  "Southeast",
+  "Southwest"
+];
+
+},{}],209:[function(require,module,exports){
+module["exports"] = [
+  "N",
+  "E",
+  "S",
+  "W",
+  "NE",
+  "NW",
+  "SE",
+  "SW"
+];
+
+},{}],210:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -25317,18 +25782,16 @@ address.city = require("./city");
 address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
+address.direction = require("./direction");
+address.direction_abbr = require("./direction_abbr");
 
-},{"./building_number":179,"./city":180,"./city_prefix":181,"./city_suffix":182,"./country":183,"./country_code":184,"./county":185,"./default_country":186,"./postcode":188,"./postcode_by_state":189,"./secondary_address":190,"./state":191,"./state_abbr":192,"./street_address":193,"./street_name":194,"./street_suffix":195,"./time_zone":196}],188:[function(require,module,exports){
-module["exports"] = [
-  "#####",
-  "#####-####"
-];
-
-},{}],189:[function(require,module,exports){
-module.exports=require(188)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/postcode.js":188}],190:[function(require,module,exports){
-module.exports=require(61)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/secondary_address.js":61}],191:[function(require,module,exports){
+},{"./building_number":200,"./city":201,"./city_prefix":202,"./city_suffix":203,"./country":204,"./country_code":205,"./county":206,"./default_country":207,"./direction":208,"./direction_abbr":209,"./postcode":211,"./postcode_by_state":212,"./secondary_address":213,"./state":214,"./state_abbr":215,"./street_address":216,"./street_name":217,"./street_suffix":218,"./time_zone":219}],211:[function(require,module,exports){
+module.exports=require(24)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/postcode.js":24}],212:[function(require,module,exports){
+module.exports=require(24)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/postcode.js":24}],213:[function(require,module,exports){
+module.exports=require(83)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/secondary_address.js":83}],214:[function(require,module,exports){
 module["exports"] = [
   "Alabama",
   "Alaska",
@@ -25382,7 +25845,7 @@ module["exports"] = [
   "Wyoming"
 ];
 
-},{}],192:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 module["exports"] = [
   "AL",
   "AK",
@@ -25436,18 +25899,15 @@ module["exports"] = [
   "WY"
 ];
 
-},{}],193:[function(require,module,exports){
-module["exports"] = [
-  "#{building_number} #{street_name}"
-];
-
-},{}],194:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
+module.exports=require(28)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/street_address.js":28}],217:[function(require,module,exports){
 module["exports"] = [
   "#{Name.first_name} #{street_suffix}",
   "#{Name.last_name} #{street_suffix}"
 ];
 
-},{}],195:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 module["exports"] = [
   "Alley",
   "Avenue",
@@ -25676,22 +26136,22 @@ module["exports"] = [
   "Wells"
 ];
 
-},{}],196:[function(require,module,exports){
-module.exports=require(67)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/time_zone.js":67}],197:[function(require,module,exports){
+},{}],219:[function(require,module,exports){
+module.exports=require(89)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/time_zone.js":89}],220:[function(require,module,exports){
 module["exports"] = [
   "#{Name.name}",
   "#{Company.name}"
 ];
 
-},{}],198:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 var app = {};
 module['exports'] = app;
 app.name = require("./name");
 app.version = require("./version");
 app.author = require("./author");
 
-},{"./author":197,"./name":199,"./version":200}],199:[function(require,module,exports){
+},{"./author":220,"./name":222,"./version":223}],222:[function(require,module,exports){
 module["exports"] = [
   "Redhold",
   "Treeflex",
@@ -25757,7 +26217,7 @@ module["exports"] = [
   "Keylex"
 ];
 
-},{}],200:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 module["exports"] = [
   "0.#.#",
   "0.##",
@@ -25766,7 +26226,7 @@ module["exports"] = [
   "#.#.#"
 ];
 
-},{}],201:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 module["exports"] = [
   "2011-10-12",
   "2012-11-12",
@@ -25774,7 +26234,7 @@ module["exports"] = [
   "2013-9-12"
 ];
 
-},{}],202:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 module["exports"] = [
   "1234-2121-1221-1211",
   "1212-1221-1121-1234",
@@ -25782,7 +26242,7 @@ module["exports"] = [
   "1228-1221-1221-1431"
 ];
 
-},{}],203:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 module["exports"] = [
   "visa",
   "mastercard",
@@ -25790,24 +26250,18 @@ module["exports"] = [
   "discover"
 ];
 
-},{}],204:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 var business = {};
 module['exports'] = business;
 business.credit_card_numbers = require("./credit_card_numbers");
 business.credit_card_expiry_dates = require("./credit_card_expiry_dates");
 business.credit_card_types = require("./credit_card_types");
 
-},{"./credit_card_expiry_dates":201,"./credit_card_numbers":202,"./credit_card_types":203}],205:[function(require,module,exports){
-module["exports"] = [
-  "###-###-####",
-  "(###) ###-####",
-  "1-###-###-####",
-  "###.###.####"
-];
-
-},{}],206:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":205,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],207:[function(require,module,exports){
+},{"./credit_card_expiry_dates":224,"./credit_card_numbers":225,"./credit_card_types":226}],228:[function(require,module,exports){
+module.exports=require(30)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/formats.js":30}],229:[function(require,module,exports){
+module.exports=require(31)
+},{"./formats":228,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],230:[function(require,module,exports){
 module["exports"] = [
   "red",
   "green",
@@ -25842,7 +26296,7 @@ module["exports"] = [
   "silver"
 ];
 
-},{}],208:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 module["exports"] = [
   "Books",
   "Movies",
@@ -25868,9 +26322,9 @@ module["exports"] = [
   "Industrial"
 ];
 
-},{}],209:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"./color":207,"./department":208,"./product_name":210,"/Users/a/dev/faker.js/lib/locales/az/commerce/index.js":31}],210:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
+arguments[4][53][0].apply(exports,arguments)
+},{"./color":230,"./department":231,"./product_name":233,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/commerce/index.js":53}],233:[function(require,module,exports){
 module["exports"] = {
   "adjective": [
     "Small",
@@ -25932,9 +26386,9 @@ module["exports"] = {
   ]
 };
 
-},{}],211:[function(require,module,exports){
-module.exports=require(68)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/adjective.js":68}],212:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
+module.exports=require(90)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/adjective.js":90}],235:[function(require,module,exports){
 module["exports"] = [
   "clicks-and-mortar",
   "value-added",
@@ -26003,7 +26457,7 @@ module["exports"] = [
   "rich"
 ];
 
-},{}],213:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 module["exports"] = [
   "synergies",
   "web-readiness",
@@ -26048,14 +26502,15 @@ module["exports"] = [
   "functionalities",
   "experiences",
   "web services",
-  "methodologies"
+  "methodologies",
+  "blockchains"
 ];
 
-},{}],214:[function(require,module,exports){
-module.exports=require(70)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/bs_verb.js":70}],215:[function(require,module,exports){
-module.exports=require(71)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/descriptor.js":71}],216:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
+module.exports=require(92)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/bs_verb.js":92}],238:[function(require,module,exports){
+module.exports=require(93)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/descriptor.js":93}],239:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -26067,16 +26522,16 @@ company.bs_adjective = require("./bs_adjective");
 company.bs_noun = require("./bs_noun");
 company.name = require("./name");
 
-},{"./adjective":211,"./bs_adjective":212,"./bs_noun":213,"./bs_verb":214,"./descriptor":215,"./name":217,"./noun":218,"./suffix":219}],217:[function(require,module,exports){
+},{"./adjective":234,"./bs_adjective":235,"./bs_noun":236,"./bs_verb":237,"./descriptor":238,"./name":240,"./noun":241,"./suffix":242}],240:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} and #{Name.last_name}"
 ];
 
-},{}],218:[function(require,module,exports){
-module.exports=require(74)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/noun.js":74}],219:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
+module.exports=require(96)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/noun.js":96}],242:[function(require,module,exports){
 module["exports"] = [
   "Inc",
   "and Sons",
@@ -26084,95 +26539,7 @@ module["exports"] = [
   "Group"
 ];
 
-},{}],220:[function(require,module,exports){
-module["exports"] = [
-  "/34##-######-####L/",
-  "/37##-######-####L/"
-];
-
-},{}],221:[function(require,module,exports){
-module["exports"] = [
-  "/30[0-5]#-######-###L/",
-  "/368#-######-###L/"
-];
-
-},{}],222:[function(require,module,exports){
-module["exports"] = [
-  "/6011-####-####-###L/",
-  "/65##-####-####-###L/",
-  "/64[4-9]#-####-####-###L/",
-  "/6011-62##-####-####-###L/",
-  "/65##-62##-####-####-###L/",
-  "/64[4-9]#-62##-####-####-###L/"
-];
-
-},{}],223:[function(require,module,exports){
-var credit_card = {};
-module['exports'] = credit_card;
-credit_card.visa = require("./visa");
-credit_card.mastercard = require("./mastercard");
-credit_card.discover = require("./discover");
-credit_card.american_express = require("./american_express");
-credit_card.diners_club = require("./diners_club");
-credit_card.jcb = require("./jcb");
-credit_card.switch = require("./switch");
-credit_card.solo = require("./solo");
-credit_card.maestro = require("./maestro");
-credit_card.laser = require("./laser");
-
-},{"./american_express":220,"./diners_club":221,"./discover":222,"./jcb":224,"./laser":225,"./maestro":226,"./mastercard":227,"./solo":228,"./switch":229,"./visa":230}],224:[function(require,module,exports){
-module["exports"] = [
-  "/3528-####-####-###L/",
-  "/3529-####-####-###L/",
-  "/35[3-8]#-####-####-###L/"
-];
-
-},{}],225:[function(require,module,exports){
-module["exports"] = [
-  "/6304###########L/",
-  "/6706###########L/",
-  "/6771###########L/",
-  "/6709###########L/",
-  "/6304#########{5,6}L/",
-  "/6706#########{5,6}L/",
-  "/6771#########{5,6}L/",
-  "/6709#########{5,6}L/"
-];
-
-},{}],226:[function(require,module,exports){
-module["exports"] = [
-  "/50#{9,16}L/",
-  "/5[6-8]#{9,16}L/",
-  "/56##{9,16}L/"
-];
-
-},{}],227:[function(require,module,exports){
-module["exports"] = [
-  "/5[1-5]##-####-####-###L/",
-  "/6771-89##-####-###L/"
-];
-
-},{}],228:[function(require,module,exports){
-module["exports"] = [
-  "/6767-####-####-###L/",
-  "/6767-####-####-####-#L/",
-  "/6767-####-####-####-##L/"
-];
-
-},{}],229:[function(require,module,exports){
-module["exports"] = [
-  "/6759-####-####-###L/",
-  "/6759-####-####-####-#L/",
-  "/6759-####-####-####-##L/"
-];
-
-},{}],230:[function(require,module,exports){
-module["exports"] = [
-  "/4###########L/",
-  "/4###-####-####-###L/"
-];
-
-},{}],231:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 module["exports"] = [
   "utf8_unicode_ci",
   "utf8_general_ci",
@@ -26183,7 +26550,7 @@ module["exports"] = [
   "cp1250_general_ci"
 ];
 
-},{}],232:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 module["exports"] = [
   "id",
   "title",
@@ -26201,7 +26568,7 @@ module["exports"] = [
   "updatedAt"
 ];
 
-},{}],233:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 module["exports"] = [
   "InnoDB",
   "MyISAM",
@@ -26211,14 +26578,14 @@ module["exports"] = [
   "ARCHIVE"
 ];
 
-},{}],234:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 var database = {};
 module['exports'] = database;
 database.collation = require("./collation");
 database.column = require("./column");
 database.engine = require("./engine");
 database.type = require("./type");
-},{"./collation":231,"./column":232,"./engine":233,"./type":235}],235:[function(require,module,exports){
+},{"./collation":243,"./column":244,"./engine":245,"./type":247}],247:[function(require,module,exports){
 module["exports"] = [
   "int",
   "varchar",
@@ -26246,9 +26613,9 @@ module["exports"] = [
   "point"
 ];
 
-},{}],236:[function(require,module,exports){
-arguments[4][37][0].apply(exports,arguments)
-},{"./month":237,"./weekday":238,"/Users/a/dev/faker.js/lib/locales/az/date/index.js":37}],237:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
+arguments[4][59][0].apply(exports,arguments)
+},{"./month":249,"./weekday":250,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/date/index.js":59}],249:[function(require,module,exports){
 // Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1799
 module["exports"] = {
   wide: [
@@ -26313,7 +26680,7 @@ module["exports"] = {
   ]
 };
 
-},{}],238:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 // Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1847
 module["exports"] = {
   wide: [
@@ -26358,7 +26725,7 @@ module["exports"] = {
   ]
 };
 
-},{}],239:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 module["exports"] = [
   "Checking",
   "Savings",
@@ -26370,7 +26737,115 @@ module["exports"] = [
   "Personal Loan"
 ];
 
-},{}],240:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
+module["exports"] = [
+  "34##-######-####L",
+  "37##-######-####L"
+];
+
+},{}],253:[function(require,module,exports){
+module["exports"] = [
+  "30[0-5]#-######-###L",
+  "36##-######-###L",
+  "54##-####-####-###L"
+];
+
+},{}],254:[function(require,module,exports){
+module["exports"] = [
+  "6011-####-####-###L",
+  "65##-####-####-###L",
+  "64[4-9]#-####-####-###L",
+  "6011-62##-####-####-###L",
+  "65##-62##-####-####-###L",
+  "64[4-9]#-62##-####-####-###L"
+];
+
+},{}],255:[function(require,module,exports){
+var credit_card = {};
+module['exports'] = credit_card;
+credit_card.visa = require("./visa");
+credit_card.mastercard = require("./mastercard");
+credit_card.discover = require("./discover");
+credit_card.american_express = require("./american_express");
+credit_card.diners_club = require("./diners_club");
+credit_card.jcb = require("./jcb");
+credit_card.switch = require("./switch");
+credit_card.solo = require("./solo");
+credit_card.maestro = require("./maestro");
+credit_card.laser = require("./laser");
+credit_card.instapayment = require("./instapayment.js")
+
+},{"./american_express":252,"./diners_club":253,"./discover":254,"./instapayment.js":256,"./jcb":257,"./laser":258,"./maestro":259,"./mastercard":260,"./solo":261,"./switch":262,"./visa":263}],256:[function(require,module,exports){
+module["exports"] = [
+  "63[7-9]#-####-####-###L"
+];
+
+},{}],257:[function(require,module,exports){
+module["exports"] = [
+  "3528-####-####-###L",
+  "3529-####-####-###L",
+  "35[3-8]#-####-####-###L"
+];
+
+},{}],258:[function(require,module,exports){
+module["exports"] = [
+  "6304###########L",
+  "6706###########L",
+  "6771###########L",
+  "6709###########L",
+  "6304#########{5,6}L",
+  "6706#########{5,6}L",
+  "6771#########{5,6}L",
+  "6709#########{5,6}L"
+];
+
+},{}],259:[function(require,module,exports){
+module["exports"] = [
+  "5018-#{4}-#{4}-#{3}L",
+  "5020-#{4}-#{4}-#{3}L",
+  "5038-#{4}-#{4}-#{3}L",
+  "5893-#{4}-#{4}-#{3}L",
+  "6304-#{4}-#{4}-#{3}L",
+  "6759-#{4}-#{4}-#{3}L",
+  "676[1-3]-####-####-###L",
+  "5018#{11,15}L",
+  "5020#{11,15}L",
+  "5038#{11,15}L",
+  "5893#{11,15}L",
+  "6304#{11,15}L",
+  "6759#{11,15}L",
+  "676[1-3]#{11,15}L",
+];
+
+// 5018 xxxx xxxx xxxx xxL
+
+},{}],260:[function(require,module,exports){
+module["exports"] = [
+  "5[1-5]##-####-####-###L",
+  "6771-89##-####-###L"
+];
+
+},{}],261:[function(require,module,exports){
+module["exports"] = [
+  "6767-####-####-###L",
+  "6767-####-####-####-#L",
+  "6767-####-####-####-##L"
+];
+
+},{}],262:[function(require,module,exports){
+module["exports"] = [
+  "6759-####-####-###L",
+  "6759-####-####-####-#L",
+  "6759-####-####-####-##L"
+];
+
+},{}],263:[function(require,module,exports){
+module["exports"] = [
+  "4###########L",
+  "4###-####-####-###L"
+];
+
+},{}],264:[function(require,module,exports){
 module["exports"] = {
   "UAE Dirham": {
     "code": "AED",
@@ -27050,14 +27525,15 @@ module["exports"] = {
   }
 };
 
-},{}],241:[function(require,module,exports){
+},{}],265:[function(require,module,exports){
 var finance = {};
 module['exports'] = finance;
 finance.account_type = require("./account_type");
 finance.transaction_type = require("./transaction_type");
 finance.currency = require("./currency");
+finance.credit_card = require("./credit_card");
 
-},{"./account_type":239,"./currency":240,"./transaction_type":242}],242:[function(require,module,exports){
+},{"./account_type":251,"./credit_card":255,"./currency":264,"./transaction_type":266}],266:[function(require,module,exports){
 module["exports"] = [
   "deposit",
   "withdrawal",
@@ -27065,7 +27541,7 @@ module["exports"] = [
   "invoice"
 ];
 
-},{}],243:[function(require,module,exports){
+},{}],267:[function(require,module,exports){
 module["exports"] = [
   "TCP",
   "HTTP",
@@ -27098,7 +27574,7 @@ module["exports"] = [
   "JBOD"
 ];
 
-},{}],244:[function(require,module,exports){
+},{}],268:[function(require,module,exports){
 module["exports"] = [
   "auxiliary",
   "primary",
@@ -27120,7 +27596,7 @@ module["exports"] = [
   "mobile"
 ];
 
-},{}],245:[function(require,module,exports){
+},{}],269:[function(require,module,exports){
 var hacker = {};
 module['exports'] = hacker;
 hacker.abbreviation = require("./abbreviation");
@@ -27128,8 +27604,9 @@ hacker.adjective = require("./adjective");
 hacker.noun = require("./noun");
 hacker.verb = require("./verb");
 hacker.ingverb = require("./ingverb");
+hacker.phrase = require("./phrase");
 
-},{"./abbreviation":243,"./adjective":244,"./ingverb":246,"./noun":247,"./verb":248}],246:[function(require,module,exports){
+},{"./abbreviation":267,"./adjective":268,"./ingverb":270,"./noun":271,"./phrase":272,"./verb":273}],270:[function(require,module,exports){
 module["exports"] = [
   "backing up",
   "bypassing",
@@ -27149,7 +27626,7 @@ module["exports"] = [
   "parsing"
 ];
 
-},{}],247:[function(require,module,exports){
+},{}],271:[function(require,module,exports){
 module["exports"] = [
   "driver",
   "protocol",
@@ -27177,7 +27654,18 @@ module["exports"] = [
   "matrix"
 ];
 
-},{}],248:[function(require,module,exports){
+},{}],272:[function(require,module,exports){
+module["exports"] = [
+  "If we {{verb}} the {{noun}}, we can get to the {{abbreviation}} {{noun}} through the {{adjective}} {{abbreviation}} {{noun}}!",
+  "We need to {{verb}} the {{adjective}} {{abbreviation}} {{noun}}!",
+  "Try to {{verb}} the {{abbreviation}} {{noun}}, maybe it will {{verb}} the {{adjective}} {{noun}}!",
+  "You can't {{verb}} the {{noun}} without {{ingverb}} the {{adjective}} {{abbreviation}} {{noun}}!",
+  "Use the {{adjective}} {{abbreviation}} {{noun}}, then you can {{verb}} the {{adjective}} {{noun}}!",
+  "The {{abbreviation}} {{noun}} is down, {{verb}} the {{adjective}} {{noun}} so we can {{verb}} the {{abbreviation}} {{noun}}!",
+  "{{ingverb}} the {{noun}} won't do anything, we need to {{verb}} the {{adjective}} {{abbreviation}} {{noun}}!",
+  "I'll {{verb}} the {{adjective}} {{abbreviation}} {{noun}}, that should {{noun}} the {{abbreviation}} {{noun}}!"
+];
+},{}],273:[function(require,module,exports){
 module["exports"] = [
   "back up",
   "bypass",
@@ -27199,13 +27687,12 @@ module["exports"] = [
   "parse"
 ];
 
-},{}],249:[function(require,module,exports){
+},{}],274:[function(require,module,exports){
 var en = {};
 module['exports'] = en;
 en.title = "English";
 en.separator = " & ";
 en.address = require("./address");
-en.credit_card = require("./credit_card");
 en.company = require("./company");
 en.internet = require("./internet");
 en.database = require("./database");
@@ -27221,8 +27708,9 @@ en.app = require("./app");
 en.finance = require("./finance");
 en.date = require("./date");
 en.system = require("./system");
+en.vehicle = require("./vehicle");
 
-},{"./address":187,"./app":198,"./business":204,"./cell_phone":206,"./commerce":209,"./company":216,"./credit_card":223,"./database":234,"./date":236,"./finance":241,"./hacker":245,"./internet":254,"./lorem":255,"./name":259,"./phone_number":266,"./system":267,"./team":270}],250:[function(require,module,exports){
+},{"./address":210,"./app":221,"./business":227,"./cell_phone":229,"./commerce":232,"./company":239,"./database":246,"./date":248,"./finance":265,"./hacker":269,"./internet":279,"./lorem":280,"./name":286,"./phone_number":294,"./system":296,"./team":299,"./vehicle":302}],275:[function(require,module,exports){
 module["exports"] = [
   "https://s3.amazonaws.com/uifaces/faces/twitter/jarjan/128.jpg",
   "https://s3.amazonaws.com/uifaces/faces/twitter/mahdif/128.jpg",
@@ -28483,7 +28971,7 @@ module["exports"] = [
   "https://s3.amazonaws.com/uifaces/faces/twitter/areandacom/128.jpg"
 ];
 
-},{}],251:[function(require,module,exports){
+},{}],276:[function(require,module,exports){
 module["exports"] = [
   "com",
   "biz",
@@ -28493,16 +28981,16 @@ module["exports"] = [
   "org"
 ];
 
-},{}],252:[function(require,module,exports){
+},{}],277:[function(require,module,exports){
 module["exports"] = [
   "example.org",
   "example.com",
   "example.net"
 ];
 
-},{}],253:[function(require,module,exports){
-module.exports=require(119)
-},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":119}],254:[function(require,module,exports){
+},{}],278:[function(require,module,exports){
+module.exports=require(140)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/internet/free_email.js":140}],279:[function(require,module,exports){
 var internet = {};
 module['exports'] = internet;
 internet.free_email = require("./free_email");
@@ -28510,13 +28998,1362 @@ internet.example_email = require("./example_email");
 internet.domain_suffix = require("./domain_suffix");
 internet.avatar_uri = require("./avatar_uri");
 
-},{"./avatar_uri":250,"./domain_suffix":251,"./example_email":252,"./free_email":253}],255:[function(require,module,exports){
-module.exports=require(83)
-},{"./supplemental":256,"./words":257,"/Users/a/dev/faker.js/lib/locales/cz/lorem/index.js":83}],256:[function(require,module,exports){
-module.exports=require(84)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/supplemental.js":84}],257:[function(require,module,exports){
-module.exports=require(85)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/words.js":85}],258:[function(require,module,exports){
+},{"./avatar_uri":275,"./domain_suffix":276,"./example_email":277,"./free_email":278}],280:[function(require,module,exports){
+var lorem = {};
+module['exports'] = lorem;
+lorem.words = require("./words");
+lorem.supplemental = require("./supplemental");
+
+},{"./supplemental":281,"./words":282}],281:[function(require,module,exports){
+module["exports"] = [
+  "abbas",
+  "abduco",
+  "abeo",
+  "abscido",
+  "absconditus",
+  "absens",
+  "absorbeo",
+  "absque",
+  "abstergo",
+  "absum",
+  "abundans",
+  "abutor",
+  "accedo",
+  "accendo",
+  "acceptus",
+  "accipio",
+  "accommodo",
+  "accusator",
+  "acer",
+  "acerbitas",
+  "acervus",
+  "acidus",
+  "acies",
+  "acquiro",
+  "acsi",
+  "adamo",
+  "adaugeo",
+  "addo",
+  "adduco",
+  "ademptio",
+  "adeo",
+  "adeptio",
+  "adfectus",
+  "adfero",
+  "adficio",
+  "adflicto",
+  "adhaero",
+  "adhuc",
+  "adicio",
+  "adimpleo",
+  "adinventitias",
+  "adipiscor",
+  "adiuvo",
+  "administratio",
+  "admiratio",
+  "admitto",
+  "admoneo",
+  "admoveo",
+  "adnuo",
+  "adopto",
+  "adsidue",
+  "adstringo",
+  "adsuesco",
+  "adsum",
+  "adulatio",
+  "adulescens",
+  "adultus",
+  "aduro",
+  "advenio",
+  "adversus",
+  "advoco",
+  "aedificium",
+  "aeger",
+  "aegre",
+  "aegrotatio",
+  "aegrus",
+  "aeneus",
+  "aequitas",
+  "aequus",
+  "aer",
+  "aestas",
+  "aestivus",
+  "aestus",
+  "aetas",
+  "aeternus",
+  "ager",
+  "aggero",
+  "aggredior",
+  "agnitio",
+  "agnosco",
+  "ago",
+  "ait",
+  "aiunt",
+  "alienus",
+  "alii",
+  "alioqui",
+  "aliqua",
+  "alius",
+  "allatus",
+  "alo",
+  "alter",
+  "altus",
+  "alveus",
+  "amaritudo",
+  "ambitus",
+  "ambulo",
+  "amicitia",
+  "amiculum",
+  "amissio",
+  "amita",
+  "amitto",
+  "amo",
+  "amor",
+  "amoveo",
+  "amplexus",
+  "amplitudo",
+  "amplus",
+  "ancilla",
+  "angelus",
+  "angulus",
+  "angustus",
+  "animadverto",
+  "animi",
+  "animus",
+  "annus",
+  "anser",
+  "ante",
+  "antea",
+  "antepono",
+  "antiquus",
+  "aperio",
+  "aperte",
+  "apostolus",
+  "apparatus",
+  "appello",
+  "appono",
+  "appositus",
+  "approbo",
+  "apto",
+  "aptus",
+  "apud",
+  "aqua",
+  "ara",
+  "aranea",
+  "arbitro",
+  "arbor",
+  "arbustum",
+  "arca",
+  "arceo",
+  "arcesso",
+  "arcus",
+  "argentum",
+  "argumentum",
+  "arguo",
+  "arma",
+  "armarium",
+  "armo",
+  "aro",
+  "ars",
+  "articulus",
+  "artificiose",
+  "arto",
+  "arx",
+  "ascisco",
+  "ascit",
+  "asper",
+  "aspicio",
+  "asporto",
+  "assentator",
+  "astrum",
+  "atavus",
+  "ater",
+  "atqui",
+  "atrocitas",
+  "atrox",
+  "attero",
+  "attollo",
+  "attonbitus",
+  "auctor",
+  "auctus",
+  "audacia",
+  "audax",
+  "audentia",
+  "audeo",
+  "audio",
+  "auditor",
+  "aufero",
+  "aureus",
+  "auris",
+  "aurum",
+  "aut",
+  "autem",
+  "autus",
+  "auxilium",
+  "avaritia",
+  "avarus",
+  "aveho",
+  "averto",
+  "avoco",
+  "baiulus",
+  "balbus",
+  "barba",
+  "bardus",
+  "basium",
+  "beatus",
+  "bellicus",
+  "bellum",
+  "bene",
+  "beneficium",
+  "benevolentia",
+  "benigne",
+  "bestia",
+  "bibo",
+  "bis",
+  "blandior",
+  "bonus",
+  "bos",
+  "brevis",
+  "cado",
+  "caecus",
+  "caelestis",
+  "caelum",
+  "calamitas",
+  "calcar",
+  "calco",
+  "calculus",
+  "callide",
+  "campana",
+  "candidus",
+  "canis",
+  "canonicus",
+  "canto",
+  "capillus",
+  "capio",
+  "capitulus",
+  "capto",
+  "caput",
+  "carbo",
+  "carcer",
+  "careo",
+  "caries",
+  "cariosus",
+  "caritas",
+  "carmen",
+  "carpo",
+  "carus",
+  "casso",
+  "caste",
+  "casus",
+  "catena",
+  "caterva",
+  "cattus",
+  "cauda",
+  "causa",
+  "caute",
+  "caveo",
+  "cavus",
+  "cedo",
+  "celebrer",
+  "celer",
+  "celo",
+  "cena",
+  "cenaculum",
+  "ceno",
+  "censura",
+  "centum",
+  "cerno",
+  "cernuus",
+  "certe",
+  "certo",
+  "certus",
+  "cervus",
+  "cetera",
+  "charisma",
+  "chirographum",
+  "cibo",
+  "cibus",
+  "cicuta",
+  "cilicium",
+  "cimentarius",
+  "ciminatio",
+  "cinis",
+  "circumvenio",
+  "cito",
+  "civis",
+  "civitas",
+  "clam",
+  "clamo",
+  "claro",
+  "clarus",
+  "claudeo",
+  "claustrum",
+  "clementia",
+  "clibanus",
+  "coadunatio",
+  "coaegresco",
+  "coepi",
+  "coerceo",
+  "cogito",
+  "cognatus",
+  "cognomen",
+  "cogo",
+  "cohaero",
+  "cohibeo",
+  "cohors",
+  "colligo",
+  "colloco",
+  "collum",
+  "colo",
+  "color",
+  "coma",
+  "combibo",
+  "comburo",
+  "comedo",
+  "comes",
+  "cometes",
+  "comis",
+  "comitatus",
+  "commemoro",
+  "comminor",
+  "commodo",
+  "communis",
+  "comparo",
+  "compello",
+  "complectus",
+  "compono",
+  "comprehendo",
+  "comptus",
+  "conatus",
+  "concedo",
+  "concido",
+  "conculco",
+  "condico",
+  "conduco",
+  "confero",
+  "confido",
+  "conforto",
+  "confugo",
+  "congregatio",
+  "conicio",
+  "coniecto",
+  "conitor",
+  "coniuratio",
+  "conor",
+  "conqueror",
+  "conscendo",
+  "conservo",
+  "considero",
+  "conspergo",
+  "constans",
+  "consuasor",
+  "contabesco",
+  "contego",
+  "contigo",
+  "contra",
+  "conturbo",
+  "conventus",
+  "convoco",
+  "copia",
+  "copiose",
+  "cornu",
+  "corona",
+  "corpus",
+  "correptius",
+  "corrigo",
+  "corroboro",
+  "corrumpo",
+  "coruscus",
+  "cotidie",
+  "crapula",
+  "cras",
+  "crastinus",
+  "creator",
+  "creber",
+  "crebro",
+  "credo",
+  "creo",
+  "creptio",
+  "crepusculum",
+  "cresco",
+  "creta",
+  "cribro",
+  "crinis",
+  "cruciamentum",
+  "crudelis",
+  "cruentus",
+  "crur",
+  "crustulum",
+  "crux",
+  "cubicularis",
+  "cubitum",
+  "cubo",
+  "cui",
+  "cuius",
+  "culpa",
+  "culpo",
+  "cultellus",
+  "cultura",
+  "cum",
+  "cunabula",
+  "cunae",
+  "cunctatio",
+  "cupiditas",
+  "cupio",
+  "cuppedia",
+  "cupressus",
+  "cur",
+  "cura",
+  "curatio",
+  "curia",
+  "curiositas",
+  "curis",
+  "curo",
+  "curriculum",
+  "currus",
+  "cursim",
+  "curso",
+  "cursus",
+  "curto",
+  "curtus",
+  "curvo",
+  "curvus",
+  "custodia",
+  "damnatio",
+  "damno",
+  "dapifer",
+  "debeo",
+  "debilito",
+  "decens",
+  "decerno",
+  "decet",
+  "decimus",
+  "decipio",
+  "decor",
+  "decretum",
+  "decumbo",
+  "dedecor",
+  "dedico",
+  "deduco",
+  "defaeco",
+  "defendo",
+  "defero",
+  "defessus",
+  "defetiscor",
+  "deficio",
+  "defigo",
+  "defleo",
+  "defluo",
+  "defungo",
+  "degenero",
+  "degero",
+  "degusto",
+  "deinde",
+  "delectatio",
+  "delego",
+  "deleo",
+  "delibero",
+  "delicate",
+  "delinquo",
+  "deludo",
+  "demens",
+  "demergo",
+  "demitto",
+  "demo",
+  "demonstro",
+  "demoror",
+  "demulceo",
+  "demum",
+  "denego",
+  "denique",
+  "dens",
+  "denuncio",
+  "denuo",
+  "deorsum",
+  "depereo",
+  "depono",
+  "depopulo",
+  "deporto",
+  "depraedor",
+  "deprecator",
+  "deprimo",
+  "depromo",
+  "depulso",
+  "deputo",
+  "derelinquo",
+  "derideo",
+  "deripio",
+  "desidero",
+  "desino",
+  "desipio",
+  "desolo",
+  "desparatus",
+  "despecto",
+  "despirmatio",
+  "infit",
+  "inflammatio",
+  "paens",
+  "patior",
+  "patria",
+  "patrocinor",
+  "patruus",
+  "pauci",
+  "paulatim",
+  "pauper",
+  "pax",
+  "peccatus",
+  "pecco",
+  "pecto",
+  "pectus",
+  "pecunia",
+  "pecus",
+  "peior",
+  "pel",
+  "ocer",
+  "socius",
+  "sodalitas",
+  "sol",
+  "soleo",
+  "solio",
+  "solitudo",
+  "solium",
+  "sollers",
+  "sollicito",
+  "solum",
+  "solus",
+  "solutio",
+  "solvo",
+  "somniculosus",
+  "somnus",
+  "sonitus",
+  "sono",
+  "sophismata",
+  "sopor",
+  "sordeo",
+  "sortitus",
+  "spargo",
+  "speciosus",
+  "spectaculum",
+  "speculum",
+  "sperno",
+  "spero",
+  "spes",
+  "spiculum",
+  "spiritus",
+  "spoliatio",
+  "sponte",
+  "stabilis",
+  "statim",
+  "statua",
+  "stella",
+  "stillicidium",
+  "stipes",
+  "stips",
+  "sto",
+  "strenuus",
+  "strues",
+  "studio",
+  "stultus",
+  "suadeo",
+  "suasoria",
+  "sub",
+  "subito",
+  "subiungo",
+  "sublime",
+  "subnecto",
+  "subseco",
+  "substantia",
+  "subvenio",
+  "succedo",
+  "succurro",
+  "sufficio",
+  "suffoco",
+  "suffragium",
+  "suggero",
+  "sui",
+  "sulum",
+  "sum",
+  "summa",
+  "summisse",
+  "summopere",
+  "sumo",
+  "sumptus",
+  "supellex",
+  "super",
+  "suppellex",
+  "supplanto",
+  "suppono",
+  "supra",
+  "surculus",
+  "surgo",
+  "sursum",
+  "suscipio",
+  "suspendo",
+  "sustineo",
+  "suus",
+  "synagoga",
+  "tabella",
+  "tabernus",
+  "tabesco",
+  "tabgo",
+  "tabula",
+  "taceo",
+  "tactus",
+  "taedium",
+  "talio",
+  "talis",
+  "talus",
+  "tam",
+  "tamdiu",
+  "tamen",
+  "tametsi",
+  "tamisium",
+  "tamquam",
+  "tandem",
+  "tantillus",
+  "tantum",
+  "tardus",
+  "tego",
+  "temeritas",
+  "temperantia",
+  "templum",
+  "temptatio",
+  "tempus",
+  "tenax",
+  "tendo",
+  "teneo",
+  "tener",
+  "tenuis",
+  "tenus",
+  "tepesco",
+  "tepidus",
+  "ter",
+  "terebro",
+  "teres",
+  "terga",
+  "tergeo",
+  "tergiversatio",
+  "tergo",
+  "tergum",
+  "termes",
+  "terminatio",
+  "tero",
+  "terra",
+  "terreo",
+  "territo",
+  "terror",
+  "tersus",
+  "tertius",
+  "testimonium",
+  "texo",
+  "textilis",
+  "textor",
+  "textus",
+  "thalassinus",
+  "theatrum",
+  "theca",
+  "thema",
+  "theologus",
+  "thermae",
+  "thesaurus",
+  "thesis",
+  "thorax",
+  "thymbra",
+  "thymum",
+  "tibi",
+  "timidus",
+  "timor",
+  "titulus",
+  "tolero",
+  "tollo",
+  "tondeo",
+  "tonsor",
+  "torqueo",
+  "torrens",
+  "tot",
+  "totidem",
+  "toties",
+  "totus",
+  "tracto",
+  "trado",
+  "traho",
+  "trans",
+  "tredecim",
+  "tremo",
+  "trepide",
+  "tres",
+  "tribuo",
+  "tricesimus",
+  "triduana",
+  "triginta",
+  "tripudio",
+  "tristis",
+  "triumphus",
+  "trucido",
+  "truculenter",
+  "tubineus",
+  "tui",
+  "tum",
+  "tumultus",
+  "tunc",
+  "turba",
+  "turbo",
+  "turpe",
+  "turpis",
+  "tutamen",
+  "tutis",
+  "tyrannus",
+  "uberrime",
+  "ubi",
+  "ulciscor",
+  "ullus",
+  "ulterius",
+  "ultio",
+  "ultra",
+  "umbra",
+  "umerus",
+  "umquam",
+  "una",
+  "unde",
+  "undique",
+  "universe",
+  "unus",
+  "urbanus",
+  "urbs",
+  "uredo",
+  "usitas",
+  "usque",
+  "ustilo",
+  "ustulo",
+  "usus",
+  "uter",
+  "uterque",
+  "utilis",
+  "utique",
+  "utor",
+  "utpote",
+  "utrimque",
+  "utroque",
+  "utrum",
+  "uxor",
+  "vaco",
+  "vacuus",
+  "vado",
+  "vae",
+  "valde",
+  "valens",
+  "valeo",
+  "valetudo",
+  "validus",
+  "vallum",
+  "vapulus",
+  "varietas",
+  "varius",
+  "vehemens",
+  "vel",
+  "velociter",
+  "velum",
+  "velut",
+  "venia",
+  "venio",
+  "ventito",
+  "ventosus",
+  "ventus",
+  "venustas",
+  "ver",
+  "verbera",
+  "verbum",
+  "vere",
+  "verecundia",
+  "vereor",
+  "vergo",
+  "veritas",
+  "vero",
+  "versus",
+  "verto",
+  "verumtamen",
+  "verus",
+  "vesco",
+  "vesica",
+  "vesper",
+  "vespillo",
+  "vester",
+  "vestigium",
+  "vestrum",
+  "vetus",
+  "via",
+  "vicinus",
+  "vicissitudo",
+  "victoria",
+  "victus",
+  "videlicet",
+  "video",
+  "viduata",
+  "viduo",
+  "vigilo",
+  "vigor",
+  "vilicus",
+  "vilis",
+  "vilitas",
+  "villa",
+  "vinco",
+  "vinculum",
+  "vindico",
+  "vinitor",
+  "vinum",
+  "vir",
+  "virga",
+  "virgo",
+  "viridis",
+  "viriliter",
+  "virtus",
+  "vis",
+  "viscus",
+  "vita",
+  "vitiosus",
+  "vitium",
+  "vito",
+  "vivo",
+  "vix",
+  "vobis",
+  "vociferor",
+  "voco",
+  "volaticus",
+  "volo",
+  "volubilis",
+  "voluntarius",
+  "volup",
+  "volutabrum",
+  "volva",
+  "vomer",
+  "vomica",
+  "vomito",
+  "vorago",
+  "vorax",
+  "voro",
+  "vos",
+  "votum",
+  "voveo",
+  "vox",
+  "vulariter",
+  "vulgaris",
+  "vulgivagus",
+  "vulgo",
+  "vulgus",
+  "vulnero",
+  "vulnus",
+  "vulpes",
+  "vulticulus",
+  "vultuosus",
+  "xiphias"
+];
+
+},{}],282:[function(require,module,exports){
+module.exports=require(106)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/words.js":106}],283:[function(require,module,exports){
+module["exports"] = [
+	"Mary",
+	"Patricia",
+	"Linda",
+	"Barbara",
+	"Elizabeth",
+	"Jennifer",
+	"Maria",
+	"Susan",
+	"Margaret",
+	"Dorothy",
+	"Lisa",
+	"Nancy",
+	"Karen",
+	"Betty",
+	"Helen",
+	"Sandra",
+	"Donna",
+	"Carol",
+	"Ruth",
+	"Sharon",
+	"Michelle",
+	"Laura",
+	"Sarah",
+	"Kimberly",
+	"Deborah",
+	"Jessica",
+	"Shirley",
+	"Cynthia",
+	"Angela",
+	"Melissa",
+	"Brenda",
+	"Amy",
+	"Anna",
+	"Rebecca",
+	"Virginia",
+	"Kathleen",
+	"Pamela",
+	"Martha",
+	"Debra",
+	"Amanda",
+	"Stephanie",
+	"Carolyn",
+	"Christine",
+	"Marie",
+	"Janet",
+	"Catherine",
+	"Frances",
+	"Ann",
+	"Joyce",
+	"Diane",
+	"Alice",
+	"Julie",
+	"Heather",
+	"Teresa",
+	"Doris",
+	"Gloria",
+	"Evelyn",
+	"Jean",
+	"Cheryl",
+	"Mildred",
+	"Katherine",
+	"Joan",
+	"Ashley",
+	"Judith",
+	"Rose",
+	"Janice",
+	"Kelly",
+	"Nicole",
+	"Judy",
+	"Christina",
+	"Kathy",
+	"Theresa",
+	"Beverly",
+	"Denise",
+	"Tammy",
+	"Irene",
+	"Jane",
+	"Lori",
+	"Rachel",
+	"Marilyn",
+	"Andrea",
+	"Kathryn",
+	"Louise",
+	"Sara",
+	"Anne",
+	"Jacqueline",
+	"Wanda",
+	"Bonnie",
+	"Julia",
+	"Ruby",
+	"Lois",
+	"Tina",
+	"Phyllis",
+	"Norma",
+	"Paula",
+	"Diana",
+	"Annie",
+	"Lillian",
+	"Emily",
+	"Robin",
+	"Peggy",
+	"Crystal",
+	"Gladys",
+	"Rita",
+	"Dawn",
+	"Connie",
+	"Florence",
+	"Tracy",
+	"Edna",
+	"Tiffany",
+	"Carmen",
+	"Rosa",
+	"Cindy",
+	"Grace",
+	"Wendy",
+	"Victoria",
+	"Edith",
+	"Kim",
+	"Sherry",
+	"Sylvia",
+	"Josephine",
+	"Thelma",
+	"Shannon",
+	"Sheila",
+	"Ethel",
+	"Ellen",
+	"Elaine",
+	"Marjorie",
+	"Carrie",
+	"Charlotte",
+	"Monica",
+	"Esther",
+	"Pauline",
+	"Emma",
+	"Juanita",
+	"Anita",
+	"Rhonda",
+	"Hazel",
+	"Amber",
+	"Eva",
+	"Debbie",
+	"April",
+	"Leslie",
+	"Clara",
+	"Lucille",
+	"Jamie",
+	"Joanne",
+	"Eleanor",
+	"Valerie",
+	"Danielle",
+	"Megan",
+	"Alicia",
+	"Suzanne",
+	"Michele",
+	"Gail",
+	"Bertha",
+	"Darlene",
+	"Veronica",
+	"Jill",
+	"Erin",
+	"Geraldine",
+	"Lauren",
+	"Cathy",
+	"Joann",
+	"Lorraine",
+	"Lynn",
+	"Sally",
+	"Regina",
+	"Erica",
+	"Beatrice",
+	"Dolores",
+	"Bernice",
+	"Audrey",
+	"Yvonne",
+	"Annette",
+	"June",
+	"Samantha",
+	"Marion",
+	"Dana",
+	"Stacy",
+	"Ana",
+	"Renee",
+	"Ida",
+	"Vivian",
+	"Roberta",
+	"Holly",
+	"Brittany",
+	"Melanie",
+	"Loretta",
+	"Yolanda",
+	"Jeanette",
+	"Laurie",
+	"Katie",
+	"Kristen",
+	"Vanessa",
+	"Alma",
+	"Sue",
+	"Elsie",
+	"Beth",
+	"Jeanne",
+	"Vicki",
+	"Carla",
+	"Tara",
+	"Rosemary",
+	"Eileen",
+	"Terri",
+	"Gertrude",
+	"Lucy",
+	"Tonya",
+	"Ella",
+	"Stacey",
+	"Wilma",
+	"Gina",
+	"Kristin",
+	"Jessie",
+	"Natalie",
+	"Agnes",
+	"Vera",
+	"Willie",
+	"Charlene",
+	"Bessie",
+	"Delores",
+	"Melinda",
+	"Pearl",
+	"Arlene",
+	"Maureen",
+	"Colleen",
+	"Allison",
+	"Tamara",
+	"Joy",
+	"Georgia",
+	"Constance",
+	"Lillie",
+	"Claudia",
+	"Jackie",
+	"Marcia",
+	"Tanya",
+	"Nellie",
+	"Minnie",
+	"Marlene",
+	"Heidi",
+	"Glenda",
+	"Lydia",
+	"Viola",
+	"Courtney",
+	"Marian",
+	"Stella",
+	"Caroline",
+	"Dora",
+	"Jo",
+	"Vickie",
+	"Mattie",
+	"Terry",
+	"Maxine",
+	"Irma",
+	"Mabel",
+	"Marsha",
+	"Myrtle",
+	"Lena",
+	"Christy",
+	"Deanna",
+	"Patsy",
+	"Hilda",
+	"Gwendolyn",
+	"Jennie",
+	"Nora",
+	"Margie",
+	"Nina",
+	"Cassandra",
+	"Leah",
+	"Penny",
+	"Kay",
+	"Priscilla",
+	"Naomi",
+	"Carole",
+	"Brandy",
+	"Olga",
+	"Billie",
+	"Dianne",
+	"Tracey",
+	"Leona",
+	"Jenny",
+	"Felicia",
+	"Sonia",
+	"Miriam",
+	"Velma",
+	"Becky",
+	"Bobbie",
+	"Violet",
+	"Kristina",
+	"Toni",
+	"Misty",
+	"Mae",
+	"Shelly",
+	"Daisy",
+	"Ramona",
+	"Sherri",
+	"Erika",
+	"Katrina",
+	"Claire",
+	"Lindsey",
+	"Lindsay",
+	"Geneva",
+	"Guadalupe",
+	"Belinda",
+	"Margarita",
+	"Sheryl",
+	"Cora",
+	"Faye",
+	"Ada",
+	"Natasha",
+	"Sabrina",
+	"Isabel",
+	"Marguerite",
+	"Hattie",
+	"Harriet",
+	"Molly",
+	"Cecilia",
+	"Kristi",
+	"Brandi",
+	"Blanche",
+	"Sandy",
+	"Rosie",
+	"Joanna",
+	"Iris",
+	"Eunice",
+	"Angie",
+	"Inez",
+	"Lynda",
+	"Madeline",
+	"Amelia",
+	"Alberta",
+	"Genevieve",
+	"Monique",
+	"Jodi",
+	"Janie",
+	"Maggie",
+	"Kayla",
+	"Sonya",
+	"Jan",
+	"Lee",
+	"Kristine",
+	"Candace",
+	"Fannie",
+	"Maryann",
+	"Opal",
+	"Alison",
+	"Yvette",
+	"Melody",
+	"Luz",
+	"Susie",
+	"Olivia",
+	"Flora",
+	"Shelley",
+	"Kristy",
+	"Mamie",
+	"Lula",
+	"Lola",
+	"Verna",
+	"Beulah",
+	"Antoinette",
+	"Candice",
+	"Juana",
+	"Jeannette",
+	"Pam",
+	"Kelli",
+	"Hannah",
+	"Whitney",
+	"Bridget",
+	"Karla",
+	"Celia",
+	"Latoya",
+	"Patty",
+	"Shelia",
+	"Gayle",
+	"Della",
+	"Vicky",
+	"Lynne",
+	"Sheri",
+	"Marianne",
+	"Kara",
+	"Jacquelyn",
+	"Erma",
+	"Blanca",
+	"Myra",
+	"Leticia",
+	"Pat",
+	"Krista",
+	"Roxanne",
+	"Angelica",
+	"Johnnie",
+	"Robyn",
+	"Francis",
+	"Adrienne",
+	"Rosalie",
+	"Alexandra",
+	"Brooke",
+	"Bethany",
+	"Sadie",
+	"Bernadette",
+	"Traci",
+	"Jody",
+	"Kendra",
+	"Jasmine",
+	"Nichole",
+	"Rachael",
+	"Chelsea",
+	"Mable",
+	"Ernestine",
+	"Muriel",
+	"Marcella",
+	"Elena",
+	"Krystal",
+	"Angelina",
+	"Nadine",
+	"Kari",
+	"Estelle",
+	"Dianna",
+	"Paulette",
+	"Lora",
+	"Mona",
+	"Doreen",
+	"Rosemarie",
+	"Angel",
+	"Desiree",
+	"Antonia",
+	"Hope",
+	"Ginger",
+	"Janis",
+	"Betsy",
+	"Christie",
+	"Freda",
+	"Mercedes",
+	"Meredith",
+	"Lynette",
+	"Teri",
+	"Cristina",
+	"Eula",
+	"Leigh",
+	"Meghan",
+	"Sophia",
+	"Eloise",
+	"Rochelle",
+	"Gretchen",
+	"Cecelia",
+	"Raquel",
+	"Henrietta",
+	"Alyssa",
+	"Jana",
+	"Kelley",
+	"Gwen",
+	"Kerry",
+	"Jenna",
+	"Tricia",
+	"Laverne",
+	"Olive",
+	"Alexis",
+	"Tasha",
+	"Silvia",
+	"Elvira",
+	"Casey",
+	"Delia",
+	"Sophie",
+	"Kate",
+	"Patti",
+	"Lorena",
+	"Kellie",
+	"Sonja",
+	"Lila",
+	"Lana",
+	"Darla",
+	"May",
+	"Mindy",
+	"Essie",
+	"Mandy",
+	"Lorene",
+	"Elsa",
+	"Josefina",
+	"Jeannie",
+	"Miranda",
+	"Dixie",
+	"Lucia",
+	"Marta",
+	"Faith",
+	"Lela",
+	"Johanna",
+	"Shari",
+	"Camille",
+	"Tami",
+	"Shawna",
+	"Elisa",
+	"Ebony",
+	"Melba",
+	"Ora",
+	"Nettie",
+	"Tabitha",
+	"Ollie",
+	"Jaime",
+	"Winifred",
+	"Kristie"
+	];
+},{}],284:[function(require,module,exports){
 module["exports"] = [
   "Aaliyah",
   "Aaron",
@@ -31527,17 +33364,94 @@ module["exports"] = [
   "Zula"
 ];
 
-},{}],259:[function(require,module,exports){
+},{}],285:[function(require,module,exports){
+module["exports"] = [
+"Asexual",
+"Female to male trans man",
+"Female to male transgender man",
+"Female to male transsexual man",
+"F2M",
+"Gender neutral",
+"Hermaphrodite",
+"Intersex man",
+"Intersex person",
+"Intersex woman",
+"Male to female trans woman",
+"Male to female transgender woman",
+"Male to female transsexual woman",
+"Man",
+"M2F",
+"Polygender",
+"T* man",
+"T* woman",
+"Two* person",
+"Two-spirit person",
+"Woman",
+"Agender",
+"Androgyne",
+"Androgynes",
+"Androgynous",
+"Bigender",
+"Cis",
+"Cis Female",
+"Cis Male",
+"Cis Man",
+"Cis Woman",
+"Cisgender",
+"Cisgender Female",
+"Cisgender Male",
+"Cisgender Man",
+"Cisgender Woman",
+"Female to Male",
+"FTM",
+"Gender Fluid",
+"Gender Nonconforming",
+"Gender Questioning",
+"Gender Variant",
+"Genderqueer",
+"Intersex",
+"Male to Female",
+"MTF",
+"Neither",
+"Neutrois",
+"Non-binary",
+"Other",
+"Pangender",
+"Trans",
+"Trans Female",
+"Trans Male",
+"Trans Man",
+"Trans Person",
+"Trans*Female",
+"Trans*Male",
+"Trans*Man",
+"Trans*Person",
+"Trans*Woman",
+"Transexual",
+"Transexual Female",
+"Transexual Male",
+"Transexual Man",
+"Transexual Person",
+"Transexual Woman",
+"Transgender Female",
+"Transgender Person",
+"Transmasculine",
+"Two-spirit"
+];
+
+},{}],286:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
+name.male_first_name = require("./male_first_name");
+name.female_first_name = require("./female_first_name");
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
+name.gender = require("./gender");
 name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.title = require("./title");
 name.name = require("./name");
-
-},{"./first_name":258,"./last_name":260,"./name":261,"./prefix":262,"./suffix":263,"./title":264}],260:[function(require,module,exports){
+},{"./female_first_name":283,"./first_name":284,"./gender":285,"./last_name":287,"./male_first_name":288,"./name":289,"./prefix":290,"./suffix":291,"./title":292}],287:[function(require,module,exports){
 module["exports"] = [
   "Abbott",
   "Abernathy",
@@ -31640,7 +33554,6 @@ module["exports"] = [
   "Durgan",
   "Ebert",
   "Effertz",
-  "Eichmann",
   "Emard",
   "Emmerich",
   "Erdman",
@@ -32015,17 +33928,520 @@ module["exports"] = [
   "Zulauf"
 ];
 
-},{}],261:[function(require,module,exports){
+},{}],288:[function(require,module,exports){
+module["exports"] = [
+	"James",
+	"John",
+	"Robert",
+	"Michael",
+	"William",
+	"David",
+	"Richard",
+	"Charles",
+	"Joseph",
+	"Thomas",
+	"Christopher",
+	"Daniel",
+	"Paul",
+	"Mark",
+	"Donald",
+	"George",
+	"Kenneth",
+	"Steven",
+	"Edward",
+	"Brian",
+	"Ronald",
+	"Anthony",
+	"Kevin",
+	"Jason",
+	"Matthew",
+	"Gary",
+	"Timothy",
+	"Jose",
+	"Larry",
+	"Jeffrey",
+	"Frank",
+	"Scott",
+	"Eric",
+	"Stephen",
+	"Andrew",
+	"Raymond",
+	"Gregory",
+	"Joshua",
+	"Jerry",
+	"Dennis",
+	"Walter",
+	"Patrick",
+	"Peter",
+	"Harold",
+	"Douglas",
+	"Henry",
+	"Carl",
+	"Arthur",
+	"Ryan",
+	"Roger",
+	"Joe",
+	"Juan",
+	"Jack",
+	"Albert",
+	"Jonathan",
+	"Justin",
+	"Terry",
+	"Gerald",
+	"Keith",
+	"Samuel",
+	"Willie",
+	"Ralph",
+	"Lawrence",
+	"Nicholas",
+	"Roy",
+	"Benjamin",
+	"Bruce",
+	"Brandon",
+	"Adam",
+	"Harry",
+	"Fred",
+	"Wayne",
+	"Billy",
+	"Steve",
+	"Louis",
+	"Jeremy",
+	"Aaron",
+	"Randy",
+	"Howard",
+	"Eugene",
+	"Carlos",
+	"Russell",
+	"Bobby",
+	"Victor",
+	"Martin",
+	"Ernest",
+	"Phillip",
+	"Todd",
+	"Jesse",
+	"Craig",
+	"Alan",
+	"Shawn",
+	"Clarence",
+	"Sean",
+	"Philip",
+	"Chris",
+	"Johnny",
+	"Earl",
+	"Jimmy",
+	"Antonio",
+	"Danny",
+	"Bryan",
+	"Tony",
+	"Luis",
+	"Mike",
+	"Stanley",
+	"Leonard",
+	"Nathan",
+	"Dale",
+	"Manuel",
+	"Rodney",
+	"Curtis",
+	"Norman",
+	"Allen",
+	"Marvin",
+	"Vincent",
+	"Glenn",
+	"Jeffery",
+	"Travis",
+	"Jeff",
+	"Chad",
+	"Jacob",
+	"Lee",
+	"Melvin",
+	"Alfred",
+	"Kyle",
+	"Francis",
+	"Bradley",
+	"Jesus",
+	"Herbert",
+	"Frederick",
+	"Ray",
+	"Joel",
+	"Edwin",
+	"Don",
+	"Eddie",
+	"Ricky",
+	"Troy",
+	"Randall",
+	"Barry",
+	"Alexander",
+	"Bernard",
+	"Mario",
+	"Leroy",
+	"Francisco",
+	"Marcus",
+	"Micheal",
+	"Theodore",
+	"Clifford",
+	"Miguel",
+	"Oscar",
+	"Jay",
+	"Jim",
+	"Tom",
+	"Calvin",
+	"Alex",
+	"Jon",
+	"Ronnie",
+	"Bill",
+	"Lloyd",
+	"Tommy",
+	"Leon",
+	"Derek",
+	"Warren",
+	"Darrell",
+	"Jerome",
+	"Floyd",
+	"Leo",
+	"Alvin",
+	"Tim",
+	"Wesley",
+	"Gordon",
+	"Dean",
+	"Greg",
+	"Jorge",
+	"Dustin",
+	"Pedro",
+	"Derrick",
+	"Dan",
+	"Lewis",
+	"Zachary",
+	"Corey",
+	"Herman",
+	"Maurice",
+	"Vernon",
+	"Roberto",
+	"Clyde",
+	"Glen",
+	"Hector",
+	"Shane",
+	"Ricardo",
+	"Sam",
+	"Rick",
+	"Lester",
+	"Brent",
+	"Ramon",
+	"Charlie",
+	"Tyler",
+	"Gilbert",
+	"Gene",
+	"Marc",
+	"Reginald",
+	"Ruben",
+	"Brett",
+	"Angel",
+	"Nathaniel",
+	"Rafael",
+	"Leslie",
+	"Edgar",
+	"Milton",
+	"Raul",
+	"Ben",
+	"Chester",
+	"Cecil",
+	"Duane",
+	"Franklin",
+	"Andre",
+	"Elmer",
+	"Brad",
+	"Gabriel",
+	"Ron",
+	"Mitchell",
+	"Roland",
+	"Arnold",
+	"Harvey",
+	"Jared",
+	"Adrian",
+	"Karl",
+	"Cory",
+	"Claude",
+	"Erik",
+	"Darryl",
+	"Jamie",
+	"Neil",
+	"Jessie",
+	"Christian",
+	"Javier",
+	"Fernando",
+	"Clinton",
+	"Ted",
+	"Mathew",
+	"Tyrone",
+	"Darren",
+	"Lonnie",
+	"Lance",
+	"Cody",
+	"Julio",
+	"Kelly",
+	"Kurt",
+	"Allan",
+	"Nelson",
+	"Guy",
+	"Clayton",
+	"Hugh",
+	"Max",
+	"Dwayne",
+	"Dwight",
+	"Armando",
+	"Felix",
+	"Jimmie",
+	"Everett",
+	"Jordan",
+	"Ian",
+	"Wallace",
+	"Ken",
+	"Bob",
+	"Jaime",
+	"Casey",
+	"Alfredo",
+	"Alberto",
+	"Dave",
+	"Ivan",
+	"Johnnie",
+	"Sidney",
+	"Byron",
+	"Julian",
+	"Isaac",
+	"Morris",
+	"Clifton",
+	"Willard",
+	"Daryl",
+	"Ross",
+	"Virgil",
+	"Andy",
+	"Marshall",
+	"Salvador",
+	"Perry",
+	"Kirk",
+	"Sergio",
+	"Marion",
+	"Tracy",
+	"Seth",
+	"Kent",
+	"Terrance",
+	"Rene",
+	"Eduardo",
+	"Terrence",
+	"Enrique",
+	"Freddie",
+	"Wade",
+	"Austin",
+	"Stuart",
+	"Fredrick",
+	"Arturo",
+	"Alejandro",
+	"Jackie",
+	"Joey",
+	"Nick",
+	"Luther",
+	"Wendell",
+	"Jeremiah",
+	"Evan",
+	"Julius",
+	"Dana",
+	"Donnie",
+	"Otis",
+	"Shannon",
+	"Trevor",
+	"Oliver",
+	"Luke",
+	"Homer",
+	"Gerard",
+	"Doug",
+	"Kenny",
+	"Hubert",
+	"Angelo",
+	"Shaun",
+	"Lyle",
+	"Matt",
+	"Lynn",
+	"Alfonso",
+	"Orlando",
+	"Rex",
+	"Carlton",
+	"Ernesto",
+	"Cameron",
+	"Neal",
+	"Pablo",
+	"Lorenzo",
+	"Omar",
+	"Wilbur",
+	"Blake",
+	"Grant",
+	"Horace",
+	"Roderick",
+	"Kerry",
+	"Abraham",
+	"Willis",
+	"Rickey",
+	"Jean",
+	"Ira",
+	"Andres",
+	"Cesar",
+	"Johnathan",
+	"Malcolm",
+	"Rudolph",
+	"Damon",
+	"Kelvin",
+	"Rudy",
+	"Preston",
+	"Alton",
+	"Archie",
+	"Marco",
+	"Wm",
+	"Pete",
+	"Randolph",
+	"Garry",
+	"Geoffrey",
+	"Jonathon",
+	"Felipe",
+	"Bennie",
+	"Gerardo",
+	"Ed",
+	"Dominic",
+	"Robin",
+	"Loren",
+	"Delbert",
+	"Colin",
+	"Guillermo",
+	"Earnest",
+	"Lucas",
+	"Benny",
+	"Noel",
+	"Spencer",
+	"Rodolfo",
+	"Myron",
+	"Edmund",
+	"Garrett",
+	"Salvatore",
+	"Cedric",
+	"Lowell",
+	"Gregg",
+	"Sherman",
+	"Wilson",
+	"Devin",
+	"Sylvester",
+	"Kim",
+	"Roosevelt",
+	"Israel",
+	"Jermaine",
+	"Forrest",
+	"Wilbert",
+	"Leland",
+	"Simon",
+	"Guadalupe",
+	"Clark",
+	"Irving",
+	"Carroll",
+	"Bryant",
+	"Owen",
+	"Rufus",
+	"Woodrow",
+	"Sammy",
+	"Kristopher",
+	"Mack",
+	"Levi",
+	"Marcos",
+	"Gustavo",
+	"Jake",
+	"Lionel",
+	"Marty",
+	"Taylor",
+	"Ellis",
+	"Dallas",
+	"Gilberto",
+	"Clint",
+	"Nicolas",
+	"Laurence",
+	"Ismael",
+	"Orville",
+	"Drew",
+	"Jody",
+	"Ervin",
+	"Dewey",
+	"Al",
+	"Wilfred",
+	"Josh",
+	"Hugo",
+	"Ignacio",
+	"Caleb",
+	"Tomas",
+	"Sheldon",
+	"Erick",
+	"Frankie",
+	"Stewart",
+	"Doyle",
+	"Darrel",
+	"Rogelio",
+	"Terence",
+	"Santiago",
+	"Alonzo",
+	"Elias",
+	"Bert",
+	"Elbert",
+	"Ramiro",
+	"Conrad",
+	"Pat",
+	"Noah",
+	"Grady",
+	"Phil",
+	"Cornelius",
+	"Lamar",
+	"Rolando",
+	"Clay",
+	"Percy",
+	"Dexter",
+	"Bradford",
+	"Merle",
+	"Darin",
+	"Amos",
+	"Terrell",
+	"Moses",
+	"Irvin",
+	"Saul",
+	"Roman",
+	"Darnell",
+	"Randal",
+	"Tommie",
+	"Timmy",
+	"Darrin",
+	"Winston",
+	"Brendan",
+	"Toby",
+	"Van",
+	"Abel",
+	"Dominick",
+	"Boyd",
+	"Courtney",
+	"Jan",
+	"Emilio",
+	"Elijah",
+	"Cary",
+	"Domingo",
+	"Santos",
+	"Aubrey",
+	"Emmett",
+	"Marlon",
+	"Emanuel",
+	"Jerald",
+	"Edmond"
+	];
+},{}],289:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name} #{suffix}",
   "#{first_name} #{last_name}",
   "#{first_name} #{last_name}",
-  "#{first_name} #{last_name}",
-  "#{first_name} #{last_name}"
+  "#{male_first_name} #{last_name}",
+  "#{female_first_name} #{last_name}"
 ];
 
-},{}],262:[function(require,module,exports){
+},{}],290:[function(require,module,exports){
 module["exports"] = [
   "Mr.",
   "Mrs.",
@@ -32034,7 +34450,7 @@ module["exports"] = [
   "Dr."
 ];
 
-},{}],263:[function(require,module,exports){
+},{}],291:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Sr.",
@@ -32049,7 +34465,7 @@ module["exports"] = [
   "DVM"
 ];
 
-},{}],264:[function(require,module,exports){
+},{}],292:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Lead",
@@ -32143,37 +34559,103 @@ module["exports"] = {
   ]
 };
 
-},{}],265:[function(require,module,exports){
+},{}],293:[function(require,module,exports){
 module["exports"] = [
-  "###-###-####",
-  "(###) ###-####",
-  "1-###-###-####",
-  "###.###.####",
-  "###-###-####",
-  "(###) ###-####",
-  "1-###-###-####",
-  "###.###.####",
-  "###-###-#### x###",
-  "(###) ###-#### x###",
-  "1-###-###-#### x###",
-  "###.###.#### x###",
-  "###-###-#### x####",
-  "(###) ###-#### x####",
-  "1-###-###-#### x####",
-  "###.###.#### x####",
-  "###-###-#### x#####",
-  "(###) ###-#### x#####",
-  "1-###-###-#### x#####",
-  "###.###.#### x#####"
+  "!##-!##-####",
+  "(!##) !##-####",
+  "1-!##-!##-####",
+  "!##.!##.####",
+  "!##-!##-####",
+  "(!##) !##-####",
+  "1-!##-!##-####",
+  "!##.!##.####",
+  "!##-!##-#### x###",
+  "(!##) !##-#### x###",
+  "1-!##-!##-#### x###",
+  "!##.!##.#### x###",
+  "!##-!##-#### x####",
+  "(!##) !##-#### x####",
+  "1-!##-!##-#### x####",
+  "!##.!##.#### x####",
+  "!##-!##-#### x#####",
+  "(!##) !##-#### x#####",
+  "1-!##-!##-#### x#####",
+  "!##.!##.#### x#####"
 ];
 
-},{}],266:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":265,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],267:[function(require,module,exports){
+},{}],294:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":293,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],295:[function(require,module,exports){
+module['exports'] = [
+    "/Applications",
+		"/bin",
+    "/boot",
+    "/boot/defaults",
+    "/dev",
+    "/etc",
+    "/etc/defaults",
+    "/etc/mail",
+    "/etc/namedb",
+    "/etc/periodic",
+    "/etc/ppp",
+    "/home",
+    "/home/user",
+    "/home/user/dir",
+    "/lib",
+    "/Library",
+    "/lost+found",
+    "/media",
+    "/mnt",
+    "/net",
+    "/Network",
+    "/opt",
+    "/opt/bin",
+    "/opt/include",
+    "/opt/lib",
+    "/opt/sbin",
+    "/opt/share",
+    "/private",
+    "/private/tmp",
+    "/private/var",
+    "/proc",
+    "/rescue",
+    "/root",
+    "/sbin",
+    "/selinux",
+    "/srv",
+    "/sys",
+    "/System",
+    "/tmp",
+    "/Users",
+    "/usr",
+    "/usr/X11R6",
+    "/usr/bin",
+    "/usr/include",
+    "/usr/lib",
+    "/usr/libdata",
+    "/usr/libexec",
+    "/usr/local/bin",
+    "/usr/local/src",
+    "/usr/obj",
+    "/usr/ports",
+    "/usr/sbin",
+    "/usr/share",
+    "/usr/src",
+    "/var",
+    "/var/log",
+    "/var/mail",
+    "/var/spool",
+    "/var/tmp",
+    "/var/yp"
+];
+
+},{}],296:[function(require,module,exports){
 var system = {};
 module['exports'] = system;
+system.directoryPaths = require("./directoryPaths");
 system.mimeTypes = require("./mimeTypes");
-},{"./mimeTypes":268}],268:[function(require,module,exports){
+
+},{"./directoryPaths":295,"./mimeTypes":297}],297:[function(require,module,exports){
 /*
 
 The MIT License (MIT)
@@ -38755,7 +41237,7 @@ module['exports'] = {
     "compressible": true
   }
 }
-},{}],269:[function(require,module,exports){
+},{}],298:[function(require,module,exports){
 module["exports"] = [
   "ants",
   "bats",
@@ -38826,30 +41308,149 @@ module["exports"] = [
   "druids"
 ];
 
-},{}],270:[function(require,module,exports){
+},{}],299:[function(require,module,exports){
 var team = {};
 module['exports'] = team;
 team.creature = require("./creature");
 team.name = require("./name");
 
-},{"./creature":269,"./name":271}],271:[function(require,module,exports){
+},{"./creature":298,"./name":300}],300:[function(require,module,exports){
 module["exports"] = [
   "#{Address.state} #{creature}"
 ];
 
-},{}],272:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
+module["exports"] = [
+  "Diesel",
+  "Electric",
+  "Gasoline",
+  "Hybrid"
+];
+
+},{}],302:[function(require,module,exports){
+var vehicle = {};
+module["exports"] = vehicle;
+vehicle.manufacturer = require("./manufacturer");
+vehicle.model = require("./model");
+vehicle.type = require("./vehicle_type");
+vehicle.fuel = require("./fuel");
+
+},{"./fuel":301,"./manufacturer":303,"./model":304,"./vehicle_type":305}],303:[function(require,module,exports){
+module["exports"] = [
+  "Chevrolet",
+  "Cadillac",
+  "Ford",
+  "Chrysler",
+  "Dodge",
+  "Jeep",
+  "Tesla",
+  "Toyota",
+  "Honda",
+  "Nissan",
+  "Audi",
+  "Mercedes Benz",
+  "BMW",
+  "Volkswagen",
+  "Porsche",
+  "Jaguar",
+  "Aston Martin",
+  "Land Rover",
+  "Bentley",
+  "Mini",
+  "Rolls Royce",
+  "Fiat",
+  "Lamborghini",
+  "Maserati",
+  "Ferrari",
+  "Bugatti",
+  "Kia",
+  "Hyandai"
+];
+
+},{}],304:[function(require,module,exports){
+module["exports"] = [
+  "Fiesta",
+  "Focus",
+  "Taurus",
+  "Mustang",
+  "Explorer",
+  "Expedition",
+  "F-150",
+  "Model T",
+  "Ranchero",
+  "Volt",
+  "Cruze",
+  "Malibu",
+  "Impala",
+  "Camaro",
+  "Corvette",
+  "Colorado",
+  "Silverado",
+  "El Camino",
+  "CTS",
+  "XTS",
+  "ATS",
+  "Escalade",
+  "Alpine",
+  "Charger",
+  "LeBaron",
+  "PT Cruiser",
+  "Challenger",
+  "Durango",
+  "Grand Caravan",
+  "Wrangler",
+  "Grand Cherokee",
+  "Roadster",
+  "Model S",
+  "Model 3",
+  "Camry",
+  "Prius",
+  "Land Cruiser",
+  "Accord",
+  "Civic",
+  "Element",
+  "Sentra",
+  "Altima",
+  "A8",
+  "A4",
+  "Beetle",
+  "Jetta",
+  "Golf",
+  "911",
+  "Spyder",
+  "Countach",
+  "Mercielago",
+  "Aventador",
+];
+
+},{}],305:[function(require,module,exports){
+module["exports"] = [
+  "Cargo Van",
+  "Convertible",
+  "Coupe",
+  "Crew Cab Pickup",
+  "Extended Cab Pickup",
+  "Hatchback",
+  "Minivan",
+  "Passenger Van",
+  "SUV",
+  "Sedan",
+  "Wagon"
+];
+
+},{}],306:[function(require,module,exports){
 module["exports"] = [
   "####",
   "###",
   "##"
 ];
 
-},{}],273:[function(require,module,exports){
+},{}],307:[function(require,module,exports){
 module["exports"] = [
   "Australia"
 ];
 
-},{}],274:[function(require,module,exports){
+},{}],308:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.state_abbr = require("./state_abbr");
@@ -38859,18 +41460,9 @@ address.building_number = require("./building_number");
 address.street_suffix = require("./street_suffix");
 address.default_country = require("./default_country");
 
-},{"./building_number":272,"./default_country":273,"./postcode":275,"./state":276,"./state_abbr":277,"./street_suffix":278}],275:[function(require,module,exports){
-module["exports"] = [
-  "0###",
-  "2###",
-  "3###",
-  "4###",
-  "5###",
-  "6###",
-  "7###"
-];
-
-},{}],276:[function(require,module,exports){
+},{"./building_number":306,"./default_country":307,"./postcode":309,"./state":310,"./state_abbr":311,"./street_suffix":312}],309:[function(require,module,exports){
+module.exports=require(158)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de_AT/address/postcode.js":158}],310:[function(require,module,exports){
 module["exports"] = [
   "New South Wales",
   "Queensland",
@@ -38882,7 +41474,7 @@ module["exports"] = [
   "Victoria"
 ];
 
-},{}],277:[function(require,module,exports){
+},{}],311:[function(require,module,exports){
 module["exports"] = [
   "NSW",
   "QLD",
@@ -38894,7 +41486,7 @@ module["exports"] = [
   "VIC"
 ];
 
-},{}],278:[function(require,module,exports){
+},{}],312:[function(require,module,exports){
 module["exports"] = [
   "Avenue",
   "Boulevard",
@@ -38935,12 +41527,12 @@ module["exports"] = [
   "Way"
 ];
 
-},{}],279:[function(require,module,exports){
+},{}],313:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
 
-},{"./suffix":280}],280:[function(require,module,exports){
+},{"./suffix":314}],314:[function(require,module,exports){
 module["exports"] = [
   "Pty Ltd",
   "and Sons",
@@ -38950,7 +41542,7 @@ module["exports"] = [
   "Partners"
 ];
 
-},{}],281:[function(require,module,exports){
+},{}],315:[function(require,module,exports){
 var en_AU = {};
 module['exports'] = en_AU;
 en_AU.title = "Australia (English)";
@@ -38960,7 +41552,7 @@ en_AU.internet = require("./internet");
 en_AU.address = require("./address");
 en_AU.phone_number = require("./phone_number");
 
-},{"./address":274,"./company":279,"./internet":283,"./name":285,"./phone_number":288}],282:[function(require,module,exports){
+},{"./address":308,"./company":313,"./internet":317,"./name":319,"./phone_number":322}],316:[function(require,module,exports){
 module["exports"] = [
   "com.au",
   "com",
@@ -38970,9 +41562,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],283:[function(require,module,exports){
-arguments[4][171][0].apply(exports,arguments)
-},{"./domain_suffix":282,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":171}],284:[function(require,module,exports){
+},{}],317:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":316,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],318:[function(require,module,exports){
 module["exports"] = [
   "William",
   "Jack",
@@ -39176,13 +41768,13 @@ module["exports"] = [
   "Kiara"
 ];
 
-},{}],285:[function(require,module,exports){
+},{}],319:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 
-},{"./first_name":284,"./last_name":286}],286:[function(require,module,exports){
+},{"./first_name":318,"./last_name":320}],320:[function(require,module,exports){
 module["exports"] = [
   "Smith",
   "Jones",
@@ -39472,7 +42064,7 @@ module["exports"] = [
   "Wolf"
 ];
 
-},{}],287:[function(require,module,exports){
+},{}],321:[function(require,module,exports){
 module["exports"] = [
   "0# #### ####",
   "+61 # #### ####",
@@ -39480,17 +42072,17 @@ module["exports"] = [
   "+61 4## ### ###"
 ];
 
-},{}],288:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":287,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],289:[function(require,module,exports){
+},{}],322:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":321,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],323:[function(require,module,exports){
 var en_BORK = {};
 module['exports'] = en_BORK;
 en_BORK.title = "Bork (English)";
 en_BORK.lorem = require("./lorem");
 
-},{"./lorem":290}],290:[function(require,module,exports){
-arguments[4][121][0].apply(exports,arguments)
-},{"./words":291,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":121}],291:[function(require,module,exports){
+},{"./lorem":324}],324:[function(require,module,exports){
+arguments[4][105][0].apply(exports,arguments)
+},{"./words":325,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],325:[function(require,module,exports){
 module["exports"] = [
   "Boot",
   "I",
@@ -39597,12 +42189,12 @@ module["exports"] = [
   "zeere-a"
 ];
 
-},{}],292:[function(require,module,exports){
+},{}],326:[function(require,module,exports){
 module["exports"] = [
   "Canada"
 ];
 
-},{}],293:[function(require,module,exports){
+},{}],327:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.state = require("./state");
@@ -39610,12 +42202,29 @@ address.state_abbr = require("./state_abbr");
 address.default_country = require("./default_country");
 address.postcode = require('./postcode.js');
 
-},{"./default_country":292,"./postcode.js":294,"./state":295,"./state_abbr":296}],294:[function(require,module,exports){
+},{"./default_country":326,"./postcode.js":328,"./state":329,"./state_abbr":330}],328:[function(require,module,exports){
 module["exports"] = [
-  "?#? #?#"
+  "A#? #?#",
+  "B#? #?#",
+  "C#? #?#",
+  "E#? #?#",
+  "G#? #?#",
+  "H#? #?#",
+  "J#? #?#",
+  "K#? #?#",
+  "L#? #?#",
+  "M#? #?#",
+  "N#? #?#",
+  "P#? #?#",
+  "R#? #?#",
+  "S#? #?#",
+  "T#? #?#",
+  "V#? #?#",
+  "X#? #?#",
+  "Y#? #?#",
 ];
 
-},{}],295:[function(require,module,exports){
+},{}],329:[function(require,module,exports){
 module["exports"] = [
   "Alberta",
   "British Columbia",
@@ -39632,7 +42241,7 @@ module["exports"] = [
   "Yukon"
 ];
 
-},{}],296:[function(require,module,exports){
+},{}],330:[function(require,module,exports){
 module["exports"] = [
   "AB",
   "BC",
@@ -39649,7 +42258,7 @@ module["exports"] = [
   "YT"
 ];
 
-},{}],297:[function(require,module,exports){
+},{}],331:[function(require,module,exports){
 var en_CA = {};
 module['exports'] = en_CA;
 en_CA.title = "Canada (English)";
@@ -39657,7 +42266,7 @@ en_CA.address = require("./address");
 en_CA.internet = require("./internet");
 en_CA.phone_number = require("./phone_number");
 
-},{"./address":293,"./internet":300,"./phone_number":302}],298:[function(require,module,exports){
+},{"./address":327,"./internet":334,"./phone_number":336}],332:[function(require,module,exports){
 module["exports"] = [
   "ca",
   "com",
@@ -39668,38 +42277,38 @@ module["exports"] = [
   "org"
 ];
 
-},{}],299:[function(require,module,exports){
+},{}],333:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.ca",
   "hotmail.com"
 ];
 
-},{}],300:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":298,"./free_email":299,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],301:[function(require,module,exports){
+},{}],334:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":332,"./free_email":333,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],335:[function(require,module,exports){
 module["exports"] = [
-  "###-###-####",
-  "(###)###-####",
-  "###.###.####",
-  "1-###-###-####",
-  "###-###-#### x###",
-  "(###)###-#### x###",
-  "1-###-###-#### x###",
-  "###.###.#### x###",
-  "###-###-#### x####",
-  "(###)###-#### x####",
-  "1-###-###-#### x####",
-  "###.###.#### x####",
-  "###-###-#### x#####",
-  "(###)###-#### x#####",
-  "1-###-###-#### x#####",
-  "###.###.#### x#####"
+  "!##-!##-####",
+  "(!##)!##-####",
+  "!##.!##.####",
+  "1-!##-###-####",
+  "!##-!##-#### x###",
+  "(!##)!##-#### x###",
+  "1-!##-!##-#### x###",
+  "!##.!##.#### x###",
+  "!##-!##-#### x####",
+  "(!##)!##-#### x####",
+  "1-!##-!##-#### x####",
+  "!##.!##.#### x####",
+  "!##-!##-#### x#####",
+  "(!##)!##-#### x#####",
+  "1-!##-!##-#### x#####",
+  "!##.!##.#### x#####"
 ];
 
-},{}],302:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":301,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],303:[function(require,module,exports){
+},{}],336:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":335,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],337:[function(require,module,exports){
 module["exports"] = [
   "Avon",
   "Bedfordshire",
@@ -39773,7 +42382,7 @@ module["exports"] = [
   "Worcestershire"
 ];
 
-},{}],304:[function(require,module,exports){
+},{}],338:[function(require,module,exports){
 module["exports"] = [
   "England",
   "Scotland",
@@ -39781,7 +42390,7 @@ module["exports"] = [
   "Northern Ireland"
 ];
 
-},{}],305:[function(require,module,exports){
+},{}],339:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.county = require("./county");
@@ -39789,15 +42398,15 @@ address.uk_country = require("./uk_country");
 address.default_country = require("./default_country");
 address.postcode = require("./postcode");
 
-},{"./county":303,"./default_country":304,"./postcode":306,"./uk_country":307}],306:[function(require,module,exports){
+},{"./county":337,"./default_country":338,"./postcode":340,"./uk_country":341}],340:[function(require,module,exports){
 module["exports"] = [
   "??# #??",
   "??## #??",
 ];
 
-},{}],307:[function(require,module,exports){
-module.exports=require(304)
-},{"/Users/a/dev/faker.js/lib/locales/en_GB/address/default_country.js":304}],308:[function(require,module,exports){
+},{}],341:[function(require,module,exports){
+module.exports=require(338)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_GB/address/default_country.js":338}],342:[function(require,module,exports){
 module["exports"] = [
   "074## ######",
   "075## ######",
@@ -39807,9 +42416,9 @@ module["exports"] = [
   "079## ######"
 ];
 
-},{}],309:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":308,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],310:[function(require,module,exports){
+},{}],343:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":342,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],344:[function(require,module,exports){
 var en_GB = {};
 module['exports'] = en_GB;
 en_GB.title = "Great Britain (English)";
@@ -39818,7 +42427,7 @@ en_GB.internet = require("./internet");
 en_GB.phone_number = require("./phone_number");
 en_GB.cell_phone = require("./cell_phone");
 
-},{"./address":305,"./cell_phone":309,"./internet":312,"./phone_number":314}],311:[function(require,module,exports){
+},{"./address":339,"./cell_phone":343,"./internet":346,"./phone_number":348}],345:[function(require,module,exports){
 module["exports"] = [
   "co.uk",
   "com",
@@ -39827,9 +42436,9 @@ module["exports"] = [
   "name"
 ];
 
-},{}],312:[function(require,module,exports){
-arguments[4][171][0].apply(exports,arguments)
-},{"./domain_suffix":311,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":171}],313:[function(require,module,exports){
+},{}],346:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":345,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],347:[function(require,module,exports){
 module["exports"] = [
   "01#### #####",
   "01### ######",
@@ -39848,9 +42457,9 @@ module["exports"] = [
   "0800 ######"
 ];
 
-},{}],314:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":313,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],315:[function(require,module,exports){
+},{}],348:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":347,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],349:[function(require,module,exports){
 module["exports"] = [
   "Carlow",
   "Cavan",
@@ -39880,18 +42489,18 @@ module["exports"] = [
   "Wicklow"
 ];
 
-},{}],316:[function(require,module,exports){
+},{}],350:[function(require,module,exports){
 module["exports"] = [
   "Ireland"
 ];
 
-},{}],317:[function(require,module,exports){
+},{}],351:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.county = require("./county");
 address.default_country = require("./default_country");
 
-},{"./county":315,"./default_country":316}],318:[function(require,module,exports){
+},{"./county":349,"./default_country":350}],352:[function(require,module,exports){
 module["exports"] = [
   "082 ### ####",
   "083 ### ####",
@@ -39901,9 +42510,9 @@ module["exports"] = [
   "089 ### ####"
 ];
 
-},{}],319:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":318,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],320:[function(require,module,exports){
+},{}],353:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":352,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],354:[function(require,module,exports){
 var en_IE = {};
 module['exports'] = en_IE;
 en_IE.title = "Ireland (English)";
@@ -39912,7 +42521,7 @@ en_IE.internet = require("./internet");
 en_IE.phone_number = require("./phone_number");
 en_IE.cell_phone = require("./cell_phone");
 
-},{"./address":317,"./cell_phone":319,"./internet":322,"./phone_number":324}],321:[function(require,module,exports){
+},{"./address":351,"./cell_phone":353,"./internet":356,"./phone_number":358}],355:[function(require,module,exports){
 module["exports"] = [
   "ie",
   "com",
@@ -39921,9 +42530,9 @@ module["exports"] = [
   "eu"
 ];
 
-},{}],322:[function(require,module,exports){
-arguments[4][171][0].apply(exports,arguments)
-},{"./domain_suffix":321,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":171}],323:[function(require,module,exports){
+},{}],356:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":355,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],357:[function(require,module,exports){
 module["exports"] = [
   "01 #######",
   "021 #######",
@@ -39976,9 +42585,9 @@ module["exports"] = [
   "099 #######"
 ];
 
-},{}],324:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":323,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],325:[function(require,module,exports){
+},{}],358:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":357,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],359:[function(require,module,exports){
 module["exports"] = [
   "India",
   "Indian Republic",
@@ -39986,7 +42595,7 @@ module["exports"] = [
   "Hindustan"
 ];
 
-},{}],326:[function(require,module,exports){
+},{}],360:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -39994,15 +42603,23 @@ address.state = require("./state");
 address.state_abbr = require("./state_abbr");
 address.default_country = require("./default_country");
 
-},{"./default_country":325,"./postcode":327,"./state":328,"./state_abbr":329}],327:[function(require,module,exports){
-module.exports=require(294)
-},{"/Users/a/dev/faker.js/lib/locales/en_CA/address/postcode.js":294}],328:[function(require,module,exports){
+},{"./default_country":359,"./postcode":361,"./state":362,"./state_abbr":363}],361:[function(require,module,exports){
 module["exports"] = [
+  "### ###"
+];
+
+},{}],362:[function(require,module,exports){
+module["exports"] = [
+  "Andaman and Nicobar Islands",
   "Andra Pradesh",
   "Arunachal Pradesh",
   "Assam",
   "Bihar",
+  "Chandigarh",
   "Chhattisgarh",
+  "Dadar and Nagar Haveli",
+  "Daman and Diu",
+  "Delhi",
   "Goa",
   "Gujarat",
   "Haryana",
@@ -40011,72 +42628,69 @@ module["exports"] = [
   "Jharkhand",
   "Karnataka",
   "Kerala",
+  "Lakshadweep",
   "Madya Pradesh",
   "Maharashtra",
   "Manipur",
   "Meghalaya",
   "Mizoram",
   "Nagaland",
-  "Orissa",
+  "Odisha",
+  "Pondicherr",
   "Punjab",
   "Rajasthan",
   "Sikkim",
   "Tamil Nadu",
+  "Telangana",
   "Tripura",
-  "Uttaranchal",
   "Uttar Pradesh",
-  "West Bengal",
-  "Andaman and Nicobar Islands",
-  "Chandigarh",
-  "Dadar and Nagar Haveli",
-  "Daman and Diu",
-  "Delhi",
-  "Lakshadweep",
-  "Pondicherry"
+  "Uttarakhand",
+  "West Bengal"
 ];
 
-},{}],329:[function(require,module,exports){
+},{}],363:[function(require,module,exports){
 module["exports"] = [
+  "AN",
   "AP",
   "AR",
   "AS",
   "BR",
+  "CH",
   "CG",
+  "DN",
+  "DD",
   "DL",
   "GA",
   "GJ",
   "HR",
   "HP",
   "JK",
-  "JS",
+  "JH",
   "KA",
   "KL",
+  "LD",
   "MP",
   "MH",
   "MN",
   "ML",
   "MZ",
   "NL",
-  "OR",
+  "OD",
+  "PY",
   "PB",
   "RJ",
   "SK",
   "TN",
+  "TS",
   "TR",
-  "UK",
   "UP",
-  "WB",
-  "AN",
-  "CH",
-  "DN",
-  "DD",
-  "LD",
-  "PY"
+  "UK",
+  "WB"
 ];
 
-},{}],330:[function(require,module,exports){
-arguments[4][279][0].apply(exports,arguments)
-},{"./suffix":331,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":279}],331:[function(require,module,exports){
+},{}],364:[function(require,module,exports){
+arguments[4][313][0].apply(exports,arguments)
+},{"./suffix":365,"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/company/index.js":313}],365:[function(require,module,exports){
 module["exports"] = [
   "Pvt Ltd",
   "Limited",
@@ -40087,7 +42701,7 @@ module["exports"] = [
   "Brothers"
 ];
 
-},{}],332:[function(require,module,exports){
+},{}],366:[function(require,module,exports){
 var en_IND = {};
 module['exports'] = en_IND;
 en_IND.title = "India (English)";
@@ -40097,7 +42711,7 @@ en_IND.internet = require("./internet");
 en_IND.company = require("./company");
 en_IND.phone_number = require("./phone_number");
 
-},{"./address":326,"./company":330,"./internet":335,"./name":337,"./phone_number":340}],333:[function(require,module,exports){
+},{"./address":360,"./company":364,"./internet":369,"./name":371,"./phone_number":374}],367:[function(require,module,exports){
 module["exports"] = [
   "in",
   "com",
@@ -40109,16 +42723,16 @@ module["exports"] = [
   "co.in"
 ];
 
-},{}],334:[function(require,module,exports){
+},{}],368:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.co.in",
   "hotmail.com"
 ];
 
-},{}],335:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":333,"./free_email":334,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],336:[function(require,module,exports){
+},{}],369:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":367,"./free_email":368,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],370:[function(require,module,exports){
 module["exports"] = [
   "Aadrika",
   "Aanandinii",
@@ -40884,9 +43498,9 @@ module["exports"] = [
   "Yogesh"
 ];
 
-},{}],337:[function(require,module,exports){
-arguments[4][285][0].apply(exports,arguments)
-},{"./first_name":336,"./last_name":338,"/Users/a/dev/faker.js/lib/locales/en_AU/name/index.js":285}],338:[function(require,module,exports){
+},{}],371:[function(require,module,exports){
+arguments[4][319][0].apply(exports,arguments)
+},{"./first_name":370,"./last_name":372,"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/name/index.js":319}],372:[function(require,module,exports){
 module["exports"] = [
   "Abbott",
   "Achari",
@@ -40979,85 +43593,241 @@ module["exports"] = [
   "Verma"
 ];
 
-},{}],339:[function(require,module,exports){
+},{}],373:[function(require,module,exports){
 module["exports"] = [
   "+91###-###-####",
   "+91##########",
   "+91-###-#######"
 ];
 
-},{}],340:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":339,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],341:[function(require,module,exports){
+},{}],374:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":373,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],375:[function(require,module,exports){
 module["exports"] = [
   "United States",
   "United States of America",
   "USA"
 ];
 
-},{}],342:[function(require,module,exports){
+},{}],376:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.default_country = require("./default_country");
 address.postcode_by_state = require("./postcode_by_state");
 
-},{"./default_country":341,"./postcode_by_state":343}],343:[function(require,module,exports){
+},{"./default_country":375,"./postcode_by_state":377}],377:[function(require,module,exports){
 module["exports"] = {
-  "AL": "350##",
-  "AK": "995##",
-  "AS": "967##",
-  "AZ": "850##",
-  "AR": "717##",
-  "CA": "900##",
-  "CO": "800##",
-  "CT": "061##",
-  "DC": "204##",
-  "DE": "198##",
-  "FL": "322##",
-  "GA": "301##",
-  "HI": "967##",
-  "ID": "832##",
-  "IL": "600##",
-  "IN": "463##",
-  "IA": "510##",
-  "KS": "666##",
-  "KY": "404##",
-  "LA": "701##",
-  "ME": "042##",
-  "MD": "210##",
-  "MA": "026##",
-  "MI": "480##",
-  "MN": "555##",
-  "MS": "387##",
-  "MO": "650##",
-  "MT": "590##",
-  "NE": "688##",
-  "NV": "898##",
-  "NH": "036##",
-  "NJ": "076##",
-  "NM": "880##",
-  "NY": "122##",
-  "NC": "288##",
-  "ND": "586##",
-  "OH": "444##",
-  "OK": "730##",
-  "OR": "979##",
-  "PA": "186##",
-  "RI": "029##",
-  "SC": "299##",
-  "SD": "577##",
-  "TN": "383##",
-  "TX": "798##",
-  "UT": "847##",
-  "VT": "050##",
-  "VA": "222##",
-  "WA": "990##",
-  "WV": "247##",
-  "WI": "549##",
-  "WY": "831##"
-};
+  AK:{
+     min:99501,
+     max:99950
+  },
+  AL:{
+     min:35004,
+     max:36925
+  },
+  AR:{
+     min:71601,
+     max:72959
+  },
+  AZ:{
+     min:85001,
+     max:86556
+  },
+  CA:{
+     min:90001,
+     max:96162
+  },
+  CO:{
+     min:80001,
+     max:81658
+  },
+  CT:{
+     min:6001,
+     max:6389
+  },
+  DC:{
+     min:20001,
+     max:20039
+  },
+  DE:{
+     min:19701,
+     max:19980
+  },
+  FL:{
+     min:32004,
+     max:34997
+  },
+  GA:{
+     min:30001,
+     max:31999
+  },
+  HI:{
+     min:96701,
+     max:96898
+  },
+  IA:{
+     min:50001,
+     max:52809
+  },
+  ID:{
+     min:83201,
+     max:83876
+  },
+  IL:{
+     min:60001,
+     max:62999
+  },
+  IN:{
+     min:46001,
+     max:47997
+  },
+  KS:{
+     min:66002,
+     max:67954
+  },
+  KY:{
+     min:40003,
+     max:42788
+  },
+  LA:{
+     min:70001,
+     max:71232
+  },
+  MA:{
+     min:1001,
+     max:2791
+  },
+  MD:{
+     min:20331,
+     max:20331
+  },
+  ME:{
+     min:3901,
+     max:4992
+  },
+  MI:{
+     min:48001,
+     max:49971
+  },
+  MN:{
+     min:55001,
+     max:56763
+  },
+  MO:{
+     min:63001,
+     max:65899
+  },
+  MS:{
+     min:38601,
+     max:39776
+  },
+  MT:{
+     min:59001,
+     max:59937
+  },
+  NC:{
+     min:27006,
+     max:28909
+  },
+  ND:{
+     min:58001,
+     max:58856
+  },
+  NE:{
+     min:68001,
+     max:68118
+  },
+  NH:{
+     min:3031,
+     max:3897
+  },
+  NJ:{
+     min:7001,
+     max:8989
+  },
+  NM:{
+     min:87001,
+     max:88441
+  },
+  NV:{
+     min:88901,
+     max:89883
+  },
+  NY:{
+     min:6390,
+     max:6390
+  },
+  OH:{
+     min:43001,
+     max:45999
+  },
+  OK:{
+     min:73001,
+     max:73199
+  },
+  OR:{
+     min:97001,
+     max:97920
+  },
+  PA:{
+     min:15001,
+     max:19640
+  },
+  PR:{
+     min:0,
+     max:0
+  },
+  RI:{
+     min:2801,
+     max:2940
+  },
+  SC:{
+     min:29001,
+     max:29948
+  },
+  SD:{
+     min:57001,
+     max:57799
+  },
+  TN:{
+     min:37010,
+     max:38589
+  },
+  TX:{
+     min:73301,
+     max:73301
+  },
+  UT:{
+     min:84001,
+     max:84784
+  },
+  VA:{
+     min:20040,
+     max:20041
+  },
+  VT:{
+     min:5001,
+     max:5495
+  },
+  WA:{
+     min:98001,
+     max:99403
+  },
+  WI:{
+     min:53001,
+     max:54990
+  },
+  WV:{
+     min:24701,
+     max:26886
+  },
+  WY:{
+     min:82001,
+     max:83128
+  }
+}
 
-},{}],344:[function(require,module,exports){
+},{}],378:[function(require,module,exports){
 var en_US = {};
 module['exports'] = en_US;
 en_US.title = "United States (English)";
@@ -41065,7 +43835,7 @@ en_US.internet = require("./internet");
 en_US.address = require("./address");
 en_US.phone_number = require("./phone_number");
 
-},{"./address":342,"./internet":346,"./phone_number":349}],345:[function(require,module,exports){
+},{"./address":376,"./internet":380,"./phone_number":383}],379:[function(require,module,exports){
 module["exports"] = [
   "com",
   "us",
@@ -41076,9 +43846,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],346:[function(require,module,exports){
-arguments[4][171][0].apply(exports,arguments)
-},{"./domain_suffix":345,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":171}],347:[function(require,module,exports){
+},{}],380:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":379,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],381:[function(require,module,exports){
 module["exports"] = [
   "201",
   "202",
@@ -41365,22 +44135,1553 @@ module["exports"] = [
   "989"
 ];
 
-},{}],348:[function(require,module,exports){
-module.exports=require(347)
-},{"/Users/a/dev/faker.js/lib/locales/en_US/phone_number/area_code.js":347}],349:[function(require,module,exports){
+},{}],382:[function(require,module,exports){
+module.exports=require(381)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_US/phone_number/area_code.js":381}],383:[function(require,module,exports){
 var phone_number = {};
 module['exports'] = phone_number;
 phone_number.area_code = require("./area_code");
 phone_number.exchange_code = require("./exchange_code");
 
-},{"./area_code":347,"./exchange_code":348}],350:[function(require,module,exports){
-module.exports=require(272)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/building_number.js":272}],351:[function(require,module,exports){
+},{"./area_code":381,"./exchange_code":382}],384:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix}"
 ];
 
-},{}],352:[function(require,module,exports){
+},{}],385:[function(require,module,exports){
+module["exports"] = [
+    "Polokwane",
+    "Johannesburg",
+    "Pretoria",
+    "Tshwane",
+    "Durban",
+    "Pietermaritzburg",
+    "Nelspruit",
+    "Cape Town",
+    "Stellenbosch",
+    "Port Elizabeth",
+    "East London",
+    "Kimberley",
+    "Rustenburg",
+    "Bloemfontein "
+];
+
+},{}],386:[function(require,module,exports){
+module["exports"] = [
+  "South Africa",
+  "The Republic of South Africa",
+  "SA",
+  "South Africa"
+];
+
+},{}],387:[function(require,module,exports){
+var address = {};
+module['exports'] = address;
+address.city = require("./city");
+address.city_prefix = require("./city_prefix");
+address.default_country = require("./default_country");
+address.postcode = require("./postcode");
+address.state = require("./state");
+},{"./city":384,"./city_prefix":385,"./default_country":386,"./postcode":388,"./state":389}],388:[function(require,module,exports){
+module["exports"] = [
+  "#####",
+  "####"
+];
+
+},{}],389:[function(require,module,exports){
+module["exports"] = [
+    "Limpopo",
+    "Gauteng",
+    "Free State,",
+    "North West",
+    "Northern Cape",
+    "Western Cape,",
+    "KwaZulu-Natal",
+    "Mpumalanga",
+    "Eastern Cape"
+];
+
+},{}],390:[function(require,module,exports){
+module["exports"] = [
+    "+2760 ### ####",
+    "+2761 ### ####",
+    "+2763 ### ####",
+    "+2772 ### ####",
+    "+2773 ### ####",
+    "+2774 ### ####",
+    "+2776 ### ####",
+    "+2779 ### ####",
+    "+2781 ### ####",
+    "+2782 ### ####",
+    "+2783 ### ####",
+    "+2784 ### ####",
+    "082 ### ####",
+    "084 ### ####",
+    "083 ### ####",
+    "065 ### ####",
+    "082#######",
+    "082 #######"
+];
+},{}],391:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":390,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],392:[function(require,module,exports){
+arguments[4][313][0].apply(exports,arguments)
+},{"./suffix":393,"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/company/index.js":313}],393:[function(require,module,exports){
+module["exports"] = [
+  "Pty Ltd",
+  "Ltd",
+  "CC"
+];
+
+},{}],394:[function(require,module,exports){
+var en_ZA = {};
+module['exports'] = en_ZA;
+en_ZA.title = "South Africa (English)";
+en_ZA.address = require("./address");
+en_ZA.internet = require("./internet");
+en_ZA.name = require("./name");
+en_ZA.phone_number = require("./phone_number");
+en_ZA.cell_phone = require("./cell_phone");
+en_ZA.company = require("./company");
+},{"./address":387,"./cell_phone":391,"./company":392,"./internet":396,"./name":399,"./phone_number":406}],395:[function(require,module,exports){
+module["exports"] = [
+  "co.za",
+  "com",
+  "org.za",
+  "info",
+  "net.za"
+];
+},{}],396:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":395,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],397:[function(require,module,exports){
+module["exports"] = [
+	"Mary",
+	"Patricia",
+	"Linda",
+	"Barbara",
+	"Elizabeth",
+	"Jennifer",
+	"Susan",
+	"Margaret",
+	"Dorothy",
+	"Lisa",
+	"Karen",
+	"Helen",
+	"Sandra",
+	"Donna",
+	"Carol",
+	"Ruth",
+	"Sharon",
+	"Michelle",
+	"Laura",
+	"Sarah",
+	"Kimberly",
+	"Deborah",
+	"Jessica",
+	"Shirley",
+	"Cynthia",
+	"Angela",
+	"Melissa",
+	"Brenda",
+	"Amy",
+	"Anna",
+	"Rebecca",
+	"Kathleen",
+	"Amanda",
+	"Stephanie",
+	"Carolyn",
+	"Christine",
+	"Marie",
+	"Janet",
+	"Catherine",
+	"Ann",
+	"Joyce",
+	"Diane",
+	"Alice",
+	"Julie",
+	"Heather",
+	"Teresa",
+	"Evelyn",
+	"Cheryl",
+	"Katherine",
+	"Joan",
+	"Ashley",
+	"Judith",
+	"Rose",
+	"Janice",
+	"Kelly",
+	"Nicole",
+	"Judy",
+	"Christina",
+	"Kathy",
+	"Theresa",
+	"Beverly",
+	"Denise",
+	"Tammy",
+	"Irene",
+	"Jane",
+	"Lori",
+	"Rachel",
+	"Marilyn",
+	"Andrea",
+	"Kathryn",
+	"Louise",
+	"Sara",
+	"Anne",
+	"Jacqueline",
+	"Julia",
+	"Tina",
+	"Paula",
+	"Diana",
+	"Annie",
+	"Lillian",
+	"Emily",
+	"Robin",
+	"Rita",
+	"Tracy",
+	"Edna",
+	"Tiffany",
+	"Carmen",
+	"Cindy",
+	"Edith",
+	"Kim",
+	"Sherry",
+	"Shannon",
+	"Ethel",
+	"Ellen",
+	"Elaine",
+	"Charlotte",
+	"Monica",
+	"Pauline",
+	"Emma",
+	"Juanita",
+	"Anita",
+	"Rhonda",
+	"Hazel",
+	"Amber",
+	"Debbie",
+	"Clara",
+	"Lucille",
+	"Joanne",
+	"Eleanor",
+	"Megan",
+	"Alicia",
+	"Suzanne",
+	"Michele",
+	"Gail",
+	"Geraldine",
+	"Lauren",
+	"Cathy",
+	"Joann",
+	"Lorraine",
+	"Lynn",
+	"Erica",
+	"Beatrice",
+	"Bernice",
+	"Audrey",
+	"Yvonne",
+	"Annette",
+	"Samantha",
+	"Dana",
+	"Stacy",
+	"Ana",
+	"Renee",
+	"Ida",
+	"Vivian",
+	"Roberta",
+	"Melanie",
+	"Yolanda",
+	"Jeanette",
+	"Katie",
+	"Kristen",
+	"Vanessa",
+	"Alma",
+	"Sue",
+	"Elsie",
+	"Beth",
+	"Jeanne",
+	"Vicki",
+	"Carla",
+	"Tara",
+	"Rosemary",
+	"Eileen",
+	"Lucy",
+	"Stacey",
+	"Wilma",
+	"Gina",
+	"Kristin",
+	"Jessie",
+	"Natalie",
+	"Charlene",
+	"Melinda",
+	"Maureen",
+	"Colleen",
+	"Allison",
+	"Tamara",
+	"Joy",
+	"Claudia",
+	"Jackie",
+	"Marcia",
+	"Tanya",
+	"Nellie",
+	"Marlene",
+	"Heidi",
+	"Glenda",
+	"Lydia",
+	"Viola",
+	"Courtney",
+	"Marian",
+	"Stella",
+	"Caroline",
+	"Vickie",
+	"Maxine",
+	"Irma",
+	"Christy",
+	"Deanna",
+	"Hilda",
+	"Jennie",
+	"Nora",
+	"Nina",
+	"Cassandra",
+	"Leah",
+	"Priscilla",
+	"Carole",
+	"Olga",
+	"Billie",
+	"Dianne",
+	"Tracey",
+	"Leona",
+	"Jenny",
+	"Felicia",
+	"Sonia",
+	"Kristina",
+	"Shelly",
+	"Sherri",
+	"Erika",
+	"Katrina",
+	"Claire",
+	"Lindsay",
+	"Belinda",
+	"Margarita",
+	"Sheryl",
+	"Natasha",
+	"Molly",
+	"Cecilia",
+	"Kristi",
+	"Brandi",
+	"Blanche",
+	"Sandy",
+	"Rosie",
+	"Joanna",
+	"Iris",
+	"Eunice",
+	"Angie",
+	"Lynda",
+	"Madeline",
+	"Amelia",
+	"Monique",
+	"Maggie",
+	"Kayla",
+	"Sonya",
+	"Jan",
+	"Lee",
+	"Kristine",
+	"Candace",
+	"Alison",
+	"Yvette",
+	"Melody",
+	"Olivia",
+	"Kristy",
+	"Antoinette",
+	"Candice",
+	"Bridget",
+	"Karla",
+	"Celia",
+	"Gayle",
+	"Vicky",
+	"Lynne",
+	"Sheri",
+	"Marianne",
+	"Kara",
+	"Jacquelyn",
+	"Erma",
+	"Leticia",
+	"Krista",
+	"Roxanne",
+	"Robyn",
+	"Rosalie",
+	"Alexandra",
+	"Brooke",
+	"Bethany",
+	"Bernadette",
+	"Traci",
+	"Nichole",
+	"Krystal",
+	"Angelina",
+	"Nadine",
+	"Estelle",
+	"Dianna",
+	"Rosemarie",
+	"Desiree",
+	"Lynette",
+	"Cristina",
+	"Leigh",
+	"Meghan",
+	"Eloise",
+	"Rochelle",
+	"Jana",
+	"Gwen",
+	"Kerry",
+	"Jenna",
+	"Tricia",
+	"Laverne",
+	"Alexis",
+	"Tasha",
+	"Kellie",
+	"Sonja",
+	"Mandy",
+	"Lorene",
+	"Elsa",
+	"Camille",
+	"Tami",
+	"Elisa",
+	"Kristie"
+	];
+},{}],398:[function(require,module,exports){
+module["exports"] = [
+  "Rapulane",
+  "Nthabiseng",
+  "Kopano",
+  "Mpho",
+  "Lungelo",
+  "Ziyanda",
+  "Nqobile",
+  "Monde",
+  "Mary",
+	"Patricia",
+	"Linda",
+	"Barbara",
+	"Elizabeth",
+	"Jennifer",
+	"Susan",
+	"Margaret",
+	"Dorothy",
+	"Lisa",
+	"Karen",
+	"Helen",
+	"Sandra",
+	"Donna",
+	"Carol",
+	"Ruth",
+	"Sharon",
+	"Michelle",
+	"Laura",
+	"Sarah",
+	"Kimberly",
+	"Deborah",
+	"Jessica",
+	"Shirley",
+	"Cynthia",
+	"Angela",
+	"Melissa",
+	"Brenda",
+	"Amy",
+	"Anna",
+	"Rebecca",
+	"Kathleen",
+	"Amanda",
+	"Stephanie",
+	"Carolyn",
+	"Christine",
+	"Marie",
+	"Janet",
+	"Catherine",
+	"Ann",
+	"Joyce",
+	"Diane",
+	"Alice",
+	"Julie",
+	"Heather",
+	"Teresa",
+	"Evelyn",
+	"Cheryl",
+	"Katherine",
+	"Joan",
+	"Ashley",
+	"Judith",
+	"Rose",
+	"Janice",
+	"Kelly",
+	"Nicole",
+	"Judy",
+	"Christina",
+	"Kathy",
+	"Theresa",
+	"Beverly",
+	"Denise",
+	"Tammy",
+	"Irene",
+	"Jane",
+	"Lori",
+	"Rachel",
+	"Marilyn",
+	"Andrea",
+	"Kathryn",
+	"Louise",
+	"Sara",
+	"Anne",
+	"Jacqueline",
+	"Julia",
+	"Tina",
+	"Paula",
+	"Diana",
+	"Annie",
+	"Lillian",
+	"Emily",
+	"Robin",
+	"Rita",
+	"Tracy",
+	"Edna",
+	"Tiffany",
+	"Carmen",
+	"Cindy",
+	"Edith",
+	"Kim",
+	"Sherry",
+	"Shannon",
+	"Ethel",
+	"Ellen",
+	"Elaine",
+	"Charlotte",
+	"Monica",
+	"Pauline",
+	"Emma",
+	"Juanita",
+	"Anita",
+	"Rhonda",
+	"Hazel",
+	"Amber",
+	"Debbie",
+	"Clara",
+	"Lucille",
+	"Joanne",
+	"Eleanor",
+	"Megan",
+	"Alicia",
+	"Suzanne",
+	"Michele",
+	"Gail",
+	"Geraldine",
+	"Lauren",
+	"Cathy",
+	"Joann",
+	"Lorraine",
+	"Lynn",
+	"Erica",
+	"Beatrice",
+	"Bernice",
+	"Audrey",
+	"Yvonne",
+	"Annette",
+	"Samantha",
+	"Dana",
+	"Stacy",
+	"Ana",
+	"Renee",
+	"Ida",
+	"Vivian",
+	"Roberta",
+	"Melanie",
+	"Yolanda",
+	"Jeanette",
+	"Katie",
+	"Kristen",
+	"Vanessa",
+	"Alma",
+	"Sue",
+	"Elsie",
+	"Beth",
+	"Jeanne",
+	"Vicki",
+	"Carla",
+	"Tara",
+	"Rosemary",
+	"Eileen",
+	"Lucy",
+	"Stacey",
+	"Wilma",
+	"Gina",
+	"Kristin",
+	"Jessie",
+	"Natalie",
+	"Charlene",
+	"Melinda",
+	"Maureen",
+	"Colleen",
+	"Allison",
+	"Tamara",
+	"Joy",
+	"Claudia",
+	"Jackie",
+	"Marcia",
+	"Tanya",
+	"Nellie",
+	"Marlene",
+	"Heidi",
+	"Glenda",
+	"Lydia",
+	"Viola",
+	"Courtney",
+	"Marian",
+	"Stella",
+	"Caroline",
+	"Vickie",
+	"Maxine",
+	"Irma",
+	"Christy",
+	"Deanna",
+	"Hilda",
+	"Jennie",
+	"Nora",
+	"Nina",
+	"Cassandra",
+	"Leah",
+	"Priscilla",
+	"Carole",
+	"Olga",
+	"Billie",
+	"Dianne",
+	"Tracey",
+	"Leona",
+	"Jenny",
+	"Felicia",
+	"Sonia",
+	"Kristina",
+	"Shelly",
+	"Sherri",
+	"Erika",
+	"Katrina",
+	"Claire",
+	"Lindsay",
+	"Belinda",
+	"Margarita",
+	"Sheryl",
+	"Natasha",
+	"Molly",
+	"Cecilia",
+	"Kristi",
+	"Brandi",
+	"Blanche",
+	"Sandy",
+	"Rosie",
+	"Joanna",
+	"Iris",
+	"Eunice",
+	"Angie",
+	"Lynda",
+	"Madeline",
+	"Amelia",
+	"Monique",
+	"Maggie",
+	"Kayla",
+	"Sonya",
+	"Jan",
+	"Lee",
+	"Kristine",
+	"Candace",
+	"Alison",
+	"Yvette",
+	"Melody",
+	"Olivia",
+	"Kristy",
+	"Antoinette",
+	"Candice",
+	"Bridget",
+	"Karla",
+	"Celia",
+	"Gayle",
+	"Vicky",
+	"Lynne",
+	"Sheri",
+	"Marianne",
+	"Kara",
+	"Jacquelyn",
+	"Erma",
+	"Leticia",
+	"Krista",
+	"Roxanne",
+	"Robyn",
+	"Rosalie",
+	"Alexandra",
+	"Brooke",
+	"Bethany",
+	"Bernadette",
+	"Traci",
+	"Nichole",
+	"Krystal",
+	"Angelina",
+	"Nadine",
+	"Estelle",
+	"Dianna",
+	"Rosemarie",
+	"Desiree",
+	"Lynette",
+	"Cristina",
+	"Leigh",
+	"Meghan",
+	"Eloise",
+	"Rochelle",
+	"Jana",
+	"Gwen",
+	"Kerry",
+	"Jenna",
+	"Tricia",
+	"Laverne",
+	"Alexis",
+	"Tasha",
+	"Kellie",
+	"Sonja",
+	"Mandy",
+	"Lorene",
+	"Elsa",
+	"Camille",
+	"Tami",
+	"Elisa",
+  "Kristie",
+  "James",
+	"John",
+	"Robert",
+	"Michael",
+	"William",
+	"David",
+	"Richard",
+	"Thomas",
+	"Charles",
+	"Christopher",
+	"Daniel",
+	"Dante",
+	"Paul",
+	"Mark",
+	"George",
+	"Kenneth",
+	"Steven",
+	"Edward",
+	"Brian",
+	"Ronald",
+	"Anthony",
+	"Albert",
+	"Alfred",
+	"Kevin",
+	"Jason",
+	"Matthew",
+	"Gary",
+	"Timothy",
+	"Frank",
+	"Eric",
+	"Stephen",
+	"Andrew",
+	"Raymond",
+	"Greg",
+	"Joshua",
+	"Jerry",
+	"Dennis",
+	"Peter",
+	"Henry",
+	"Carl",
+	"Arthur",
+	"Ryan",
+	"Roger",
+	"Joe",
+	"Juan",
+	"Jonathan",
+	"Justin",
+	"Terry",
+	"Gerald",
+	"Keith",
+	"Samuel",
+	"Willie",
+	"Ralph",
+	"Roy",
+	"Brandon",
+	"Adam",
+	"Harry",
+	"Wayne",
+	"Billy",
+	"Steve",
+	"Louis",
+	"Jeremy",
+	"Howard",
+	"Eugene",
+	"Carlos",
+	"Russell",
+	"Bobby",
+	"Victor",
+	"Martin",
+	"Ernest",
+	"Phillip",
+	"Craig",
+	"Alan",
+	"Shawn",
+	"Sean",
+	"Philip",
+	"Chris",
+	"Johnny",
+	"Earl",
+	"Jimmy",
+	"Bryan",
+	"Tony",
+	"Luis",
+	"Mike",
+	"Stanley",
+	"Leonard",
+	"Nathan",
+	"Dale",
+	"Manuel",
+	"Rodney",
+	"Curtis",
+	"Norman",
+	"Allen",
+	"Marvin",
+	"Vincent",
+	"Glenn",
+	"Travis",
+	"Jacob",
+	"Kyle",
+	"Francis",
+	"Bradley",
+	"Joel",
+	"Edwin",
+	"Eddie",
+	"Barry",
+	"Alexander",
+	"Bernard",
+	"Marcus",
+	"Micheal",
+	"Theodore",
+	"Clifford",
+	"Miguel",
+	"Oscar",
+	"Jay",
+	"Jim",
+	"Tom",
+	"Calvin",
+	"Alex",
+	"Jon",
+	"Ronnie",
+	"Bill",
+	"Lloyd",
+	"Tommy",
+	"Leon",
+	"Derek",
+	"Warren",
+	"Darrell",
+	"Jerome",
+	"Leo",
+	"Tim",
+	"Wesley",
+	"Gordon",
+	"Dean",
+	"Greg",
+	"Jorge",
+	"Dustin",
+	"Derrick",
+	"Dan",
+	"Herman",
+	"Glen",
+	"Shane",
+	"Rick",
+	"Brent",
+	"Tyler",
+	"Marc",
+	"Ruben",
+	"Brett",
+	"Nathaniel",
+	"Rafael",
+	"Leslie",
+	"Edgar",
+	"Raul",
+	"Ben",
+	"Chester",
+	"Cecil",
+	"Duane",
+	"Franklin",
+	"Andre",
+	"Elmer",
+	"Brad",
+	"Gabriel",
+	"Ron",
+	"Mitchell",
+	"Roland",
+	"Arnold",
+	"Harvey",
+	"Jared",
+	"Adrian",
+	"Karl",
+	"Cory",
+	"Claude",
+	"Erik",
+	"Darryl",
+	"Jamie",
+	"Neil",
+	"Jessie",
+	"Christian",
+	"Ted",
+	"Mathew",
+	"Tyrone",
+	"Darren",
+	"Kurt",
+	"Allan",
+	"Guy",
+	"Max",
+	"Dwayne",
+	"Ian",
+	"Ken",
+	"Bob",
+	"Dave",
+	"Ivan",
+	"Johnnie",
+	"Sid",
+	"Sidney",
+	"Byron",
+	"Julian",
+	"Morris",
+	"Clifton",
+	"Willard",
+	"Daryl",
+	"Ross",
+	"Andy",
+	"Kirk",
+	"Terrence",
+	"Fred",
+	"Freddie",
+	"Wade",
+	"Stuart",
+	"Joey",
+	"Nick",
+	"Julius",
+	"Trevor",
+	"Luke",
+	"Gerard",
+	"Hubert",
+	"Shaun",
+	"Matt",
+	"Cameron",
+	"Neal",
+	"Wilbur",
+	"Grant",
+	"Jean",
+	"Johnathan",
+	"Rudolph",
+	"Rudy",
+	"Marco",
+	"Garry",
+	"Bennie",
+	"Ed",
+	"Colin",
+	"Earnest",
+	"Lucas",
+	"Benny",
+	"Noel",
+	"Garrett",
+	"Gregg",
+	"Devin",
+	"Kim",
+	"Simon",
+	"Rufus",
+	"Clint",
+	"Josh",
+	"Hugo",
+	"Erick",
+	"Frankie",
+	"Stewart",
+	"Terence",
+	"Conrad",
+	"Percy",
+	"Tommie",
+	"Jan"
+];
+},{}],399:[function(require,module,exports){
+var name = {};
+module['exports'] = name;
+name.name = require("./name");
+name.male_first_name = require("./male_first_name");
+name.female_first_name = require("./female_first_name");
+name.first_name = require("./first_name");
+name.last_name = require("./last_name");
+},{"./female_first_name":397,"./first_name":398,"./last_name":400,"./male_first_name":401,"./name":402}],400:[function(require,module,exports){
+module["exports"] = [
+  "Dlamini",
+  "Zulu",
+  "Mabunda",
+  "Makhanya",
+  "Khoza",
+  "Zuma",
+  "Zondi",
+  "Abbott",
+  "Adams",
+  "Anderson",
+  "Adcock",
+  "Ashley",
+  "Amla",
+  "Baloyi",
+  "Bailey",
+  "Barrows",
+  "Barton",
+  "Berge",
+  "Bernhard",
+  "Bernier",
+  "Boyle",
+  "Braun",
+  "Blanckenberg",
+  "Brekke",
+  "Brown",
+  "Bruen",
+  "Bacher",
+  "Boucher",
+  "Bromfield",
+  "Benjamin",
+  "Bongo",
+  "Bhana",
+  "Bhengu",
+  "Carter",
+  "Cameron",
+  "Champlin",
+  "Collins",
+  "Cullinan",
+  "Chetty",
+  "Cook",
+  "Connelly",
+  "Crooks",
+  "Cummings",
+  "Cassim",
+  "Dube",
+  "Dhlamini",
+  "Daniel",
+  "Davis",
+  "Dower",
+  "Dixon",
+  "Dickinson",
+  "Douglas",
+  "Deane",
+  "Ebert",
+  "Elworthy",
+  "Feest",
+  "Fuller",
+  "Fish",
+  "Fisher",
+  "Fichardt",
+  "Govender",
+  "Gupta",
+  "Gandhi",
+  "Gibson",
+  "Gibbs",
+  "Gleason",
+  "Goonam",
+  "Gordhan",
+  "Goodwin",
+  "Grady",
+  "Graham",
+  "Grant",
+  "Green",
+  "Greenholt",
+  "Grimes",
+  "Hlongwane",
+  "Harris",
+  "Hall",
+  "Horne",
+  "Harvey",
+  "Hearne",
+  "Heller",
+  "Herzog",
+  "Hudson",
+  "Hlatshwayo",
+  "Hitchinson",
+  "Hathorn",
+  "Hayworth",
+  "Henderson",
+  "Jacobs",
+  "Jacobson",
+  "Johnson",
+  "Johnston",
+  "Jones",
+  "Joseph",
+  "Kalyan",
+  "Kathrada",
+  "King",
+  "Klusener",
+  "Klein",
+  "Keith",
+  "Kennedy",
+  "Kuhn",
+  "Khumalu",
+  "Khoza",
+  "Kunene",
+  "Kempis",
+  "Kemp",
+  "Kubheka",
+  "Khuzwayo",
+  "Linsey",
+  "Lowe",
+  "Letsoalo",
+  "Mhlanga",
+  "Mabaso",
+  "Mazibuko",
+  "Moosa",
+  "Mhlongo",
+  "Mahlangu",
+  "Markham",
+  "Mansell",
+  "Marvin",
+  "Mayer",
+  "Mbatha",
+  "Maseko",
+  "Milton",
+  "Mkhize",
+  "Moses",
+  "McKenzie",
+  "McMillan",
+  "McLaren",
+  "McLean",
+  "Miller",
+  "Mills",
+  "Mitchell",
+  "Mchunu",
+  "Munsamy",
+  "Mnisi",
+  "Moen",
+  "Motaung",
+  "Mudau",
+  "Mohr",
+  "Monahan",
+  "Moore",
+  "Moosa",
+  "Moonsamy",
+  "Mphahlele",
+  "Morar",
+  "Molefe",
+  "Mthembu",
+  "Muller",
+  "Murray",
+  "Moloi",
+  "Mofokeng",
+  "Modise",
+  "Mtshali",
+  "Mathebula",
+  "Mthethwa",
+  "Maluleke",
+  "Mokwena",
+  "Motloung",
+  "Mahabeer",
+  "Mngomezulu",
+  "Nolan",
+  "Nair",
+  "Ndlovu",
+  "Nkosi",
+  "Ngcobo",
+  "Ngwenya",
+  "Ntuli",
+  "Nxumalo",
+  "Ngubane",
+  "Nhlapo",
+  "Ndaba",
+  "Nkomo",
+  "Oliphant",
+  "Ochse",
+  "O'Linn",
+  "Patel",
+  "Parker",
+  "Parkin",
+  "Pillay",
+  "Parnell",
+  "Peterson",
+  "Procter",
+  "Poore",
+  "Pollock",
+  "Powell",
+  "Price",
+  "Prince",
+  "Pithey",
+  "Reilly",
+  "Reid",
+  "Rowe",
+  "Roberts",
+  "Richards",
+  "Richardson",
+  "Schmidt",
+  "Schultz",
+  "Stewart",
+  "Symcox",
+  "Smith",
+  "Stokes",
+  "Sinclair",
+  "Singh",
+  "Shongwe",
+  "Sibiya",
+  "Schwarz",
+  "Snooke",
+  "Sithole",
+  "Terry",
+  "Thompson",
+  "Tromp",
+  "Tuckett",
+  "Taylor",
+  "Tsabalala",
+  "Wesley",
+  "Walsh",
+  "Weber",
+  "Weimann",
+  "Willoughby",
+  "White",
+  "Welch",
+  "West",
+  "Williamson",
+  "Ziemann",
+  "Albertyn",
+  "Bosman",
+  "Bester",
+  "Truter",
+  "Tsotetsi",
+  "Prinsloo",
+  "van Niekerk",
+  "Zimmerman",
+  "Venter",
+  "van den Berg",
+  "Xaba",
+  "Zulu",
+  "Zungu",
+  "Zuma",
+  "Zwane"
+];
+},{}],401:[function(require,module,exports){
+module["exports"] = [
+	"James",
+	"John",
+	"Robert",
+	"Michael",
+	"William",
+	"David",
+	"Richard",
+	"Thomas",
+	"Charles",
+	"Christopher",
+	"Daniel",
+	"Dante",
+	"Paul",
+	"Mark",
+	"George",
+	"Kenneth",
+	"Steven",
+	"Edward",
+	"Brian",
+	"Ronald",
+	"Anthony",
+	"Albert",
+	"Alfred",
+	"Kevin",
+	"Jason",
+	"Matthew",
+	"Gary",
+	"Timothy",
+	"Frank",
+	"Eric",
+	"Stephen",
+	"Andrew",
+	"Raymond",
+	"Greg",
+	"Joshua",
+	"Jerry",
+	"Dennis",
+	"Peter",
+	"Henry",
+	"Carl",
+	"Arthur",
+	"Ryan",
+	"Roger",
+	"Joe",
+	"Juan",
+	"Jonathan",
+	"Justin",
+	"Terry",
+	"Gerald",
+	"Keith",
+	"Samuel",
+	"Willie",
+	"Ralph",
+	"Roy",
+	"Brandon",
+	"Adam",
+	"Harry",
+	"Wayne",
+	"Billy",
+	"Steve",
+	"Louis",
+	"Jeremy",
+	"Howard",
+	"Eugene",
+	"Carlos",
+	"Russell",
+	"Bobby",
+	"Victor",
+	"Martin",
+	"Ernest",
+	"Phillip",
+	"Craig",
+	"Alan",
+	"Shawn",
+	"Sean",
+	"Philip",
+	"Chris",
+	"Johnny",
+	"Earl",
+	"Jimmy",
+	"Bryan",
+	"Tony",
+	"Luis",
+	"Mike",
+	"Stanley",
+	"Leonard",
+	"Nathan",
+	"Dale",
+	"Manuel",
+	"Rodney",
+	"Curtis",
+	"Norman",
+	"Allen",
+	"Marvin",
+	"Vincent",
+	"Glenn",
+	"Travis",
+	"Jacob",
+	"Kyle",
+	"Francis",
+	"Bradley",
+	"Joel",
+	"Edwin",
+	"Eddie",
+	"Barry",
+	"Alexander",
+	"Bernard",
+	"Marcus",
+	"Micheal",
+	"Theodore",
+	"Clifford",
+	"Miguel",
+	"Oscar",
+	"Jay",
+	"Jim",
+	"Tom",
+	"Calvin",
+	"Alex",
+	"Jon",
+	"Ronnie",
+	"Bill",
+	"Lloyd",
+	"Tommy",
+	"Leon",
+	"Derek",
+	"Warren",
+	"Darrell",
+	"Jerome",
+	"Leo",
+	"Tim",
+	"Wesley",
+	"Gordon",
+	"Dean",
+	"Greg",
+	"Jorge",
+	"Dustin",
+	"Derrick",
+	"Dan",
+	"Herman",
+	"Glen",
+	"Shane",
+	"Rick",
+	"Brent",
+	"Tyler",
+	"Marc",
+	"Ruben",
+	"Brett",
+	"Nathaniel",
+	"Rafael",
+	"Leslie",
+	"Edgar",
+	"Raul",
+	"Ben",
+	"Chester",
+	"Cecil",
+	"Duane",
+	"Franklin",
+	"Andre",
+	"Elmer",
+	"Brad",
+	"Gabriel",
+	"Ron",
+	"Mitchell",
+	"Roland",
+	"Arnold",
+	"Harvey",
+	"Jared",
+	"Adrian",
+	"Karl",
+	"Cory",
+	"Claude",
+	"Erik",
+	"Darryl",
+	"Jamie",
+	"Neil",
+	"Jessie",
+	"Christian",
+	"Ted",
+	"Mathew",
+	"Tyrone",
+	"Darren",
+	"Kurt",
+	"Allan",
+	"Guy",
+	"Max",
+	"Dwayne",
+	"Ian",
+	"Ken",
+	"Bob",
+	"Dave",
+	"Ivan",
+	"Johnnie",
+	"Sid",
+	"Sidney",
+	"Byron",
+	"Julian",
+	"Morris",
+	"Clifton",
+	"Willard",
+	"Daryl",
+	"Ross",
+	"Andy",
+	"Kirk",
+	"Terrence",
+	"Fred",
+	"Freddie",
+	"Wade",
+	"Stuart",
+	"Joey",
+	"Nick",
+	"Julius",
+	"Trevor",
+	"Luke",
+	"Gerard",
+	"Hubert",
+	"Shaun",
+	"Matt",
+	"Cameron",
+	"Neal",
+	"Wilbur",
+	"Grant",
+	"Jean",
+	"Johnathan",
+	"Rudolph",
+	"Rudy",
+	"Marco",
+	"Garry",
+	"Bennie",
+	"Ed",
+	"Colin",
+	"Earnest",
+	"Lucas",
+	"Benny",
+	"Noel",
+	"Garrett",
+	"Gregg",
+	"Devin",
+	"Kim",
+	"Simon",
+	"Rufus",
+	"Clint",
+	"Josh",
+	"Hugo",
+	"Erick",
+	"Frankie",
+	"Stewart",
+	"Terence",
+	"Conrad",
+	"Percy",
+	"Tommie",
+	"Jan"
+	];
+},{}],402:[function(require,module,exports){
+module["exports"] = [
+  "#{first_name} #{last_name}",
+  "#{last_name} #{first_name}"
+];
+
+},{}],403:[function(require,module,exports){
+module["exports"] = [
+  "10",
+  "11",
+  "12",
+  "13",
+  "14",
+  "15",
+  "16",
+  "17",
+  "18",
+  "21",
+  "22",
+  "23",
+  "24",
+  "27",
+  "28",
+  "31",
+  "32",
+  "33",
+  "34",
+  "35",
+  "36",
+  "39",
+  "40",
+  "41",
+  "42",
+  "43",
+  "44",
+  "45",
+  "46",
+  "47",
+  "48",
+  "49",
+  "51",
+  "53",
+  "54",
+  "56",
+  "57",
+  "58"
+];
+
+},{}],404:[function(require,module,exports){
+module.exports=require(381)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_US/phone_number/area_code.js":381}],405:[function(require,module,exports){
+module["exports"] = [
+  "(0##) ### ####",
+  "0## ### ####",
+  "+27 ## ### ####",
+  "01# ### #####",
+  "02# ### #####",
+  "03# ### #####",
+  "04# ### #####",
+  "05# ### #####",
+  "0800 ### ###",
+  "0860 ### ###",
+  "01#########",
+  "01# ########"
+];
+},{}],406:[function(require,module,exports){
+var phone_number = {};
+module['exports'] = phone_number;
+phone_number.area_code = require("./area_code");
+phone_number.exchange_code = require("./exchange_code");
+phone_number.formats = require("./formats");
+},{"./area_code":403,"./exchange_code":404,"./formats":405}],407:[function(require,module,exports){
+module.exports=require(306)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/address/building_number.js":306}],408:[function(require,module,exports){
+module.exports=require(384)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_ZA/address/city.js":384}],409:[function(require,module,exports){
 module["exports"] = [
   "Bondi",
   "Burleigh Heads",
@@ -41396,9 +45697,9 @@ module["exports"] = [
   "Yarra Valley"
 ];
 
-},{}],353:[function(require,module,exports){
-module.exports=require(273)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/default_country.js":273}],354:[function(require,module,exports){
+},{}],410:[function(require,module,exports){
+module.exports=require(307)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/address/default_country.js":307}],411:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.street_root = require("./street_root");
@@ -41413,9 +45714,18 @@ address.building_number = require("./building_number");
 address.street_suffix = require("./street_suffix");
 address.default_country = require("./default_country");
 
-},{"./building_number":350,"./city":351,"./city_prefix":352,"./default_country":353,"./postcode":355,"./region":356,"./state":357,"./state_abbr":358,"./street_name":359,"./street_root":360,"./street_suffix":361}],355:[function(require,module,exports){
-module.exports=require(275)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/postcode.js":275}],356:[function(require,module,exports){
+},{"./building_number":407,"./city":408,"./city_prefix":409,"./default_country":410,"./postcode":412,"./region":413,"./state":414,"./state_abbr":415,"./street_name":416,"./street_root":417,"./street_suffix":418}],412:[function(require,module,exports){
+module["exports"] = [
+  "0###",
+  "2###",
+  "3###",
+  "4###",
+  "5###",
+  "6###",
+  "7###"
+];
+
+},{}],413:[function(require,module,exports){
 module["exports"] = [
   "South East Queensland",
   "Wide Bay Burnett",
@@ -41426,13 +45736,13 @@ module["exports"] = [
   "Barossa"
 ];
 
-},{}],357:[function(require,module,exports){
-module.exports=require(276)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/state.js":276}],358:[function(require,module,exports){
-module.exports=require(277)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/state_abbr.js":277}],359:[function(require,module,exports){
-module.exports=require(109)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_name.js":109}],360:[function(require,module,exports){
+},{}],414:[function(require,module,exports){
+module.exports=require(310)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/address/state.js":310}],415:[function(require,module,exports){
+module.exports=require(311)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/address/state_abbr.js":311}],416:[function(require,module,exports){
+module.exports=require(130)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/address/street_name.js":130}],417:[function(require,module,exports){
 module["exports"] = [
   "Ramsay Street",
   "Bonnie Doon",
@@ -41440,13 +45750,13 @@ module["exports"] = [
   "Queen Street"
 ];
 
-},{}],361:[function(require,module,exports){
-module.exports=require(278)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/street_suffix.js":278}],362:[function(require,module,exports){
-module.exports=require(279)
-},{"./suffix":363,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":279}],363:[function(require,module,exports){
-module.exports=require(280)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/company/suffix.js":280}],364:[function(require,module,exports){
+},{}],418:[function(require,module,exports){
+module.exports=require(312)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/address/street_suffix.js":312}],419:[function(require,module,exports){
+module.exports=require(313)
+},{"./suffix":420,"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/company/index.js":313}],420:[function(require,module,exports){
+module.exports=require(314)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/company/suffix.js":314}],421:[function(require,module,exports){
 var en_au_ocker = {};
 module['exports'] = en_au_ocker;
 en_au_ocker.title = "Australia Ocker (English)";
@@ -41456,11 +45766,11 @@ en_au_ocker.internet = require("./internet");
 en_au_ocker.address = require("./address");
 en_au_ocker.phone_number = require("./phone_number");
 
-},{"./address":354,"./company":362,"./internet":366,"./name":368,"./phone_number":372}],365:[function(require,module,exports){
-module.exports=require(282)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/internet/domain_suffix.js":282}],366:[function(require,module,exports){
-arguments[4][171][0].apply(exports,arguments)
-},{"./domain_suffix":365,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":171}],367:[function(require,module,exports){
+},{"./address":411,"./company":419,"./internet":423,"./name":425,"./phone_number":429}],422:[function(require,module,exports){
+module.exports=require(316)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/internet/domain_suffix.js":316}],423:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":422,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],424:[function(require,module,exports){
 module["exports"] = [
   "Charlotte",
   "Ava",
@@ -41568,14 +45878,14 @@ module["exports"] = [
   "Sean"
 ];
 
-},{}],368:[function(require,module,exports){
+},{}],425:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 name.ocker_first_name = require("./ocker_first_name");
 
-},{"./first_name":367,"./last_name":369,"./ocker_first_name":370}],369:[function(require,module,exports){
+},{"./first_name":424,"./last_name":426,"./ocker_first_name":427}],426:[function(require,module,exports){
 module["exports"] = [
   "Smith",
   "Jones",
@@ -41603,7 +45913,7 @@ module["exports"] = [
   "LeQuesne"
 ];
 
-},{}],370:[function(require,module,exports){
+},{}],427:[function(require,module,exports){
 module["exports"] = [
   "Bazza",
   "Bluey",
@@ -41613,11 +45923,11 @@ module["exports"] = [
   "Shazza"
 ];
 
-},{}],371:[function(require,module,exports){
-module.exports=require(287)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/phone_number/formats.js":287}],372:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":371,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],373:[function(require,module,exports){
+},{}],428:[function(require,module,exports){
+module.exports=require(321)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/phone_number/formats.js":321}],429:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":428,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],430:[function(require,module,exports){
 module["exports"] = [
   " s/n.",
   ", #",
@@ -41626,9 +45936,9 @@ module["exports"] = [
   " ##"
 ];
 
-},{}],374:[function(require,module,exports){
-module.exports=require(351)
-},{"/Users/a/dev/faker.js/lib/locales/en_au_ocker/address/city.js":351}],375:[function(require,module,exports){
+},{}],431:[function(require,module,exports){
+module.exports=require(384)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_ZA/address/city.js":384}],432:[function(require,module,exports){
 module["exports"] = [
   "Parla",
   "Telde",
@@ -41761,7 +46071,7 @@ module["exports"] = [
   "Inca"
 ];
 
-},{}],376:[function(require,module,exports){
+},{}],433:[function(require,module,exports){
 module["exports"] = [
   "Afganistán",
   "Albania",
@@ -41945,12 +46255,12 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],377:[function(require,module,exports){
+},{}],434:[function(require,module,exports){
 module["exports"] = [
   "España"
 ];
 
-},{}],378:[function(require,module,exports){
+},{}],435:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -41968,12 +46278,12 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":373,"./city":374,"./city_prefix":375,"./country":376,"./default_country":377,"./postcode":379,"./province":380,"./secondary_address":381,"./state":382,"./state_abbr":383,"./street_address":384,"./street_name":385,"./street_suffix":386,"./time_zone":387}],379:[function(require,module,exports){
+},{"./building_number":430,"./city":431,"./city_prefix":432,"./country":433,"./default_country":434,"./postcode":436,"./province":437,"./secondary_address":438,"./state":439,"./state_abbr":440,"./street_address":441,"./street_name":442,"./street_suffix":443,"./time_zone":444}],436:[function(require,module,exports){
 module["exports"] = [
   "#####"
 ];
 
-},{}],380:[function(require,module,exports){
+},{}],437:[function(require,module,exports){
 module["exports"] = [
   "Álava",
   "Albacete",
@@ -42027,13 +46337,13 @@ module["exports"] = [
   "Zaragoza"
 ];
 
-},{}],381:[function(require,module,exports){
+},{}],438:[function(require,module,exports){
 module["exports"] = [
   "Esc. ###",
   "Puerta ###"
 ];
 
-},{}],382:[function(require,module,exports){
+},{}],439:[function(require,module,exports){
 module["exports"] = [
   "Andalucía",
   "Aragón",
@@ -42054,7 +46364,7 @@ module["exports"] = [
   "Región de Murcia"
 ];
 
-},{}],383:[function(require,module,exports){
+},{}],440:[function(require,module,exports){
 module["exports"] = [
   "And",
   "Ara",
@@ -42075,19 +46385,19 @@ module["exports"] = [
   "Mur"
 ];
 
-},{}],384:[function(require,module,exports){
+},{}],441:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}#{building_number}",
   "#{street_name}#{building_number} #{secondary_address}"
 ];
 
-},{}],385:[function(require,module,exports){
+},{}],442:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Name.first_name}",
   "#{street_suffix} #{Name.first_name} #{Name.last_name}"
 ];
 
-},{}],386:[function(require,module,exports){
+},{}],443:[function(require,module,exports){
 module["exports"] = [
   "Aldea",
   "Apartamento",
@@ -42161,7 +46471,7 @@ module["exports"] = [
   "Vía Pública"
 ];
 
-},{}],387:[function(require,module,exports){
+},{}],444:[function(require,module,exports){
 module["exports"] = [
   "Pacífico/Midway",
   "Pacífico/Pago_Pago",
@@ -42308,7 +46618,7 @@ module["exports"] = [
   "Pacífico/Apia"
 ];
 
-},{}],388:[function(require,module,exports){
+},{}],445:[function(require,module,exports){
 module["exports"] = [
   "6##-###-###",
   "6##.###.###",
@@ -42316,9 +46626,107 @@ module["exports"] = [
   "6########"
 ];
 
-},{}],389:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":388,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],390:[function(require,module,exports){
+},{}],446:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":445,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],447:[function(require,module,exports){
+module["exports"] = [
+    "Rojo",
+    "Azul",
+    "Negro",
+    "Gris",
+    "Blanco",
+    "Amarillo",
+    "Verde",
+    "Morado",
+    "Violeta"
+]
+},{}],448:[function(require,module,exports){
+module["exports"] = [
+    "Librería",
+    "Deportes",
+    "Videojuegos",
+    "Electrónica",
+    "Moda",
+    "Joyería",
+    "Marroquinería",
+    "Juguetería",
+    "Mascotas",
+    "Bebes",
+    "Bricolaje",
+    "Informática",
+    "Salud",
+    "Parafarmacia",
+    "Papelería",
+    "Cine",
+    "Música",
+    "Hogar",
+    "Decoración"
+]
+},{}],449:[function(require,module,exports){
+var commerce = {};
+module["exports"] = commerce;
+commerce.color = require("./color");
+commerce.department = require("./department");
+commerce.product_name = require("./product_name");
+
+},{"./color":447,"./department":448,"./product_name":450}],450:[function(require,module,exports){
+module["exports"] = {
+    "adjective": [
+      "Pequeño",
+      "Ergonómico",
+      "Rústico",
+      "Inteligente",
+      "Increible",
+      "Fantástico",
+      "Práctico",
+      "Sorprendente",
+      "Genérico",
+      "Artesanal",
+      "Hecho a mano",
+      "Guapo",
+      "Guapa",
+      "Refinado",
+      "Sabroso"
+    ],
+    "material": [
+      "Acero",
+      "Madera",
+      "Plástico",
+      "Algodón",
+      "Granito",
+      "Metal",
+      "Ladrillo",
+      "Hormigon"
+    ],
+    "product": [
+      "Silla",
+      "Coche",
+      "Ordenador",
+      "Teclado",
+      "Raton",
+      "Bicicleta",
+      "Pelota",
+      "Guantes",
+      "Pantalones",
+      "Camiseta",
+      "Mesa",
+      "Zapatos",
+      "Gorro",
+      "Toallas",
+      "Sopa",
+      "Atún",
+      "Pollo",
+      "Pescado",
+      "Queso",
+      "Bacon",
+      "Pizza",
+      "Ensalada",
+      "Salchichas",
+      "Patatas fritas"
+    ]
+  };
+  
+},{}],451:[function(require,module,exports){
 module["exports"] = [
   "Adaptativo",
   "Avanzado",
@@ -42341,7 +46749,7 @@ module["exports"] = [
   "Reducido",
   "Mejorado",
   "Para toda la empresa",
-  "Ergonomico",
+  "Ergonómico",
   "Exclusivo",
   "Expandido",
   "Extendido",
@@ -42368,7 +46776,7 @@ module["exports"] = [
   "Operativo",
   "Optimizado",
   "Opcional",
-  "Organico",
+  "Orgánico",
   "Organizado",
   "Perseverando",
   "Persistente",
@@ -42387,7 +46795,7 @@ module["exports"] = [
   "Re-contextualizado",
   "Re-implementado",
   "Reducido",
-  "Ingenieria inversa",
+  "Ingeniería inversa",
   "Robusto",
   "Fácil",
   "Seguro",
@@ -42407,7 +46815,7 @@ module["exports"] = [
   "Visionario"
 ];
 
-},{}],391:[function(require,module,exports){
+},{}],452:[function(require,module,exports){
 module["exports"] = [
   "24 horas",
   "24/7",
@@ -42492,7 +46900,7 @@ module["exports"] = [
   "tolerancia cero"
 ];
 
-},{}],392:[function(require,module,exports){
+},{}],453:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -42501,7 +46909,7 @@ company.descriptor = require("./descriptor");
 company.adjective = require("./adjective");
 company.name = require("./name");
 
-},{"./adjective":390,"./descriptor":391,"./name":393,"./noun":394,"./suffix":395}],393:[function(require,module,exports){
+},{"./adjective":451,"./descriptor":452,"./name":454,"./noun":455,"./suffix":456}],454:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name} y #{Name.last_name}",
@@ -42509,7 +46917,7 @@ module["exports"] = [
   "#{Name.last_name}, #{Name.last_name} y #{Name.last_name} Asociados"
 ];
 
-},{}],394:[function(require,module,exports){
+},{}],455:[function(require,module,exports){
 module["exports"] = [
   "habilidad",
   "acceso",
@@ -42606,7 +47014,7 @@ module["exports"] = [
   "fuerza de trabajo"
 ];
 
-},{}],395:[function(require,module,exports){
+},{}],456:[function(require,module,exports){
 module["exports"] = [
   "S.L.",
   "e Hijos",
@@ -42614,7 +47022,7 @@ module["exports"] = [
   "Hermanos"
 ];
 
-},{}],396:[function(require,module,exports){
+},{}],457:[function(require,module,exports){
 var es = {};
 module['exports'] = es;
 es.title = "Spanish";
@@ -42624,8 +47032,9 @@ es.internet = require("./internet");
 es.name = require("./name");
 es.phone_number = require("./phone_number");
 es.cell_phone = require("./cell_phone");
+es.commerce = require("./commerce");
 
-},{"./address":378,"./cell_phone":389,"./company":392,"./internet":399,"./name":401,"./phone_number":408}],397:[function(require,module,exports){
+},{"./address":435,"./cell_phone":446,"./commerce":449,"./company":453,"./internet":460,"./name":462,"./phone_number":469}],458:[function(require,module,exports){
 module["exports"] = [
   "com",
   "es",
@@ -42634,11 +47043,11 @@ module["exports"] = [
   "org"
 ];
 
-},{}],398:[function(require,module,exports){
-module.exports=require(119)
-},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":119}],399:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":397,"./free_email":398,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],400:[function(require,module,exports){
+},{}],459:[function(require,module,exports){
+module.exports=require(140)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/internet/free_email.js":140}],460:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":458,"./free_email":459,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],461:[function(require,module,exports){
 module["exports"] = [
   "Adán",
   "Agustín",
@@ -42657,8 +47066,8 @@ module["exports"] = [
   "César",
   "Claudio",
   "Clemente",
-  "Cristian",
-  "Cristobal",
+  "Cristián",
+  "Cristóbal",
   "Daniel",
   "David",
   "Diego",
@@ -42803,7 +47212,7 @@ module["exports"] = [
   "Lilia",
   "Lorena",
   "Lourdes",
-  "Lucia",
+  "Lucía",
   "Luisa",
   "Luz",
   "Magdalena",
@@ -42821,7 +47230,7 @@ module["exports"] = [
   "María Teresa",
   "Mariana",
   "Maricarmen",
-  "Marilu",
+  "Marilú",
   "Marisol",
   "Marta",
   "Mayte",
@@ -42837,13 +47246,13 @@ module["exports"] = [
   "Raquel",
   "Rebeca",
   "Reina",
-  "Rocio",
+  "Rocío",
   "Rosa",
   "Rosalia",
   "Rosario",
   "Sara",
   "Silvia",
-  "Sofia",
+  "Sofía",
   "Soledad",
   "Sonia",
   "Susana",
@@ -42854,9 +47263,17 @@ module["exports"] = [
   "Yolanda"
 ];
 
-},{}],401:[function(require,module,exports){
-arguments[4][259][0].apply(exports,arguments)
-},{"./first_name":400,"./last_name":402,"./name":403,"./prefix":404,"./suffix":405,"./title":406,"/Users/a/dev/faker.js/lib/locales/en/name/index.js":259}],402:[function(require,module,exports){
+},{}],462:[function(require,module,exports){
+var name = {};
+module['exports'] = name;
+name.first_name = require("./first_name");
+name.last_name = require("./last_name");
+name.prefix = require("./prefix");
+name.suffix = require("./suffix");
+name.title = require("./title");
+name.name = require("./name");
+
+},{"./first_name":461,"./last_name":463,"./name":464,"./prefix":465,"./suffix":466,"./title":467}],463:[function(require,module,exports){
 module["exports"] = [
   "Abeyta",
   "Abrego",
@@ -42868,14 +47285,14 @@ module["exports"] = [
   "Adorno",
   "Agosto",
   "Aguayo",
-  "Águilar",
+  "Aguilar",
   "Aguilera",
   "Aguirre",
   "Alanis",
-  "Alaniz",
+  "Alaníz",
   "Alarcón",
   "Alba",
-  "Alcala",
+  "Alcalá",
   "Alcántar",
   "Alcaraz",
   "Alejandro",
@@ -42883,14 +47300,14 @@ module["exports"] = [
   "Alfaro",
   "Alicea",
   "Almanza",
-  "Almaraz",
+  "Almaráz",
   "Almonte",
   "Alonso",
   "Alonzo",
   "Altamirano",
   "Alva",
   "Alvarado",
-  "Alvarez",
+  "Álvarez",
   "Amador",
   "Amaya",
   "Anaya",
@@ -42907,7 +47324,7 @@ module["exports"] = [
   "Arellano",
   "Arenas",
   "Arevalo",
-  "Arguello",
+  "Argüello",
   "Arias",
   "Armas",
   "Armendáriz",
@@ -42949,7 +47366,7 @@ module["exports"] = [
   "Bermúdez",
   "Bernal",
   "Berríos",
-  "Bétancourt",
+  "Betancourt",
   "Blanco",
   "Bonilla",
   "Borrego",
@@ -42978,7 +47395,7 @@ module["exports"] = [
   "Cantú",
   "Caraballo",
   "Carbajal",
-  "Cardenas",
+  "Cárdenas",
   "Cardona",
   "Carmona",
   "Carranza",
@@ -42988,11 +47405,11 @@ module["exports"] = [
   "Carrera",
   "Carrero",
   "Carrillo",
-  "Carrion",
+  "Carrión",
   "Carvajal",
   "Casanova",
   "Casares",
-  "Casárez",
+  "Casarez",
   "Casas",
   "Casillas",
   "Castañeda",
@@ -43030,7 +47447,7 @@ module["exports"] = [
   "Corrales",
   "Correa",
   "Cortés",
-  "Cortez",
+  "Cortéz",
   "Cotto",
   "Covarrubias",
   "Crespo",
@@ -43054,10 +47471,9 @@ module["exports"] = [
   "Delvalle",
   "Díaz",
   "Domínguez",
-  "Domínquez",
   "Duarte",
   "Dueñas",
-  "Duran",
+  "Durán",
   "Echevarría",
   "Elizondo",
   "Enríquez",
@@ -43084,7 +47500,6 @@ module["exports"] = [
   "Flores",
   "Flórez",
   "Fonseca",
-  "Franco",
   "Frías",
   "Fuentes",
   "Gaitán",
@@ -43095,7 +47510,7 @@ module["exports"] = [
   "Galván",
   "Gálvez",
   "Gamboa",
-  "Gamez",
+  "Gámez",
   "Gaona",
   "Garay",
   "García",
@@ -43110,9 +47525,7 @@ module["exports"] = [
   "Godínez",
   "Godoy",
   "Gómez",
-  "Gonzales",
   "González",
-  "Gollum",
   "Gracia",
   "Granado",
   "Granados",
@@ -43123,15 +47536,13 @@ module["exports"] = [
   "Guerra",
   "Guerrero",
   "Guevara",
-  "Guillen",
+  "Guillén",
   "Gurule",
   "Gutiérrez",
   "Guzmán",
   "Haro",
   "Henríquez",
   "Heredia",
-  "Hernádez",
-  "Hernandes",
   "Hernández",
   "Herrera",
   "Hidalgo",
@@ -43148,7 +47559,6 @@ module["exports"] = [
   "Jaramillo",
   "Jasso",
   "Jiménez",
-  "Jimínez",
   "Juárez",
   "Jurado",
   "Laboy",
@@ -43230,7 +47640,7 @@ module["exports"] = [
   "Montenegro",
   "Montero",
   "Montes",
-  "Montez",
+  "Montéz",
   "Montoya",
   "Mora",
   "Morales",
@@ -43303,7 +47713,6 @@ module["exports"] = [
   "Perales",
   "Peralta",
   "Perea",
-  "Peres",
   "Pérez",
   "Pichardo",
   "Piña",
@@ -43327,10 +47736,9 @@ module["exports"] = [
   "Quintana",
   "Quintanilla",
   "Quintero",
-  "Quiroz",
+  "Quiróz",
   "Rael",
   "Ramírez",
-  "Ramón",
   "Ramos",
   "Rangel",
   "Rascón",
@@ -43354,9 +47762,7 @@ module["exports"] = [
   "Robles",
   "Rocha",
   "Rodarte",
-  "Rodrígez",
   "Rodríguez",
-  "Rodríquez",
   "Rojas",
   "Rojo",
   "Roldán",
@@ -43371,7 +47777,7 @@ module["exports"] = [
   "Roybal",
   "Rubio",
   "Ruelas",
-  "Ruiz",
+  "Ruíz",
   "Saavedra",
   "Sáenz",
   "Saiz",
@@ -43385,7 +47791,6 @@ module["exports"] = [
   "Salinas",
   "Samaniego",
   "Sanabria",
-  "Sanches",
   "Sánchez",
   "Sandoval",
   "Santacruz",
@@ -43458,7 +47863,6 @@ module["exports"] = [
   "Vanegas",
   "Varela",
   "Vargas",
-  "Vásquez",
   "Vázquez",
   "Vega",
   "Vela",
@@ -43479,7 +47883,6 @@ module["exports"] = [
   "Villalobos",
   "Villalpando",
   "Villanueva",
-  "Villareal",
   "Villarreal",
   "Villaseñor",
   "Villegas",
@@ -43498,7 +47901,7 @@ module["exports"] = [
   "Zúñiga"
 ];
 
-},{}],403:[function(require,module,exports){
+},{}],464:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name} #{last_name}",
   "#{first_name} #{last_name} #{last_name}",
@@ -43507,16 +47910,16 @@ module["exports"] = [
   "#{first_name} #{last_name} #{last_name}"
 ];
 
-},{}],404:[function(require,module,exports){
+},{}],465:[function(require,module,exports){
 module["exports"] = [
   "Sr.",
   "Sra.",
   "Sta."
 ];
 
-},{}],405:[function(require,module,exports){
-module.exports=require(263)
-},{"/Users/a/dev/faker.js/lib/locales/en/name/suffix.js":263}],406:[function(require,module,exports){
+},{}],466:[function(require,module,exports){
+module.exports=require(291)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/name/suffix.js":291}],467:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Jefe",
@@ -43608,7 +48011,7 @@ module["exports"] = {
   ]
 };
 
-},{}],407:[function(require,module,exports){
+},{}],468:[function(require,module,exports){
 module["exports"] = [
   "9##-###-###",
   "9##.###.###",
@@ -43616,9 +48019,9 @@ module["exports"] = [
   "9########"
 ];
 
-},{}],408:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":407,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],409:[function(require,module,exports){
+},{}],469:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":468,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],470:[function(require,module,exports){
 module["exports"] = [
   " s/n.",
   ", #",
@@ -43629,9 +48032,9 @@ module["exports"] = [
   " ####"
 ];
 
-},{}],410:[function(require,module,exports){
-module.exports=require(351)
-},{"/Users/a/dev/faker.js/lib/locales/en_au_ocker/address/city.js":351}],411:[function(require,module,exports){
+},{}],471:[function(require,module,exports){
+module.exports=require(384)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_ZA/address/city.js":384}],472:[function(require,module,exports){
 module["exports"] = [
   "Aguascalientes",
   "Apodaca",
@@ -43765,9 +48168,9 @@ module["exports"] = [
   "Zitacuaro"
 ];
 
-},{}],412:[function(require,module,exports){
-module.exports=require(182)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/city_suffix.js":182}],413:[function(require,module,exports){
+},{}],473:[function(require,module,exports){
+module.exports=require(203)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/address/city_suffix.js":203}],474:[function(require,module,exports){
 module["exports"] = [
   "Afganistán",
   "Albania",
@@ -43951,12 +48354,12 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],414:[function(require,module,exports){
+},{}],475:[function(require,module,exports){
 module["exports"] = [
   "México"
 ];
 
-},{}],415:[function(require,module,exports){
+},{}],476:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -43974,16 +48377,16 @@ address.street = require("./street");
 address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
-},{"./building_number":409,"./city":410,"./city_prefix":411,"./city_suffix":412,"./country":413,"./default_country":414,"./postcode":416,"./secondary_address":417,"./state":418,"./state_abbr":419,"./street":420,"./street_address":421,"./street_name":422,"./street_suffix":423,"./time_zone":424}],416:[function(require,module,exports){
-module.exports=require(379)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":379}],417:[function(require,module,exports){
+},{"./building_number":470,"./city":471,"./city_prefix":472,"./city_suffix":473,"./country":474,"./default_country":475,"./postcode":477,"./secondary_address":478,"./state":479,"./state_abbr":480,"./street":481,"./street_address":482,"./street_name":483,"./street_suffix":484,"./time_zone":485}],477:[function(require,module,exports){
+module.exports=require(436)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/address/postcode.js":436}],478:[function(require,module,exports){
 module["exports"] = [
   "Esc. ###",
   "Puerta ###",
   "Edificio #"
 ];
 
-},{}],418:[function(require,module,exports){
+},{}],479:[function(require,module,exports){
 module["exports"] = [
   "Aguascalientes",
   "Baja California Norte",
@@ -44018,7 +48421,7 @@ module["exports"] = [
   "Zacatecas"
 ];
 
-},{}],419:[function(require,module,exports){
+},{}],480:[function(require,module,exports){
 module["exports"] = [
   "AS",
   "BC",
@@ -44054,7 +48457,7 @@ module["exports"] = [
   "ZS"
 ];
 
-},{}],420:[function(require,module,exports){
+},{}],481:[function(require,module,exports){
 module["exports"] = [
 	"20 de Noviembre",
 	"Cinco de Mayo",
@@ -44096,9 +48499,9 @@ module["exports"] = [
 	"Jalisco",
 	"Avena"
 ];
-},{}],421:[function(require,module,exports){
-module.exports=require(384)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/street_address.js":384}],422:[function(require,module,exports){
+},{}],482:[function(require,module,exports){
+module.exports=require(441)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/address/street_address.js":441}],483:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Name.first_name}",
   "#{street_suffix} #{Name.first_name} #{Name.last_name}",
@@ -44109,9 +48512,9 @@ module["exports"] = [
 
 ];
 
-},{}],423:[function(require,module,exports){
-module.exports=require(386)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/street_suffix.js":386}],424:[function(require,module,exports){
+},{}],484:[function(require,module,exports){
+module.exports=require(443)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/address/street_suffix.js":443}],485:[function(require,module,exports){
 module["exports"] = [
   "Pacífico/Midway",
   "Pacífico/Pago_Pago",
@@ -44257,7 +48660,7 @@ module["exports"] = [
   "Pacífico/Apia"
 ];
 
-},{}],425:[function(require,module,exports){
+},{}],486:[function(require,module,exports){
 module["exports"] = [
   "5##-###-###",
   "5##.###.###",
@@ -44265,9 +48668,9 @@ module["exports"] = [
   "5########"
 ];
 
-},{}],426:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":425,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],427:[function(require,module,exports){
+},{}],487:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":486,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],488:[function(require,module,exports){
 module["exports"] = [
    "rojo",
    "verde",
@@ -44302,7 +48705,7 @@ module["exports"] = [
    "plata"
 ];
 
-},{}],428:[function(require,module,exports){
+},{}],489:[function(require,module,exports){
 module["exports"] = [
    "Libros",
    "Películas",
@@ -44328,9 +48731,9 @@ module["exports"] = [
    "Industrial"
 ];
 
-},{}],429:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"./color":427,"./department":428,"./product_name":430,"/Users/a/dev/faker.js/lib/locales/az/commerce/index.js":31}],430:[function(require,module,exports){
+},{}],490:[function(require,module,exports){
+arguments[4][53][0].apply(exports,arguments)
+},{"./color":488,"./department":489,"./product_name":491,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/commerce/index.js":53}],491:[function(require,module,exports){
 module["exports"] = {
 "adjective": [
      "Pequeño",
@@ -44391,9 +48794,96 @@ module["exports"] = {
   ]
 };
 
-},{}],431:[function(require,module,exports){
-module.exports=require(390)
-},{"/Users/a/dev/faker.js/lib/locales/es/company/adjective.js":390}],432:[function(require,module,exports){
+},{}],492:[function(require,module,exports){
+module["exports"] = [
+  "Adaptativo",
+  "Avanzado",
+  "Asimilado",
+  "Automatizado",
+  "Equilibrado",
+  "Centrado en el negocio",
+  "Centralizado",
+  "Clonado",
+  "Compatible",
+  "Configurable",
+  "Multi grupo",
+  "Multi plataforma",
+  "Centrado en el usuario",
+  "Configurable",
+  "Descentralizado",
+  "Digitalizado",
+  "Distribuido",
+  "Diverso",
+  "Reducido",
+  "Mejorado",
+  "Para toda la empresa",
+  "Ergonomico",
+  "Exclusivo",
+  "Expandido",
+  "Extendido",
+  "Cara a cara",
+  "Enfocado",
+  "Totalmente configurable",
+  "Fundamental",
+  "Orígenes",
+  "Horizontal",
+  "Implementado",
+  "Innovador",
+  "Integrado",
+  "Intuitivo",
+  "Inverso",
+  "Gestionado",
+  "Obligatorio",
+  "Monitorizado",
+  "Multi canal",
+  "Multi lateral",
+  "Multi capa",
+  "En red",
+  "Orientado a objetos",
+  "Open-source",
+  "Operativo",
+  "Optimizado",
+  "Opcional",
+  "Organico",
+  "Organizado",
+  "Perseverando",
+  "Persistente",
+  "en fases",
+  "Polarizado",
+  "Pre-emptivo",
+  "Proactivo",
+  "Enfocado a benficios",
+  "Profundo",
+  "Programable",
+  "Progresivo",
+  "Public-key",
+  "Enfocado en la calidad",
+  "Reactivo",
+  "Realineado",
+  "Re-contextualizado",
+  "Re-implementado",
+  "Reducido",
+  "Ingenieria inversa",
+  "Robusto",
+  "Fácil",
+  "Seguro",
+  "Auto proporciona",
+  "Compartible",
+  "Intercambiable",
+  "Sincronizado",
+  "Orientado a equipos",
+  "Total",
+  "Universal",
+  "Mejorado",
+  "Actualizable",
+  "Centrado en el usuario",
+  "Amigable",
+  "Versatil",
+  "Virtual",
+  "Visionario"
+];
+
+},{}],493:[function(require,module,exports){
 module["exports"] = [
   "Clics y mortero",
   "Valor añadido",
@@ -44462,7 +48952,7 @@ module["exports"] = [
   "Ricos"
 ];
 
-},{}],433:[function(require,module,exports){
+},{}],494:[function(require,module,exports){
 module["exports"] = [
    "sinergias",
    "web-readiness",
@@ -44510,7 +49000,7 @@ module["exports"] = [
    "metodologías"
 ];
 
-},{}],434:[function(require,module,exports){
+},{}],495:[function(require,module,exports){
 module["exports"] = [
    "poner en práctica",
    "utilizar",
@@ -44574,9 +49064,9 @@ module["exports"] = [
    "recontextualizar"
 ]
 
-},{}],435:[function(require,module,exports){
-module.exports=require(391)
-},{"/Users/a/dev/faker.js/lib/locales/es/company/descriptor.js":391}],436:[function(require,module,exports){
+},{}],496:[function(require,module,exports){
+module.exports=require(452)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/company/descriptor.js":452}],497:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -44588,13 +49078,13 @@ company.name = require("./name");
 company.bs_adjective = require("./bs_adjective");
 company.bs_noun = require("./bs_noun");
 
-},{"./adjective":431,"./bs_adjective":432,"./bs_noun":433,"./bs_verb":434,"./descriptor":435,"./name":437,"./noun":438,"./suffix":439}],437:[function(require,module,exports){
-module.exports=require(393)
-},{"/Users/a/dev/faker.js/lib/locales/es/company/name.js":393}],438:[function(require,module,exports){
-module.exports=require(394)
-},{"/Users/a/dev/faker.js/lib/locales/es/company/noun.js":394}],439:[function(require,module,exports){
-module.exports=require(395)
-},{"/Users/a/dev/faker.js/lib/locales/es/company/suffix.js":395}],440:[function(require,module,exports){
+},{"./adjective":492,"./bs_adjective":493,"./bs_noun":494,"./bs_verb":495,"./descriptor":496,"./name":498,"./noun":499,"./suffix":500}],498:[function(require,module,exports){
+module.exports=require(454)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/company/name.js":454}],499:[function(require,module,exports){
+module.exports=require(455)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/company/noun.js":455}],500:[function(require,module,exports){
+module.exports=require(456)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/company/suffix.js":456}],501:[function(require,module,exports){
 var es_MX = {};
 module['exports'] = es_MX;
 es_MX.title = "Spanish Mexico";
@@ -44608,7 +49098,7 @@ es_MX.cell_phone = require("./cell_phone");
 es_MX.lorem = require("./lorem");
 es_MX.commerce = require("./commerce");
 es_MX.team = require("./team");
-},{"./address":415,"./cell_phone":426,"./commerce":429,"./company":436,"./internet":443,"./lorem":444,"./name":448,"./phone_number":455,"./team":457}],441:[function(require,module,exports){
+},{"./address":476,"./cell_phone":487,"./commerce":490,"./company":497,"./internet":504,"./lorem":505,"./name":508,"./phone_number":515,"./team":517}],502:[function(require,module,exports){
 module["exports"] = [
   "com",
   "mx",
@@ -44618,7 +49108,7 @@ module["exports"] = [
   "gob.mx"
 ];
 
-},{}],442:[function(require,module,exports){
+},{}],503:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
@@ -44627,13 +49117,11 @@ module["exports"] = [
   "corpfolder.com"
 ];
 
-},{}],443:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":441,"./free_email":442,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],444:[function(require,module,exports){
-arguments[4][83][0].apply(exports,arguments)
-},{"./supplemental":445,"./words":446,"/Users/a/dev/faker.js/lib/locales/cz/lorem/index.js":83}],445:[function(require,module,exports){
-module.exports=require(84)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/supplemental.js":84}],446:[function(require,module,exports){
+},{}],504:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":502,"./free_email":503,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],505:[function(require,module,exports){
+arguments[4][105][0].apply(exports,arguments)
+},{"./words":506,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],506:[function(require,module,exports){
 module["exports"] = [
 "Abacalero",
 "Abacería",
@@ -44905,7 +49393,7 @@ module["exports"] = [
 "Incrustación"
 ];
 
-},{}],447:[function(require,module,exports){
+},{}],507:[function(require,module,exports){
 module["exports"] = [
 "Aarón",
 "Abraham",
@@ -45212,9 +49700,9 @@ module["exports"] = [
 "Yaretzi",
 "Zoe"
 ]
-},{}],448:[function(require,module,exports){
-arguments[4][259][0].apply(exports,arguments)
-},{"./first_name":447,"./last_name":449,"./name":450,"./prefix":451,"./suffix":452,"./title":453,"/Users/a/dev/faker.js/lib/locales/en/name/index.js":259}],449:[function(require,module,exports){
+},{}],508:[function(require,module,exports){
+arguments[4][462][0].apply(exports,arguments)
+},{"./first_name":507,"./last_name":509,"./name":510,"./prefix":511,"./suffix":512,"./title":513,"/Users/kdzuin/Badoo/faker.js/lib/locales/es/name/index.js":462}],509:[function(require,module,exports){
 module["exports"] = [
   "Abeyta",
 "Abrego",
@@ -45905,7 +50393,7 @@ module["exports"] = [
 "Zúñiga"
 ];
 
-},{}],450:[function(require,module,exports){
+},{}],510:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name} #{last_name}",
   "#{first_name} #{last_name} de #{last_name}",
@@ -45914,9 +50402,9 @@ module["exports"] = [
   "#{first_name} #{last_name} #{last_name}"
 ];
 
-},{}],451:[function(require,module,exports){
-module.exports=require(404)
-},{"/Users/a/dev/faker.js/lib/locales/es/name/prefix.js":404}],452:[function(require,module,exports){
+},{}],511:[function(require,module,exports){
+module.exports=require(465)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/name/prefix.js":465}],512:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Sr.",
@@ -45935,7 +50423,7 @@ module["exports"] = [
   "Mtro."
 ];
 
-},{}],453:[function(require,module,exports){
+},{}],513:[function(require,module,exports){
  module["exports"] = {
   "descriptor": [
     "Jefe",
@@ -46032,7 +50520,7 @@ module["exports"] = [
   ]
 };
 
-},{}],454:[function(require,module,exports){
+},{}],514:[function(require,module,exports){
 module["exports"] = [
   "5###-###-###",
   "5##.###.###",
@@ -46040,9 +50528,9 @@ module["exports"] = [
   "5########"
 ];
 
-},{}],455:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":454,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],456:[function(require,module,exports){
+},{}],515:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":514,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],516:[function(require,module,exports){
 module["exports"] = [
   "hormigas",
    "murciélagos",
@@ -46113,17 +50601,203 @@ module["exports"] = [
    "druidas"
 ];
 
-},{}],457:[function(require,module,exports){
-arguments[4][270][0].apply(exports,arguments)
-},{"./creature":456,"./name":458,"/Users/a/dev/faker.js/lib/locales/en/team/index.js":270}],458:[function(require,module,exports){
-module.exports=require(271)
-},{"/Users/a/dev/faker.js/lib/locales/en/team/name.js":271}],459:[function(require,module,exports){
+},{}],517:[function(require,module,exports){
+arguments[4][299][0].apply(exports,arguments)
+},{"./creature":516,"./name":518,"/Users/kdzuin/Badoo/faker.js/lib/locales/en/team/index.js":299}],518:[function(require,module,exports){
+module.exports=require(300)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/team/name.js":300}],519:[function(require,module,exports){
+module["exports"] = [
+  "##",
+  "#"
+];
+
+},{}],520:[function(require,module,exports){
+module.exports=require(20)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/city.js":20}],521:[function(require,module,exports){
+module["exports"] = [
+    "تهران",
+    "مشهد",
+    "اصفهان",
+    "کرج",
+    "تبریز",
+    "شیراز",
+    "اهواز",
+    "قم",
+    "کرمانشاه",
+    "ارومیه",
+    "رشت",
+    "زاهدان",
+    "کرمان",
+    "اراک",
+    "همدان",
+    "یزد",
+    "اردبیل",
+    "بندرعباس",
+    "اسلام‌شهر",
+    "زنجان",
+    "قزوین",
+    "سنندج",
+    "خرم‌آباد",
+    "گرگان",
+    "ساری",
+    "ملارد",
+    "قدس",
+    "کاشان",
+    "گلستان",
+    "شهریار",
+    "دزفول",
+    "خمینی‌شهر",
+    "بروجرد",
+    "نیشابور",
+    "سبزوار",
+    "نجف‌آباد",
+    "آمل",
+    "بابل",
+    "ورامین",
+    "آبادان",
+    "پاکدشت",
+    "خوی",
+    "ساوه",
+    "بجنورد",
+    "قائم‌شهر",
+    "بوشهر",
+    "قرچک",
+    "سیرجان",
+    "بیرجند",
+    "ایلام"
+];
+
+},{}],522:[function(require,module,exports){
+module["exports"] = [
+  ""
+];
+
+},{}],523:[function(require,module,exports){
+module.exports=require(522)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/fa/address/city_prefix.js":522}],524:[function(require,module,exports){
+module["exports"] = [
+  "ایران"
+];
+
+},{}],525:[function(require,module,exports){
+var address = {};
+module['exports'] = address;
+address.building_number = require("./building_number");
+address.street_prefix = require("./street_prefix");
+address.secondary_address = require("./secondary_address");
+address.postcode = require("./postcode");
+address.state = require("./state");
+address.city_name = require("./city_name");
+address.city = require("./city");
+address.street_suffix = require("./street_suffix");
+address.street_name = require("./street_name");
+address.street_address = require("./street_address");
+address.default_country = require("./default_country");
+address.city_prefix = require("./city_prefix");
+address.city_suffix = require("./city_suffix");
+
+},{"./building_number":519,"./city":520,"./city_name":521,"./city_prefix":522,"./city_suffix":523,"./default_country":524,"./postcode":526,"./secondary_address":527,"./state":528,"./street_address":529,"./street_name":530,"./street_prefix":531,"./street_suffix":532}],526:[function(require,module,exports){
+module["exports"] = [
+  "#####-#####"
+];
+
+},{}],527:[function(require,module,exports){
+module["exports"] = [
+  "واحد #",
+  "# طبقه"
+];
+
+},{}],528:[function(require,module,exports){
+module["exports"] = [
+"آذربایجان شرقی",
+"آذربایجان غربی",
+"اردبیل",
+"اصفهان",
+"البرز",
+"ایلام",
+"بوشهر",
+"تهران",
+"چهارمحال و بختیاری",
+"خراسان جنوبی",
+"خراسان رضوی",
+"خراسان شمالی",
+"خوزستان",
+"زنجان",
+"سمنان",
+"سیستان و بلوچستان",
+"فارس",
+"قزوین",
+"قم",
+"کردستان",
+"کرمان",
+"کرمانشاه",
+"کهگیلویه و بویراحمد",
+"گلستان",
+"گیلان",
+"لرستان",
+"مازندران",
+"مرکزی",
+"هرمزگان",
+"همدان",
+"یزد"
+];
+
+},{}],529:[function(require,module,exports){
+module["exports"] = [
+  "#{street_name}, پلاک #{building_number}",
+  "#{street_name}, #{street_name}, پلاک #{building_number}"
+];
+
+},{}],530:[function(require,module,exports){
+module["exports"] = [
+  "#{street_prefix} #{street_suffix}"
+];
+
+},{}],531:[function(require,module,exports){
+module["exports"] = [
+  "خیابان",
+  "کوچه",
+  "بن بست",
+  "بلوار"
+];
+
+},{}],532:[function(require,module,exports){
+module["exports"] = [
+"آزادی",
+"آفریقا",
+"آذربایجان",
+"حقانی",
+"امیرکبیر",
+"اجاره دار",
+"اقبال لاهوری",
+"ابوذر",
+"قدس",
+"سباری",
+"فاطمی",
+"مالک اشتر",
+"راستوان",
+"دیباجی",
+"واعظی",
+"دستغیب",
+"موحد دانش",
+"کارگر شمالی",
+"استاد قریب",
+"یادگار امام",
+"دکتر چمران",
+"رسالت",
+"سمیه",
+"شهید مطهری",
+"هویزه",
+"دماوند",
+];
+},{}],533:[function(require,module,exports){
 var fa = {};
 module['exports'] = fa;
 fa.title = "Farsi";
 fa.name = require("./name");
+fa.address = require("./address");
 
-},{"./name":461}],460:[function(require,module,exports){
+},{"./address":525,"./name":535}],534:[function(require,module,exports){
 module["exports"] = [
   "آبان دخت",
   "آبتین",
@@ -46849,14 +51523,14 @@ module["exports"] = [
   "یوشیتا"
 ];
 
-},{}],461:[function(require,module,exports){
+},{}],535:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 name.prefix = require("./prefix");
 
-},{"./first_name":460,"./last_name":462,"./prefix":463}],462:[function(require,module,exports){
+},{"./first_name":534,"./last_name":536,"./prefix":537}],536:[function(require,module,exports){
 module["exports"] = [
   "عارف",
   "عاشوری",
@@ -47004,14 +51678,14 @@ module["exports"] = [
   "یلدا"
 ];
 
-},{}],463:[function(require,module,exports){
+},{}],537:[function(require,module,exports){
 module["exports"] = [
   "آقای",
   "خانم",
   "دکتر"
 ];
 
-},{}],464:[function(require,module,exports){
+},{}],538:[function(require,module,exports){
 module["exports"] = [
   "####",
   "###",
@@ -47019,9 +51693,9 @@ module["exports"] = [
   "#"
 ];
 
-},{}],465:[function(require,module,exports){
-module.exports=require(55)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/city.js":55}],466:[function(require,module,exports){
+},{}],539:[function(require,module,exports){
+module.exports=require(20)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/city.js":20}],540:[function(require,module,exports){
 module["exports"] = [
   "Paris",
   "Marseille",
@@ -47125,12 +51799,12 @@ module["exports"] = [
   "Cholet"
 ];
 
-},{}],467:[function(require,module,exports){
+},{}],541:[function(require,module,exports){
 module["exports"] = [
   "France"
 ];
 
-},{}],468:[function(require,module,exports){
+},{}],542:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.building_number = require("./building_number");
@@ -47145,15 +51819,15 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":464,"./city":465,"./city_name":466,"./default_country":467,"./postcode":469,"./secondary_address":470,"./state":471,"./street_address":472,"./street_name":473,"./street_prefix":474,"./street_suffix":475}],469:[function(require,module,exports){
-module.exports=require(379)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":379}],470:[function(require,module,exports){
+},{"./building_number":538,"./city":539,"./city_name":540,"./default_country":541,"./postcode":543,"./secondary_address":544,"./state":545,"./street_address":546,"./street_name":547,"./street_prefix":548,"./street_suffix":549}],543:[function(require,module,exports){
+module.exports=require(436)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/address/postcode.js":436}],544:[function(require,module,exports){
 module["exports"] = [
   "Apt. ###",
   "# étage"
 ];
 
-},{}],471:[function(require,module,exports){
+},{}],545:[function(require,module,exports){
 module["exports"] = [
   "Alsace",
   "Aquitaine",
@@ -47179,16 +51853,14 @@ module["exports"] = [
   "Rhône-Alpes"
 ];
 
-},{}],472:[function(require,module,exports){
-module.exports=require(193)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/street_address.js":193}],473:[function(require,module,exports){
+},{}],546:[function(require,module,exports){
+module.exports=require(28)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/street_address.js":28}],547:[function(require,module,exports){
+module.exports=require(530)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/fa/address/street_name.js":530}],548:[function(require,module,exports){
 module["exports"] = [
-  "#{street_prefix} #{street_suffix}"
-];
-
-},{}],474:[function(require,module,exports){
-module["exports"] = [
-  "Allée, Voie",
+  "Allée",
+  "Voie",
   "Rue",
   "Avenue",
   "Boulevard",
@@ -47198,7 +51870,7 @@ module["exports"] = [
   "Place"
 ];
 
-},{}],475:[function(require,module,exports){
+},{}],549:[function(require,module,exports){
 module["exports"] = [
   "de l'Abbaye",
   "Adolphe Mille",
@@ -47268,27 +51940,73 @@ module["exports"] = [
   "Zadkine"
 ];
 
-},{}],476:[function(require,module,exports){
-module.exports=require(68)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/adjective.js":68}],477:[function(require,module,exports){
-module.exports=require(212)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_adjective.js":212}],478:[function(require,module,exports){
-module.exports=require(213)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_noun.js":213}],479:[function(require,module,exports){
-module.exports=require(70)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/bs_verb.js":70}],480:[function(require,module,exports){
-module.exports=require(71)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/descriptor.js":71}],481:[function(require,module,exports){
-arguments[4][216][0].apply(exports,arguments)
-},{"./adjective":476,"./bs_adjective":477,"./bs_noun":478,"./bs_verb":479,"./descriptor":480,"./name":482,"./noun":483,"./suffix":484,"/Users/a/dev/faker.js/lib/locales/en/company/index.js":216}],482:[function(require,module,exports){
+},{}],550:[function(require,module,exports){
+module.exports=require(90)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/adjective.js":90}],551:[function(require,module,exports){
+module.exports=require(235)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/company/bs_adjective.js":235}],552:[function(require,module,exports){
+module["exports"] = [
+  "synergies",
+  "web-readiness",
+  "paradigms",
+  "markets",
+  "partnerships",
+  "infrastructures",
+  "platforms",
+  "initiatives",
+  "channels",
+  "eyeballs",
+  "communities",
+  "ROI",
+  "solutions",
+  "e-tailers",
+  "e-services",
+  "action-items",
+  "portals",
+  "niches",
+  "technologies",
+  "content",
+  "vortals",
+  "supply-chains",
+  "convergence",
+  "relationships",
+  "architectures",
+  "interfaces",
+  "e-markets",
+  "e-commerce",
+  "systems",
+  "bandwidth",
+  "infomediaries",
+  "models",
+  "mindshare",
+  "deliverables",
+  "users",
+  "schemas",
+  "networks",
+  "applications",
+  "metrics",
+  "e-business",
+  "functionalities",
+  "experiences",
+  "web services",
+  "methodologies"
+];
+
+},{}],553:[function(require,module,exports){
+module.exports=require(92)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/bs_verb.js":92}],554:[function(require,module,exports){
+module.exports=require(93)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/descriptor.js":93}],555:[function(require,module,exports){
+arguments[4][239][0].apply(exports,arguments)
+},{"./adjective":550,"./bs_adjective":551,"./bs_noun":552,"./bs_verb":553,"./descriptor":554,"./name":556,"./noun":557,"./suffix":558,"/Users/kdzuin/Badoo/faker.js/lib/locales/en/company/index.js":239}],556:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name} et #{Name.last_name}"
 ];
 
-},{}],483:[function(require,module,exports){
-module.exports=require(74)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/noun.js":74}],484:[function(require,module,exports){
+},{}],557:[function(require,module,exports){
+module.exports=require(96)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/noun.js":96}],558:[function(require,module,exports){
 module["exports"] = [
   "SARL",
   "SA",
@@ -47300,7 +52018,7 @@ module["exports"] = [
   "EI"
 ];
 
-},{}],485:[function(require,module,exports){
+},{}],559:[function(require,module,exports){
 var fr = {};
 module['exports'] = fr;
 fr.title = "French";
@@ -47311,7 +52029,7 @@ fr.lorem = require("./lorem");
 fr.name = require("./name");
 fr.phone_number = require("./phone_number");
 
-},{"./address":468,"./company":481,"./internet":488,"./lorem":489,"./name":493,"./phone_number":499}],486:[function(require,module,exports){
+},{"./address":542,"./company":555,"./internet":562,"./lorem":563,"./name":566,"./phone_number":572}],560:[function(require,module,exports){
 module["exports"] = [
   "com",
   "fr",
@@ -47322,22 +52040,20 @@ module["exports"] = [
   "org"
 ];
 
-},{}],487:[function(require,module,exports){
+},{}],561:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.fr",
   "hotmail.fr"
 ];
 
-},{}],488:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":486,"./free_email":487,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],489:[function(require,module,exports){
-module.exports=require(83)
-},{"./supplemental":490,"./words":491,"/Users/a/dev/faker.js/lib/locales/cz/lorem/index.js":83}],490:[function(require,module,exports){
-module.exports=require(84)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/supplemental.js":84}],491:[function(require,module,exports){
-module.exports=require(85)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/words.js":85}],492:[function(require,module,exports){
+},{}],562:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":560,"./free_email":561,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],563:[function(require,module,exports){
+module.exports=require(105)
+},{"./words":564,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],564:[function(require,module,exports){
+module.exports=require(106)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/words.js":106}],565:[function(require,module,exports){
 module["exports"] = [
   "Enzo",
   "Lucas",
@@ -47430,7 +52146,7 @@ module["exports"] = [
   "Mélissa"
 ];
 
-},{}],493:[function(require,module,exports){
+},{}],566:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -47439,7 +52155,7 @@ name.prefix = require("./prefix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./first_name":492,"./last_name":494,"./name":495,"./prefix":496,"./title":497}],494:[function(require,module,exports){
+},{"./first_name":565,"./last_name":567,"./name":568,"./prefix":569,"./title":570}],567:[function(require,module,exports){
 module["exports"] = [
   "Martin",
   "Bernard",
@@ -47593,14 +52309,14 @@ module["exports"] = [
   "Cousin"
 ];
 
-},{}],495:[function(require,module,exports){
+},{}],568:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name}",
   "#{last_name} #{first_name}"
 ];
 
-},{}],496:[function(require,module,exports){
+},{}],569:[function(require,module,exports){
 module["exports"] = [
   "M",
   "Mme",
@@ -47609,7 +52325,7 @@ module["exports"] = [
   "Prof"
 ];
 
-},{}],497:[function(require,module,exports){
+},{}],570:[function(require,module,exports){
 module["exports"] = {
   "job": [
     "Superviseur",
@@ -47633,7 +52349,7 @@ module["exports"] = {
   ]
 };
 
-},{}],498:[function(require,module,exports){
+},{}],571:[function(require,module,exports){
 module["exports"] = [
   "01########",
   "02########",
@@ -47651,15 +52367,15 @@ module["exports"] = [
   "+33 7########"
 ];
 
-},{}],499:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":498,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],500:[function(require,module,exports){
-module.exports=require(292)
-},{"/Users/a/dev/faker.js/lib/locales/en_CA/address/default_country.js":292}],501:[function(require,module,exports){
-arguments[4][326][0].apply(exports,arguments)
-},{"./default_country":500,"./postcode":502,"./state":503,"./state_abbr":504,"/Users/a/dev/faker.js/lib/locales/en_IND/address/index.js":326}],502:[function(require,module,exports){
-module.exports=require(294)
-},{"/Users/a/dev/faker.js/lib/locales/en_CA/address/postcode.js":294}],503:[function(require,module,exports){
+},{}],572:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":571,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],573:[function(require,module,exports){
+module.exports=require(326)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_CA/address/default_country.js":326}],574:[function(require,module,exports){
+arguments[4][360][0].apply(exports,arguments)
+},{"./default_country":573,"./postcode":575,"./state":576,"./state_abbr":577,"/Users/kdzuin/Badoo/faker.js/lib/locales/en_IND/address/index.js":360}],575:[function(require,module,exports){
+module.exports=require(328)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_CA/address/postcode.js":328}],576:[function(require,module,exports){
 module["exports"] = [
   "Alberta",
   "Colombie-Britannique",
@@ -47676,7 +52392,7 @@ module["exports"] = [
   "Yukon"
 ];
 
-},{}],504:[function(require,module,exports){
+},{}],577:[function(require,module,exports){
 module["exports"] = [
   "AB",
   "BC",
@@ -47693,7 +52409,7 @@ module["exports"] = [
   "YK"
 ];
 
-},{}],505:[function(require,module,exports){
+},{}],578:[function(require,module,exports){
 var fr_CA = {};
 module['exports'] = fr_CA;
 fr_CA.title = "Canada (French)";
@@ -47701,7 +52417,7 @@ fr_CA.address = require("./address");
 fr_CA.internet = require("./internet");
 fr_CA.phone_number = require("./phone_number");
 
-},{"./address":501,"./internet":508,"./phone_number":510}],506:[function(require,module,exports){
+},{"./address":574,"./internet":581,"./phone_number":583}],579:[function(require,module,exports){
 module["exports"] = [
   "qc.ca",
   "ca",
@@ -47713,27 +52429,300 @@ module["exports"] = [
   "org"
 ];
 
-},{}],507:[function(require,module,exports){
-module.exports=require(299)
-},{"/Users/a/dev/faker.js/lib/locales/en_CA/internet/free_email.js":299}],508:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":506,"./free_email":507,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],509:[function(require,module,exports){
+},{}],580:[function(require,module,exports){
+module.exports=require(333)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_CA/internet/free_email.js":333}],581:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":579,"./free_email":580,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],582:[function(require,module,exports){
 module["exports"] = [
   "### ###-####",
   "1 ### ###-####",
   "### ###-####, poste ###"
 ];
 
-},{}],510:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":509,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],511:[function(require,module,exports){
+},{}],583:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":582,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],584:[function(require,module,exports){
+module.exports=require(20)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/city.js":20}],585:[function(require,module,exports){
+module["exports"] = [
+  "Aarau",
+  "Adliswil",
+  "Aesch",
+  "Affoltern am Albis",
+  "Aigle",
+  "Allschwil",
+  "Altdorf",
+  "Altstätten",
+  "Amriswil",
+  "Appenzell",
+  "Arbon",
+  "Arlesheim",
+  "Arosa",
+  "Arth",
+  "Baar",
+  "Baden",
+  "Bassersdorf",
+  "Bellinzone",
+  "Belp",
+  "Berne",
+  "Berthoud",
+  "Bienne",
+  "Binningen",
+  "Birsfelden",
+  "Brigue-Glis",
+  "Brugg",
+  "Buchs",
+  "Bulle",
+  "Bussigny",
+  "Bâle",
+  "Bülach",
+  "Carouge",
+  "Cham",
+  "Chiasso",
+  "Chêne-Bougeries",
+  "Coire",
+  "Crissier",
+  "Davos",
+  "Delémont",
+  "Dietikon",
+  "Dübendorf",
+  "Ebikon",
+  "Einsiedeln",
+  "Emmen",
+  "Flawil",
+  "Frauenfeld",
+  "Freienbach",
+  "Fribourg",
+  "Genève",
+  "Gland",
+  "Glaris Centre",
+  "Glaris Nord",
+  "Gossau",
+  "Granges",
+  "Herisau",
+  "Hinwil",
+  "Horgen",
+  "Horw",
+  "Illnau-Effretikon",
+  "Interlaken",
+  "Ittigen",
+  "Kloten",
+  "Kreuzlingen",
+  "Kriens",
+  "Köniz",
+  "Küsnacht",
+  "La Chaux-de-Fonds",
+  "La Neuveville",
+  "La Tour-de-Peilz",
+  "Lancy",
+  "Langenthal",
+  "Lausanne",
+  "Le Grand-Saconnex",
+  "Le Locle",
+  "Lenzbourg",
+  "Liestal",
+  "Locarno",
+  "Lucerne",
+  "Lugano",
+  "Lyss",
+  "Martigny",
+  "Meilen",
+  "Mendrisio",
+  "Meyrin",
+  "Monthey",
+  "Montreux",
+  "Morat",
+  "Morges",
+  "Moutier",
+  "Muri bei Bern",
+  "Muttenz",
+  "Männedorf",
+  "Möhlin",
+  "Münchenbuchsee",
+  "Münchenstein",
+  "Münsingen",
+  "Neuchâtel",
+  "Neuhausen am Rheinfall",
+  "Nyon",
+  "Oberwil",
+  "Oftringen",
+  "Olten",
+  "Onex",
+  "Opfikon",
+  "Ostermundigen",
+  "Payerne",
+  "Peseux",
+  "Pfäffikon",
+  "Plan-les-Ouates",
+  "Poliez-Pittet",
+  "Porrentruy",
+  "Pratteln",
+  "Prilly",
+  "Pully",
+  "Rapperswil-Jona",
+  "Regensdorf",
+  "Reinach",
+  "Renens",
+  "Rheinfelden",
+  "Richterswil",
+  "Riehen",
+  "Risch-Rotkreuz",
+  "Romanshorn",
+  "Rorschach",
+  "Rüti",
+  "Saint-Gall",
+  "Saint-Moritz",
+  "Sarnen",
+  "Schaffhouse",
+  "Schlieren",
+  "Schwytz",
+  "Sierre",
+  "Sion",
+  "Soleure",
+  "Spiez",
+  "Spreitenbach",
+  "Stans",
+  "Steffisburg",
+  "Steinhausen",
+  "Stäfa",
+  "Suhr",
+  "Sursee",
+  "Thalwil",
+  "Thoune",
+  "Thônex",
+  "Urdorf",
+  "Uster",
+  "Uzwil",
+  "Vernier",
+  "Versoix",
+  "Vevey",
+  "Veyrier",
+  "Villars-sur-Glâne",
+  "Viège",
+  "Volketswil",
+  "Wallisellen",
+  "Weinfelden",
+  "Wettingen",
+  "Wetzikon",
+  "Wil",
+  "Winterthour",
+  "Wohlen",
+  "Worb",
+  "Wädenswil",
+  "Yverdon-les-Bains",
+  "Zermatt",
+  "Zofingue",
+  "Zollikofen",
+  "Zollikon",
+  "Zoug",
+  "Zuchwil",
+  "Zurich",
+  "Écublens"
+];
+
+},{}],586:[function(require,module,exports){
+module["exports"] = [
+  "CH",
+];
+
+},{}],587:[function(require,module,exports){
+module["exports"] = [
+  "Suisse"
+];
+
+},{}],588:[function(require,module,exports){
+var address = {};
+module['exports'] = address;
+address.country_code = require("./country_code");
+address.city = require("./city");
+address.city_name = require("./city_name");
+address.default_country = require("./default_country");
+address.postcode = require("./postcode");
+address.state = require("./state");
+
+
+},{"./city":584,"./city_name":585,"./country_code":586,"./default_country":587,"./postcode":589,"./state":590}],589:[function(require,module,exports){
+module.exports=require(186)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/address/postcode.js":186}],590:[function(require,module,exports){
+module["exports"] = [
+  "Argovie",
+  "Appenzell Rhodes-Intérieures",
+  "Appenzell Rhodes-Extérieures",
+  "Bâle-Ville",
+  "Bâle-Campagne",
+  "Berne",
+  "Fribourg",
+  "Genève",
+  "Glaris",
+  "Grisons",
+  "Jura",
+  "Lucerne",
+  "Neuchâtel",
+  "Nidwald",
+  "Obwald",
+  "Schaffhouse",
+  "Schwyt",
+  "Soleure",
+  "Saint-Gall",
+  "Thurgovie",
+  "Tessin",
+  "Uri",
+  "Valai",
+  "Vaud",
+  "Zoug",
+  "Zurich"
+];
+
+},{}],591:[function(require,module,exports){
+var fr_CH = {};
+module['exports'] = fr_CH;
+fr_CH.title = "French (Switzerland)";
+fr_CH.address = require("./address");
+fr_CH.internet = require("./internet");
+fr_CH.phone_number = require("./phone_number");
+
+},{"./address":588,"./internet":593,"./phone_number":595}],592:[function(require,module,exports){
+module["exports"] = [
+  "com",
+  "net",
+  "biz",
+  "ch",
+  "ch",
+  "ch"
+];
+
+},{}],593:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":592,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],594:[function(require,module,exports){
+module["exports"] = [
+  "0800 ### ###",
+  "0800 ## ## ##",
+  "0## ### ## ##",
+  "0## ### ## ##",
+  "+41 ## ### ## ##",
+  "0900 ### ###",
+  "076 ### ## ##",
+  "079 ### ## ##",
+  "078 ### ## ##",
+  "+4176 ### ## ##",
+  "+4178 ### ## ##",
+  "+4179 ### ## ##",
+  "0041 76 ### ## ##",
+  "0041 78 ### ## ##",
+  "0041 79 ### ## ##",
+];
+
+},{}],595:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":594,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],596:[function(require,module,exports){
 module["exports"] = [
   "###",
   "##",
   "#"
 ];
 
-},{}],512:[function(require,module,exports){
+},{}],597:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix} #{Name.first_name}#{city_suffix}",
   "#{city_prefix} #{Name.first_name}",
@@ -47743,7 +52732,7 @@ module["exports"] = [
   "#{Name.last_name}#{city_suffix}"
 ];
 
-},{}],513:[function(require,module,exports){
+},{}],598:[function(require,module,exports){
 module["exports"] = [
   "აბასთუმანი",
   "აბაშა",
@@ -47835,7 +52824,7 @@ module["exports"] = [
   "ხულო"
 ];
 
-},{}],514:[function(require,module,exports){
+},{}],599:[function(require,module,exports){
 module["exports"] = [
   "ახალი",
   "ძველი",
@@ -47843,7 +52832,7 @@ module["exports"] = [
   "ქვემო"
 ];
 
-},{}],515:[function(require,module,exports){
+},{}],600:[function(require,module,exports){
 module["exports"] = [
   "სოფელი",
   "ძირი",
@@ -47851,7 +52840,7 @@ module["exports"] = [
   "დაბა"
 ];
 
-},{}],516:[function(require,module,exports){
+},{}],601:[function(require,module,exports){
 module["exports"] = [
   "ავსტრალია",
   "ავსტრია",
@@ -48168,12 +53157,12 @@ module["exports"] = [
   "ჰონკონგი"
 ];
 
-},{}],517:[function(require,module,exports){
+},{}],602:[function(require,module,exports){
 module["exports"] = [
   "საქართველო"
 ];
 
-},{}],518:[function(require,module,exports){
+},{}],603:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -48190,25 +53179,25 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":511,"./city":512,"./city_name":513,"./city_prefix":514,"./city_suffix":515,"./country":516,"./default_country":517,"./postcode":519,"./secondary_address":520,"./street_address":521,"./street_name":522,"./street_suffix":523,"./street_title":524}],519:[function(require,module,exports){
+},{"./building_number":596,"./city":597,"./city_name":598,"./city_prefix":599,"./city_suffix":600,"./country":601,"./default_country":602,"./postcode":604,"./secondary_address":605,"./street_address":606,"./street_name":607,"./street_suffix":608,"./street_title":609}],604:[function(require,module,exports){
 module["exports"] = [
   "01##"
 ];
 
-},{}],520:[function(require,module,exports){
+},{}],605:[function(require,module,exports){
 module["exports"] = [
   "კორპ. ##",
   "შენობა ###"
 ];
 
-},{}],521:[function(require,module,exports){
-module.exports=require(65)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/street_address.js":65}],522:[function(require,module,exports){
+},{}],606:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],607:[function(require,module,exports){
 module["exports"] = [
   "#{street_title} #{street_suffix}"
 ];
 
-},{}],523:[function(require,module,exports){
+},{}],608:[function(require,module,exports){
 module["exports"] = [
   "გამზ.",
   "გამზირი",
@@ -48218,7 +53207,7 @@ module["exports"] = [
   "ხეივანი"
 ];
 
-},{}],524:[function(require,module,exports){
+},{}],609:[function(require,module,exports){
 module["exports"] = [
   "აბაშიძის",
   "აბესაძის",
@@ -48638,7 +53627,7 @@ module["exports"] = [
   "ჯორჯიაშვილის"
 ];
 
-},{}],525:[function(require,module,exports){
+},{}],610:[function(require,module,exports){
 module["exports"] = [
   "(+995 32) 2-##-##-##",
   "032-2-##-##-##",
@@ -48651,11 +53640,11 @@ module["exports"] = [
   "2 ### ###"
 ];
 
-},{}],526:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":525,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],527:[function(require,module,exports){
-arguments[4][33][0].apply(exports,arguments)
-},{"./name":528,"./prefix":529,"./suffix":530,"/Users/a/dev/faker.js/lib/locales/az/company/index.js":33}],528:[function(require,module,exports){
+},{}],611:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":610,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],612:[function(require,module,exports){
+arguments[4][55][0].apply(exports,arguments)
+},{"./name":613,"./prefix":614,"./suffix":615,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/company/index.js":55}],613:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.first_name}",
   "#{prefix} #{Name.last_name}",
@@ -48664,7 +53653,7 @@ module["exports"] = [
   "#{prefix} #{Name.last_name}-#{Name.last_name}"
 ];
 
-},{}],529:[function(require,module,exports){
+},{}],614:[function(require,module,exports){
 module["exports"] = [
   "შპს",
   "სს",
@@ -48672,7 +53661,7 @@ module["exports"] = [
   "სსიპ"
 ];
 
-},{}],530:[function(require,module,exports){
+},{}],615:[function(require,module,exports){
 module["exports"] = [
   "ჯგუფი",
   "და კომპანია",
@@ -48680,7 +53669,7 @@ module["exports"] = [
   "გრუპი"
 ];
 
-},{}],531:[function(require,module,exports){
+},{}],616:[function(require,module,exports){
 var ge = {};
 module['exports'] = ge;
 ge.title = "Georgian";
@@ -48692,7 +53681,7 @@ ge.company = require("./company");
 ge.phone_number = require("./phone_number");
 ge.cell_phone = require("./cell_phone");
 
-},{"./address":518,"./cell_phone":526,"./company":527,"./internet":534,"./name":536,"./phone_number":542}],532:[function(require,module,exports){
+},{"./address":603,"./cell_phone":611,"./company":612,"./internet":619,"./name":621,"./phone_number":627}],617:[function(require,module,exports){
 module["exports"] = [
   "ge",
   "com",
@@ -48702,16 +53691,16 @@ module["exports"] = [
   "org.ge"
 ];
 
-},{}],533:[function(require,module,exports){
+},{}],618:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
   "posta.ge"
 ];
 
-},{}],534:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":532,"./free_email":533,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],535:[function(require,module,exports){
+},{}],619:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":617,"./free_email":618,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],620:[function(require,module,exports){
 module["exports"] = [
   "აგული",
   "აგუნა",
@@ -49214,9 +54203,9 @@ module["exports"] = [
   "ჰამლეტ"
 ];
 
-},{}],536:[function(require,module,exports){
-arguments[4][493][0].apply(exports,arguments)
-},{"./first_name":535,"./last_name":537,"./name":538,"./prefix":539,"./title":540,"/Users/a/dev/faker.js/lib/locales/fr/name/index.js":493}],537:[function(require,module,exports){
+},{}],621:[function(require,module,exports){
+arguments[4][566][0].apply(exports,arguments)
+},{"./first_name":620,"./last_name":622,"./name":623,"./prefix":624,"./title":625,"/Users/kdzuin/Badoo/faker.js/lib/locales/fr/name/index.js":566}],622:[function(require,module,exports){
 module["exports"] = [
   "აბაზაძე",
   "აბაშიძე",
@@ -49389,7 +54378,7 @@ module["exports"] = [
   "ჯუღაშვილი"
 ];
 
-},{}],538:[function(require,module,exports){
+},{}],623:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name}",
@@ -49399,7 +54388,7 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],539:[function(require,module,exports){
+},{}],624:[function(require,module,exports){
 module["exports"] = [
   "ბ-ნი",
   "ბატონი",
@@ -49407,7 +54396,7 @@ module["exports"] = [
   "ქალბატონი"
 ];
 
-},{}],540:[function(require,module,exports){
+},{}],625:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "გენერალური",
@@ -49485,7 +54474,7 @@ module["exports"] = {
   ]
 };
 
-},{}],541:[function(require,module,exports){
+},{}],626:[function(require,module,exports){
 module["exports"] = [
   "5##-###-###",
   "5########",
@@ -49509,17 +54498,17 @@ module["exports"] = [
   "(+995) 5## ### ###"
 ];
 
-},{}],542:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":541,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],543:[function(require,module,exports){
+},{}],627:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":626,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],628:[function(require,module,exports){
 module["exports"] = [  
   "##",
   "#"
 ];
 
-},{}],544:[function(require,module,exports){
-module.exports=require(55)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/city.js":55}],545:[function(require,module,exports){
+},{}],629:[function(require,module,exports){
+module.exports=require(20)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/city.js":20}],630:[function(require,module,exports){
 module["exports"] = [
   "Airmadidi",
   "Ampana",
@@ -49749,12 +54738,12 @@ module["exports"] = [
   "Tabanan",
   "Bangli"
 ];
-},{}],546:[function(require,module,exports){
+},{}],631:[function(require,module,exports){
 module["exports"] = [
   "Indonesia"
 ];
 
-},{}],547:[function(require,module,exports){
+},{}],632:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.building_number = require("./building_number");
@@ -49767,11 +54756,11 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":543,"./city":544,"./city_name":545,"./default_country":546,"./postcode":548,"./state":549,"./street_address":550,"./street_name":551,"./street_prefix":552}],548:[function(require,module,exports){
+},{"./building_number":628,"./city":629,"./city_name":630,"./default_country":631,"./postcode":633,"./state":634,"./street_address":635,"./street_name":636,"./street_prefix":637}],633:[function(require,module,exports){
 module["exports"] = [
   "#####"
 ];
-},{}],549:[function(require,module,exports){
+},{}],634:[function(require,module,exports){
 module["exports"] = [
   "Aceh",
   "Sumatera Utara",
@@ -49808,16 +54797,16 @@ module["exports"] = [
   "Papua Barat",
   "Papua"
 ];
-},{}],550:[function(require,module,exports){
+},{}],635:[function(require,module,exports){
 module["exports"] = [
   "#{street_name} no #{building_number}"
 ];
-},{}],551:[function(require,module,exports){
+},{}],636:[function(require,module,exports){
 module["exports"] = [
   "#{street_prefix} #{Name.first_name}",
   "#{street_prefix} #{Name.last_name}"
 ];
-},{}],552:[function(require,module,exports){
+},{}],637:[function(require,module,exports){
 module["exports"] = [
   "Ds.",
   "Dk.",
@@ -49828,16 +54817,16 @@ module["exports"] = [
   "Ki.",
   "Psr."
 ];
-},{}],553:[function(require,module,exports){
-arguments[4][33][0].apply(exports,arguments)
-},{"./name":554,"./prefix":555,"./suffix":556,"/Users/a/dev/faker.js/lib/locales/az/company/index.js":33}],554:[function(require,module,exports){
+},{}],638:[function(require,module,exports){
+arguments[4][55][0].apply(exports,arguments)
+},{"./name":639,"./prefix":640,"./suffix":641,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/company/index.js":55}],639:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.last_name}",
   "#{Name.last_name} #{suffix}",
   "#{prefix} #{Name.last_name} #{suffix}"
 ];
 
-},{}],555:[function(require,module,exports){
+},{}],640:[function(require,module,exports){
 module["exports"] = [
   "PT",
   "CV",
@@ -49845,14 +54834,14 @@ module["exports"] = [
   "PD",
   "Perum"
 ];
-},{}],556:[function(require,module,exports){
+},{}],641:[function(require,module,exports){
 module["exports"] = [
   "(Persero) Tbk",
   "Tbk"
 ];
-},{}],557:[function(require,module,exports){
-arguments[4][37][0].apply(exports,arguments)
-},{"./month":558,"./weekday":559,"/Users/a/dev/faker.js/lib/locales/az/date/index.js":37}],558:[function(require,module,exports){
+},{}],642:[function(require,module,exports){
+arguments[4][59][0].apply(exports,arguments)
+},{"./month":643,"./weekday":644,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/date/index.js":59}],643:[function(require,module,exports){
 module["exports"] = {
   wide: [
     "Januari",
@@ -49912,7 +54901,7 @@ module["exports"] = {
   ]
 };
 
-},{}],559:[function(require,module,exports){
+},{}],644:[function(require,module,exports){
 module["exports"] = {
   wide: [
     "Minggu",
@@ -49952,7 +54941,7 @@ module["exports"] = {
   ]
 };
 
-},{}],560:[function(require,module,exports){
+},{}],645:[function(require,module,exports){
 var id = {};
 module['exports'] = id;
 id.title = "Indonesia";
@@ -49963,7 +54952,7 @@ id.date = require("./date");
 id.name = require("./name");
 id.phone_number = require("./phone_number");
 
-},{"./address":547,"./company":553,"./date":557,"./internet":563,"./name":566,"./phone_number":573}],561:[function(require,module,exports){
+},{"./address":632,"./company":638,"./date":642,"./internet":648,"./name":651,"./phone_number":658}],646:[function(require,module,exports){
 module["exports"] = [
   "com",
   "net",
@@ -49986,16 +54975,16 @@ module["exports"] = [
   "biz.id",
   "desa.id"
 ];
-},{}],562:[function(require,module,exports){
+},{}],647:[function(require,module,exports){
 module["exports"] = [
   'gmail.com',
   'yahoo.com',
   'gmail.co.id',
   'yahoo.co.id'
 ];
-},{}],563:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":561,"./free_email":562,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],564:[function(require,module,exports){
+},{}],648:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":646,"./free_email":647,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],649:[function(require,module,exports){
 module["exports"] = [
   "Ade",
   "Agnes",
@@ -50219,7 +55208,7 @@ module["exports"] = [
   "Zelda",
   "Zelaya"
 ];
-},{}],565:[function(require,module,exports){
+},{}],650:[function(require,module,exports){
 module["exports"] = [
   "Agustina",
   "Andriani",
@@ -50291,9 +55280,9 @@ module["exports"] = [
   "Wastuti",
   "Zulaika"
 ];
-},{}],566:[function(require,module,exports){
-arguments[4][46][0].apply(exports,arguments)
-},{"./female_first_name":564,"./female_last_name":565,"./male_first_name":567,"./male_last_name":568,"./name":569,"./prefix":570,"./suffix":571,"/Users/a/dev/faker.js/lib/locales/az/name/index.js":46}],567:[function(require,module,exports){
+},{}],651:[function(require,module,exports){
+arguments[4][68][0].apply(exports,arguments)
+},{"./female_first_name":649,"./female_last_name":650,"./male_first_name":652,"./male_last_name":653,"./name":654,"./prefix":655,"./suffix":656,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/name/index.js":68}],652:[function(require,module,exports){
 module["exports"] = [
   "Abyasa",
   "Ade",
@@ -50451,6 +55440,7 @@ module["exports"] = [
   "Eja",
   "Gada",
   "Gadang",
+  "Gading",
   "Gaduh",
   "Gaiman",
   "Galak",
@@ -50480,10 +55470,9 @@ module["exports"] = [
   "Garda",
   "Gatot",
   "Gatra",
-  "Gilang",
-  "Galih",
   "Ghani",
-  "Gading",
+  "Gibran",
+  "Gilang",
   "Hairyanto",
   "Hardana",
   "Hardi",
@@ -50790,7 +55779,8 @@ module["exports"] = [
   "Yono",
   "Yoga"
 ];
-},{}],568:[function(require,module,exports){
+
+},{}],653:[function(require,module,exports){
 module["exports"] = [
   "Adriansyah",
   "Ardianto",
@@ -50899,7 +55889,7 @@ module["exports"] = [
   "Wasita",
   "Zulkarnain"
 ];
-},{}],569:[function(require,module,exports){
+},{}],654:[function(require,module,exports){
 module["exports"] = [
   "#{male_first_name} #{male_last_name}",
   "#{male_last_name} #{male_first_name}",
@@ -50910,9 +55900,9 @@ module["exports"] = [
   "#{female_first_name} #{female_first_name} #{female_last_name}"
 ];
 
-},{}],570:[function(require,module,exports){
+},{}],655:[function(require,module,exports){
 module["exports"] = [];
-},{}],571:[function(require,module,exports){
+},{}],656:[function(require,module,exports){
 module["exports"] = [
   "S.Ked",
   "S.Gz",
@@ -50935,7 +55925,7 @@ module["exports"] = [
   "M.Farm",
   "M.Ak"
 ];
-},{}],572:[function(require,module,exports){
+},{}],657:[function(require,module,exports){
 module["exports"] = [
   "02# #### ###",
   "02## #### ###",
@@ -50976,11 +55966,11 @@ module["exports"] = [
   "(+62) 8## #### ####",
   "(+62) 9## #### ####"
 ];
-},{}],573:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":572,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],574:[function(require,module,exports){
-module.exports=require(511)
-},{"/Users/a/dev/faker.js/lib/locales/ge/address/building_number.js":511}],575:[function(require,module,exports){
+},{}],658:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":657,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],659:[function(require,module,exports){
+module.exports=require(596)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ge/address/building_number.js":596}],660:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix} #{Name.first_name} #{city_suffix}",
   "#{city_prefix} #{Name.first_name}",
@@ -50988,7 +55978,7 @@ module["exports"] = [
   "#{Name.last_name} #{city_suffix}"
 ];
 
-},{}],576:[function(require,module,exports){
+},{}],661:[function(require,module,exports){
 module["exports"] = [
   "San",
   "Borgo",
@@ -50997,7 +55987,7 @@ module["exports"] = [
   "Settimo"
 ];
 
-},{}],577:[function(require,module,exports){
+},{}],662:[function(require,module,exports){
 module["exports"] = [
   "a mare",
   "lido",
@@ -51013,7 +56003,7 @@ module["exports"] = [
   "sardo"
 ];
 
-},{}],578:[function(require,module,exports){
+},{}],663:[function(require,module,exports){
 module["exports"] = [
   "Afghanistan",
   "Albania",
@@ -51258,12 +56248,12 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],579:[function(require,module,exports){
+},{}],664:[function(require,module,exports){
 module["exports"] = [
   "Italia"
 ];
 
-},{}],580:[function(require,module,exports){
+},{}],665:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -51280,15 +56270,15 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":574,"./city":575,"./city_prefix":576,"./city_suffix":577,"./country":578,"./default_country":579,"./postcode":581,"./secondary_address":582,"./state":583,"./state_abbr":584,"./street_address":585,"./street_name":586,"./street_suffix":587}],581:[function(require,module,exports){
-module.exports=require(379)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":379}],582:[function(require,module,exports){
+},{"./building_number":659,"./city":660,"./city_prefix":661,"./city_suffix":662,"./country":663,"./default_country":664,"./postcode":666,"./secondary_address":667,"./state":668,"./state_abbr":669,"./street_address":670,"./street_name":671,"./street_suffix":672}],666:[function(require,module,exports){
+module.exports=require(436)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/address/postcode.js":436}],667:[function(require,module,exports){
 module["exports"] = [
   "Appartamento ##",
   "Piano #"
 ];
 
-},{}],583:[function(require,module,exports){
+},{}],668:[function(require,module,exports){
 module["exports"] = [
   "Agrigento",
   "Alessandria",
@@ -51402,7 +56392,7 @@ module["exports"] = [
   "Viterbo"
 ];
 
-},{}],584:[function(require,module,exports){
+},{}],669:[function(require,module,exports){
 module["exports"] = [
   "AG",
   "AL",
@@ -51516,19 +56506,19 @@ module["exports"] = [
   "VT"
 ];
 
-},{}],585:[function(require,module,exports){
+},{}],670:[function(require,module,exports){
 module["exports"] = [
   "#{street_name} #{building_number}",
   "#{street_name} #{building_number}, #{secondary_address}"
 ];
 
-},{}],586:[function(require,module,exports){
+},{}],671:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Name.first_name}",
   "#{street_suffix} #{Name.last_name}"
 ];
 
-},{}],587:[function(require,module,exports){
+},{}],672:[function(require,module,exports){
 module["exports"] = [
   "Piazza",
   "Strada",
@@ -51539,7 +56529,7 @@ module["exports"] = [
   "Incrocio"
 ];
 
-},{}],588:[function(require,module,exports){
+},{}],673:[function(require,module,exports){
 module["exports"] = [
   "24 ore",
   "24/7",
@@ -51613,7 +56603,7 @@ module["exports"] = [
   "valore aggiunto"
 ];
 
-},{}],589:[function(require,module,exports){
+},{}],674:[function(require,module,exports){
 module["exports"] = [
   "valore aggiunto",
   "verticalizzate",
@@ -51663,7 +56653,7 @@ module["exports"] = [
   "ricche"
 ];
 
-},{}],590:[function(require,module,exports){
+},{}],675:[function(require,module,exports){
 module["exports"] = [
   "partnerships",
   "comunità",
@@ -51693,7 +56683,7 @@ module["exports"] = [
   "metodologie"
 ];
 
-},{}],591:[function(require,module,exports){
+},{}],676:[function(require,module,exports){
 module["exports"] = [
   "implementate",
   "utilizzo",
@@ -51725,7 +56715,7 @@ module["exports"] = [
   "ricontestualizzate"
 ];
 
-},{}],592:[function(require,module,exports){
+},{}],677:[function(require,module,exports){
 module["exports"] = [
   "adattiva",
   "avanzata",
@@ -51786,7 +56776,7 @@ module["exports"] = [
   "visionaria"
 ];
 
-},{}],593:[function(require,module,exports){
+},{}],678:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -51798,14 +56788,14 @@ company.bs_verb = require("./bs_verb");
 company.bs_adjective = require("./bs_adjective");
 company.name = require("./name");
 
-},{"./adjective":588,"./bs_adjective":589,"./bs_noun":590,"./bs_verb":591,"./descriptor":592,"./name":594,"./noun":595,"./suffix":596}],594:[function(require,module,exports){
+},{"./adjective":673,"./bs_adjective":674,"./bs_noun":675,"./bs_verb":676,"./descriptor":677,"./name":679,"./noun":680,"./suffix":681}],679:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name} #{suffix}",
   "#{Name.last_name}, #{Name.last_name} e #{Name.last_name} #{suffix}"
 ];
 
-},{}],595:[function(require,module,exports){
+},{}],680:[function(require,module,exports){
 module["exports"] = [
   "Abilità",
   "Access",
@@ -51898,7 +56888,7 @@ module["exports"] = [
   "Forza lavoro"
 ];
 
-},{}],596:[function(require,module,exports){
+},{}],681:[function(require,module,exports){
 module["exports"] = [
   "SPA",
   "e figli",
@@ -51906,7 +56896,7 @@ module["exports"] = [
   "s.r.l."
 ];
 
-},{}],597:[function(require,module,exports){
+},{}],682:[function(require,module,exports){
 var it = {};
 module['exports'] = it;
 it.title = "Italian";
@@ -51916,7 +56906,7 @@ it.internet = require("./internet");
 it.name = require("./name");
 it.phone_number = require("./phone_number");
 
-},{"./address":580,"./company":593,"./internet":600,"./name":602,"./phone_number":608}],598:[function(require,module,exports){
+},{"./address":665,"./company":678,"./internet":685,"./name":687,"./phone_number":693}],683:[function(require,module,exports){
 module["exports"] = [
   "com",
   "com",
@@ -51928,7 +56918,7 @@ module["exports"] = [
   "it"
 ];
 
-},{}],599:[function(require,module,exports){
+},{}],684:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
@@ -51938,9 +56928,9 @@ module["exports"] = [
   "yahoo.it"
 ];
 
-},{}],600:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":598,"./free_email":599,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],601:[function(require,module,exports){
+},{}],685:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":683,"./free_email":684,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],686:[function(require,module,exports){
 module["exports"] = [
   "Aaron",
   "Akira",
@@ -52306,7 +57296,7 @@ module["exports"] = [
   "Zelida"
 ];
 
-},{}],602:[function(require,module,exports){
+},{}],687:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -52315,7 +57305,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./first_name":601,"./last_name":603,"./name":604,"./prefix":605,"./suffix":606}],603:[function(require,module,exports){
+},{"./first_name":686,"./last_name":688,"./name":689,"./prefix":690,"./suffix":691}],688:[function(require,module,exports){
 module["exports"] = [
   "Amato",
   "Barbieri",
@@ -52419,9 +57409,9 @@ module["exports"] = [
   "Vitali"
 ];
 
-},{}],604:[function(require,module,exports){
-module.exports=require(538)
-},{"/Users/a/dev/faker.js/lib/locales/ge/name/name.js":538}],605:[function(require,module,exports){
+},{}],689:[function(require,module,exports){
+module.exports=require(623)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ge/name/name.js":623}],690:[function(require,module,exports){
 module["exports"] = [
   "Sig.",
   "Dott.",
@@ -52429,9 +57419,9 @@ module["exports"] = [
   "Ing."
 ];
 
-},{}],606:[function(require,module,exports){
-module.exports=require(50)
-},{"/Users/a/dev/faker.js/lib/locales/az/name/prefix.js":50}],607:[function(require,module,exports){
+},{}],691:[function(require,module,exports){
+module.exports=require(72)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/name/prefix.js":72}],692:[function(require,module,exports){
 module["exports"] = [
   "+## ### ## ## ####",
   "+## ## #######",
@@ -52446,9 +57436,9 @@ module["exports"] = [
   "+39 3## ### ###"
 ];
 
-},{}],608:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":607,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],609:[function(require,module,exports){
+},{}],693:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":692,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],694:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix}#{Name.first_name}#{city_suffix}",
   "#{Name.first_name}#{city_suffix}",
@@ -52456,7 +57446,7 @@ module["exports"] = [
   "#{Name.last_name}#{city_suffix}"
 ];
 
-},{}],610:[function(require,module,exports){
+},{}],695:[function(require,module,exports){
 module["exports"] = [
   "北",
   "東",
@@ -52467,7 +57457,7 @@ module["exports"] = [
   "港"
 ];
 
-},{}],611:[function(require,module,exports){
+},{}],696:[function(require,module,exports){
 module["exports"] = [
   "市",
   "区",
@@ -52475,7 +57465,7 @@ module["exports"] = [
   "村"
 ];
 
-},{}],612:[function(require,module,exports){
+},{}],697:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -52486,12 +57476,12 @@ address.city_suffix = require("./city_suffix");
 address.city = require("./city");
 address.street_name = require("./street_name");
 
-},{"./city":609,"./city_prefix":610,"./city_suffix":611,"./postcode":613,"./state":614,"./state_abbr":615,"./street_name":616}],613:[function(require,module,exports){
+},{"./city":694,"./city_prefix":695,"./city_suffix":696,"./postcode":698,"./state":699,"./state_abbr":700,"./street_name":701}],698:[function(require,module,exports){
 module["exports"] = [
   "###-####"
 ];
 
-},{}],614:[function(require,module,exports){
+},{}],699:[function(require,module,exports){
 module["exports"] = [
   "北海道",
   "青森県",
@@ -52542,7 +57532,7 @@ module["exports"] = [
   "沖縄県"
 ];
 
-},{}],615:[function(require,module,exports){
+},{}],700:[function(require,module,exports){
 module["exports"] = [
   "1",
   "2",
@@ -52593,22 +57583,22 @@ module["exports"] = [
   "47"
 ];
 
-},{}],616:[function(require,module,exports){
+},{}],701:[function(require,module,exports){
 module["exports"] = [
   "#{Name.first_name}#{street_suffix}",
   "#{Name.last_name}#{street_suffix}"
 ];
 
-},{}],617:[function(require,module,exports){
+},{}],702:[function(require,module,exports){
 module["exports"] = [
   "090-####-####",
   "080-####-####",
   "070-####-####"
 ];
 
-},{}],618:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":617,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],619:[function(require,module,exports){
+},{}],703:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":702,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],704:[function(require,module,exports){
 var ja = {};
 module['exports'] = ja;
 ja.title = "Japanese";
@@ -52617,7 +57607,7 @@ ja.phone_number = require("./phone_number");
 ja.cell_phone = require("./cell_phone");
 ja.name = require("./name");
 
-},{"./address":612,"./cell_phone":618,"./name":621,"./phone_number":625}],620:[function(require,module,exports){
+},{"./address":697,"./cell_phone":703,"./name":706,"./phone_number":710}],705:[function(require,module,exports){
 module["exports"] = [
   "大翔",
   "蓮",
@@ -52642,14 +57632,14 @@ module["exports"] = [
   "美咲"
 ];
 
-},{}],621:[function(require,module,exports){
+},{}],706:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.last_name = require("./last_name");
 name.first_name = require("./first_name");
 name.name = require("./name");
 
-},{"./first_name":620,"./last_name":622,"./name":623}],622:[function(require,module,exports){
+},{"./first_name":705,"./last_name":707,"./name":708}],707:[function(require,module,exports){
 module["exports"] = [
   "佐藤",
   "鈴木",
@@ -52673,12 +57663,12 @@ module["exports"] = [
   "清水"
 ];
 
-},{}],623:[function(require,module,exports){
+},{}],708:[function(require,module,exports){
 module["exports"] = [
   "#{last_name} #{first_name}"
 ];
 
-},{}],624:[function(require,module,exports){
+},{}],709:[function(require,module,exports){
 module["exports"] = [
   "0####-#-####",
   "0###-##-####",
@@ -52686,14 +57676,14 @@ module["exports"] = [
   "0#-####-####"
 ];
 
-},{}],625:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":624,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],626:[function(require,module,exports){
+},{}],710:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":709,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],711:[function(require,module,exports){
 module["exports"] = [
   "#{city_name}#{city_suffix}"
 ];
 
-},{}],627:[function(require,module,exports){
+},{}],712:[function(require,module,exports){
 module["exports"] = [
   "강릉",
   "양양",
@@ -52725,14 +57715,14 @@ module["exports"] = [
   "수성"
 ];
 
-},{}],628:[function(require,module,exports){
+},{}],713:[function(require,module,exports){
 module["exports"] = [
   "구",
   "시",
   "군"
 ];
 
-},{}],629:[function(require,module,exports){
+},{}],714:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -52745,12 +57735,12 @@ address.street_root = require("./street_root");
 address.street_suffix = require("./street_suffix");
 address.street_name = require("./street_name");
 
-},{"./city":626,"./city_name":627,"./city_suffix":628,"./postcode":630,"./state":631,"./state_abbr":632,"./street_name":633,"./street_root":634,"./street_suffix":635}],630:[function(require,module,exports){
+},{"./city":711,"./city_name":712,"./city_suffix":713,"./postcode":715,"./state":716,"./state_abbr":717,"./street_name":718,"./street_root":719,"./street_suffix":720}],715:[function(require,module,exports){
 module["exports"] = [
   "###-###"
 ];
 
-},{}],631:[function(require,module,exports){
+},{}],716:[function(require,module,exports){
 module["exports"] = [
   "강원",
   "경기",
@@ -52771,14 +57761,14 @@ module["exports"] = [
   "세종"
 ];
 
-},{}],632:[function(require,module,exports){
-module.exports=require(631)
-},{"/Users/a/dev/faker.js/lib/locales/ko/address/state.js":631}],633:[function(require,module,exports){
+},{}],717:[function(require,module,exports){
+module.exports=require(716)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ko/address/state.js":716}],718:[function(require,module,exports){
 module["exports"] = [
   "#{street_root}#{street_suffix}"
 ];
 
-},{}],634:[function(require,module,exports){
+},{}],719:[function(require,module,exports){
 module["exports"] = [
   "상계",
   "화곡",
@@ -52810,33 +57800,33 @@ module["exports"] = [
   "동탄"
 ];
 
-},{}],635:[function(require,module,exports){
+},{}],720:[function(require,module,exports){
 module["exports"] = [
   "읍",
   "면",
   "동"
 ];
 
-},{}],636:[function(require,module,exports){
+},{}],721:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
 company.prefix = require("./prefix");
 company.name = require("./name");
 
-},{"./name":637,"./prefix":638,"./suffix":639}],637:[function(require,module,exports){
+},{"./name":722,"./prefix":723,"./suffix":724}],722:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.first_name}",
   "#{Name.first_name} #{suffix}"
 ];
 
-},{}],638:[function(require,module,exports){
+},{}],723:[function(require,module,exports){
 module["exports"] = [
   "주식회사",
   "한국"
 ];
 
-},{}],639:[function(require,module,exports){
+},{}],724:[function(require,module,exports){
 module["exports"] = [
   "연구소",
   "게임즈",
@@ -52846,7 +57836,7 @@ module["exports"] = [
   "코리아"
 ];
 
-},{}],640:[function(require,module,exports){
+},{}],725:[function(require,module,exports){
 var ko = {};
 module['exports'] = ko;
 ko.title = "Korean";
@@ -52857,7 +57847,7 @@ ko.internet = require("./internet");
 ko.lorem = require("./lorem");
 ko.name = require("./name");
 
-},{"./address":629,"./company":636,"./internet":643,"./lorem":644,"./name":647,"./phone_number":651}],641:[function(require,module,exports){
+},{"./address":714,"./company":721,"./internet":728,"./lorem":729,"./name":732,"./phone_number":736}],726:[function(require,module,exports){
 module["exports"] = [
   "co.kr",
   "com",
@@ -52869,7 +57859,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],642:[function(require,module,exports){
+},{}],727:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.co.kr",
@@ -52877,11 +57867,11 @@ module["exports"] = [
   "naver.com"
 ];
 
-},{}],643:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":641,"./free_email":642,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],644:[function(require,module,exports){
-arguments[4][121][0].apply(exports,arguments)
-},{"./words":645,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":121}],645:[function(require,module,exports){
+},{}],728:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":726,"./free_email":727,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],729:[function(require,module,exports){
+arguments[4][105][0].apply(exports,arguments)
+},{"./words":730,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],730:[function(require,module,exports){
 module["exports"] = [
   "국가는",
   "법률이",
@@ -53013,7 +58003,7 @@ module["exports"] = [
   "가진다."
 ];
 
-},{}],646:[function(require,module,exports){
+},{}],731:[function(require,module,exports){
 module["exports"] = [
   "서연",
   "민서",
@@ -53038,9 +58028,9 @@ module["exports"] = [
   "은주"
 ];
 
-},{}],647:[function(require,module,exports){
-arguments[4][621][0].apply(exports,arguments)
-},{"./first_name":646,"./last_name":648,"./name":649,"/Users/a/dev/faker.js/lib/locales/ja/name/index.js":621}],648:[function(require,module,exports){
+},{}],732:[function(require,module,exports){
+arguments[4][706][0].apply(exports,arguments)
+},{"./first_name":731,"./last_name":733,"./name":734,"/Users/kdzuin/Badoo/faker.js/lib/locales/ja/name/index.js":706}],733:[function(require,module,exports){
 module["exports"] = [
   "김",
   "이",
@@ -53064,29 +58054,29 @@ module["exports"] = [
   "홍"
 ];
 
-},{}],649:[function(require,module,exports){
-module.exports=require(623)
-},{"/Users/a/dev/faker.js/lib/locales/ja/name/name.js":623}],650:[function(require,module,exports){
+},{}],734:[function(require,module,exports){
+module.exports=require(708)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ja/name/name.js":708}],735:[function(require,module,exports){
 module["exports"] = [
   "0#-#####-####",
   "0##-###-####",
   "0##-####-####"
 ];
 
-},{}],651:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":650,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],652:[function(require,module,exports){
+},{}],736:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":735,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],737:[function(require,module,exports){
 module["exports"] = [
   "#",
   "##"
 ];
 
-},{}],653:[function(require,module,exports){
+},{}],738:[function(require,module,exports){
 module["exports"] = [
   "#{city_root}#{city_suffix}"
 ];
 
-},{}],654:[function(require,module,exports){
+},{}],739:[function(require,module,exports){
 module["exports"] = [
   "Fet",
   "Gjes",
@@ -53107,7 +58097,7 @@ module["exports"] = [
   "Vest"
 ];
 
-},{}],655:[function(require,module,exports){
+},{}],740:[function(require,module,exports){
 module["exports"] = [
   "berg",
   "borg",
@@ -53139,7 +58129,7 @@ module["exports"] = [
   "ås"
 ];
 
-},{}],656:[function(require,module,exports){
+},{}],741:[function(require,module,exports){
 module["exports"] = [
   "sgate",
   "svei",
@@ -53149,12 +58139,12 @@ module["exports"] = [
   "veien"
 ];
 
-},{}],657:[function(require,module,exports){
+},{}],742:[function(require,module,exports){
 module["exports"] = [
   "Norge"
 ];
 
-},{}],658:[function(require,module,exports){
+},{}],743:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_root = require("./city_root");
@@ -53172,7 +58162,7 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":652,"./city":653,"./city_root":654,"./city_suffix":655,"./common_street_suffix":656,"./default_country":657,"./postcode":659,"./secondary_address":660,"./state":661,"./street_address":662,"./street_name":663,"./street_prefix":664,"./street_root":665,"./street_suffix":666}],659:[function(require,module,exports){
+},{"./building_number":737,"./city":738,"./city_root":739,"./city_suffix":740,"./common_street_suffix":741,"./default_country":742,"./postcode":744,"./secondary_address":745,"./state":746,"./street_address":747,"./street_name":748,"./street_prefix":749,"./street_root":750,"./street_suffix":751}],744:[function(require,module,exports){
 module["exports"] = [
   "####",
   "####",
@@ -53180,21 +58170,18 @@ module["exports"] = [
   "0###"
 ];
 
-},{}],660:[function(require,module,exports){
+},{}],745:[function(require,module,exports){
 module["exports"] = [
   "Leil. ###",
   "Oppgang A",
   "Oppgang B"
 ];
 
-},{}],661:[function(require,module,exports){
-module["exports"] = [
-  ""
-];
-
-},{}],662:[function(require,module,exports){
-module.exports=require(65)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/street_address.js":65}],663:[function(require,module,exports){
+},{}],746:[function(require,module,exports){
+module.exports=require(522)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/fa/address/city_prefix.js":522}],747:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],748:[function(require,module,exports){
 module["exports"] = [
   "#{street_root}#{street_suffix}",
   "#{street_prefix} #{street_root}#{street_suffix}",
@@ -53202,7 +58189,7 @@ module["exports"] = [
   "#{Name.last_name}#{common_street_suffix}"
 ];
 
-},{}],664:[function(require,module,exports){
+},{}],749:[function(require,module,exports){
 module["exports"] = [
   "Øvre",
   "Nedre",
@@ -53212,7 +58199,7 @@ module["exports"] = [
   "Vestre"
 ];
 
-},{}],665:[function(require,module,exports){
+},{}],750:[function(require,module,exports){
 module["exports"] = [
   "Eike",
   "Bjørke",
@@ -53249,7 +58236,7 @@ module["exports"] = [
   "Sjø"
 ];
 
-},{}],666:[function(require,module,exports){
+},{}],751:[function(require,module,exports){
 module["exports"] = [
   "alléen",
   "bakken",
@@ -53299,16 +58286,16 @@ module["exports"] = [
   "åsen"
 ];
 
-},{}],667:[function(require,module,exports){
-arguments[4][166][0].apply(exports,arguments)
-},{"./name":668,"./suffix":669,"/Users/a/dev/faker.js/lib/locales/de_CH/company/index.js":166}],668:[function(require,module,exports){
+},{}],752:[function(require,module,exports){
+arguments[4][187][0].apply(exports,arguments)
+},{"./name":753,"./suffix":754,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/company/index.js":187}],753:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} og #{Name.last_name}"
 ];
 
-},{}],669:[function(require,module,exports){
+},{}],754:[function(require,module,exports){
 module["exports"] = [
   "Gruppen",
   "AS",
@@ -53318,7 +58305,7 @@ module["exports"] = [
   "og Sønner"
 ];
 
-},{}],670:[function(require,module,exports){
+},{}],755:[function(require,module,exports){
 var nb_NO = {};
 module['exports'] = nb_NO;
 nb_NO.title = "Norwegian";
@@ -53328,7 +58315,7 @@ nb_NO.internet = require("./internet");
 nb_NO.name = require("./name");
 nb_NO.phone_number = require("./phone_number");
 
-},{"./address":658,"./company":667,"./internet":672,"./name":675,"./phone_number":682}],671:[function(require,module,exports){
+},{"./address":743,"./company":752,"./internet":757,"./name":760,"./phone_number":767}],756:[function(require,module,exports){
 module["exports"] = [
   "no",
   "com",
@@ -53336,9 +58323,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],672:[function(require,module,exports){
-arguments[4][171][0].apply(exports,arguments)
-},{"./domain_suffix":671,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":171}],673:[function(require,module,exports){
+},{}],757:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":756,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],758:[function(require,module,exports){
 module["exports"] = [
   "Emma",
   "Sara",
@@ -53392,7 +58379,7 @@ module["exports"] = [
   "Madeleine"
 ];
 
-},{}],674:[function(require,module,exports){
+},{}],759:[function(require,module,exports){
 module["exports"] = [
   "Emma",
   "Sara",
@@ -53496,7 +58483,7 @@ module["exports"] = [
   "Aksel"
 ];
 
-},{}],675:[function(require,module,exports){
+},{}],760:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -53507,7 +58494,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./feminine_name":673,"./first_name":674,"./last_name":676,"./masculine_name":677,"./name":678,"./prefix":679,"./suffix":680}],676:[function(require,module,exports){
+},{"./feminine_name":758,"./first_name":759,"./last_name":761,"./masculine_name":762,"./name":763,"./prefix":764,"./suffix":765}],761:[function(require,module,exports){
 module["exports"] = [
   "Johansen",
   "Hansen",
@@ -53611,7 +58598,7 @@ module["exports"] = [
   "Edvardsen"
 ];
 
-},{}],677:[function(require,module,exports){
+},{}],762:[function(require,module,exports){
 module["exports"] = [
   "Markus",
   "Mathias",
@@ -53665,7 +58652,7 @@ module["exports"] = [
   "Aksel"
 ];
 
-},{}],678:[function(require,module,exports){
+},{}],763:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name} #{suffix}",
@@ -53675,13 +58662,13 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],679:[function(require,module,exports){
+},{}],764:[function(require,module,exports){
 module["exports"] = [
   "Dr.",
   "Prof."
 ];
 
-},{}],680:[function(require,module,exports){
+},{}],765:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Sr.",
@@ -53692,7 +58679,7 @@ module["exports"] = [
   "V"
 ];
 
-},{}],681:[function(require,module,exports){
+},{}],766:[function(require,module,exports){
 module["exports"] = [
   "########",
   "## ## ## ##",
@@ -53700,9 +58687,9 @@ module["exports"] = [
   "+47 ## ## ## ##"
 ];
 
-},{}],682:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":681,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],683:[function(require,module,exports){
+},{}],767:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":766,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],768:[function(require,module,exports){
 module["exports"] = [
   "Bhaktapur",
   "Biratnagar",
@@ -53722,12 +58709,12 @@ module["exports"] = [
   "Pokhara"
 ];
 
-},{}],684:[function(require,module,exports){
+},{}],769:[function(require,module,exports){
 module["exports"] = [
   "Nepal"
 ];
 
-},{}],685:[function(require,module,exports){
+},{}],770:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -53735,12 +58722,12 @@ address.state = require("./state");
 address.city = require("./city");
 address.default_country = require("./default_country");
 
-},{"./city":683,"./default_country":684,"./postcode":686,"./state":687}],686:[function(require,module,exports){
+},{"./city":768,"./default_country":769,"./postcode":771,"./state":772}],771:[function(require,module,exports){
 module["exports"] = [
   0
 ];
 
-},{}],687:[function(require,module,exports){
+},{}],772:[function(require,module,exports){
 module["exports"] = [
   "Baglung",
   "Banke",
@@ -53797,9 +58784,9 @@ module["exports"] = [
   "Terhathum"
 ];
 
-},{}],688:[function(require,module,exports){
-arguments[4][279][0].apply(exports,arguments)
-},{"./suffix":689,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":279}],689:[function(require,module,exports){
+},{}],773:[function(require,module,exports){
+arguments[4][313][0].apply(exports,arguments)
+},{"./suffix":774,"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/company/index.js":313}],774:[function(require,module,exports){
 module["exports"] = [
   "Pvt Ltd",
   "Group",
@@ -53807,7 +58794,7 @@ module["exports"] = [
   "Limited"
 ];
 
-},{}],690:[function(require,module,exports){
+},{}],775:[function(require,module,exports){
 var nep = {};
 module['exports'] = nep;
 nep.title = "Nepalese";
@@ -53817,7 +58804,7 @@ nep.internet = require("./internet");
 nep.company = require("./company");
 nep.phone_number = require("./phone_number");
 
-},{"./address":685,"./company":688,"./internet":693,"./name":695,"./phone_number":698}],691:[function(require,module,exports){
+},{"./address":770,"./company":773,"./internet":778,"./name":780,"./phone_number":783}],776:[function(require,module,exports){
 module["exports"] = [
   "np",
   "com",
@@ -53826,7 +58813,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],692:[function(require,module,exports){
+},{}],777:[function(require,module,exports){
 module["exports"] = [
   "worldlink.com.np",
   "gmail.com",
@@ -53834,9 +58821,9 @@ module["exports"] = [
   "hotmail.com"
 ];
 
-},{}],693:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":691,"./free_email":692,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],694:[function(require,module,exports){
+},{}],778:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":776,"./free_email":777,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],779:[function(require,module,exports){
 module["exports"] = [
   "Aarav",
   "Ajita",
@@ -53895,9 +58882,9 @@ module["exports"] = [
   "Sushant"
 ];
 
-},{}],695:[function(require,module,exports){
-arguments[4][285][0].apply(exports,arguments)
-},{"./first_name":694,"./last_name":696,"/Users/a/dev/faker.js/lib/locales/en_AU/name/index.js":285}],696:[function(require,module,exports){
+},{}],780:[function(require,module,exports){
+arguments[4][319][0].apply(exports,arguments)
+},{"./first_name":779,"./last_name":781,"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/name/index.js":319}],781:[function(require,module,exports){
 module["exports"] = [
   "Adhikari",
   "Aryal",
@@ -53940,16 +58927,16 @@ module["exports"] = [
   "Thapa"
 ];
 
-},{}],697:[function(require,module,exports){
+},{}],782:[function(require,module,exports){
 module["exports"] = [
   "##-#######",
   "+977-#-#######",
   "+977########"
 ];
 
-},{}],698:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":697,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],699:[function(require,module,exports){
+},{}],783:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":782,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],784:[function(require,module,exports){
 module["exports"] = [
   "#",
   "##",
@@ -53962,13 +58949,13 @@ module["exports"] = [
   "### III"
 ];
 
-},{}],700:[function(require,module,exports){
+},{}],785:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix}#{city_suffix}",
   "#{city_prefix}"
 ];
 
-},{}],701:[function(require,module,exports){
+},{}],786:[function(require,module,exports){
 module["exports"] = [
   "Aagte",
   "Aal",
@@ -56473,7 +61460,7 @@ module["exports"] = [
   "Zwolle"
 ];
 
-},{}],702:[function(require,module,exports){
+},{}],787:[function(require,module,exports){
 module["exports"] = [
   " aan de IJssel",
   " aan de Rijn",
@@ -56524,7 +61511,7 @@ module["exports"] = [
   ""
 ];
 
-},{}],703:[function(require,module,exports){
+},{}],788:[function(require,module,exports){
 module["exports"] = [
   "Afghanistan",
   "Akrotiri",
@@ -56784,12 +61771,12 @@ module["exports"] = [
   "Zwitserland"
 ];
 
-},{}],704:[function(require,module,exports){
+},{}],789:[function(require,module,exports){
 module["exports"] = [
   "Nederland"
 ];
 
-},{}],705:[function(require,module,exports){
+},{}],790:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -56805,19 +61792,19 @@ address.postcode = require("./postcode");
 address.state = require("./state");
 address.default_country = require("./default_country");
 
-},{"./building_number":699,"./city":700,"./city_prefix":701,"./city_suffix":702,"./country":703,"./default_country":704,"./postcode":706,"./secondary_address":707,"./state":708,"./street_address":709,"./street_name":710,"./street_suffix":711}],706:[function(require,module,exports){
+},{"./building_number":784,"./city":785,"./city_prefix":786,"./city_suffix":787,"./country":788,"./default_country":789,"./postcode":791,"./secondary_address":792,"./state":793,"./street_address":794,"./street_name":795,"./street_suffix":796}],791:[function(require,module,exports){
 module["exports"] = [
   "#### ??"
 ];
 
-},{}],707:[function(require,module,exports){
+},{}],792:[function(require,module,exports){
 module["exports"] = [
   "1 hoog",
   "2 hoog",
   "3 hoog"
 ];
 
-},{}],708:[function(require,module,exports){
+},{}],793:[function(require,module,exports){
 module["exports"] = [
   "Noord-Holland",
   "Zuid-Holland",
@@ -56833,11 +61820,11 @@ module["exports"] = [
   "Flevoland"
 ];
 
-},{}],709:[function(require,module,exports){
-module.exports=require(65)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/street_address.js":65}],710:[function(require,module,exports){
-module.exports=require(616)
-},{"/Users/a/dev/faker.js/lib/locales/ja/address/street_name.js":616}],711:[function(require,module,exports){
+},{}],794:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],795:[function(require,module,exports){
+module.exports=require(701)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ja/address/street_name.js":701}],796:[function(require,module,exports){
 module["exports"] = [
   "straat",
   "laan",
@@ -56846,9 +61833,9 @@ module["exports"] = [
   "park"
 ];
 
-},{}],712:[function(require,module,exports){
-arguments[4][279][0].apply(exports,arguments)
-},{"./suffix":713,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":279}],713:[function(require,module,exports){
+},{}],797:[function(require,module,exports){
+arguments[4][313][0].apply(exports,arguments)
+},{"./suffix":798,"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/company/index.js":313}],798:[function(require,module,exports){
 module["exports"] = [
   "BV",
   "V.O.F.",
@@ -56856,7 +61843,7 @@ module["exports"] = [
   "en Zonen"
 ];
 
-},{}],714:[function(require,module,exports){
+},{}],799:[function(require,module,exports){
 var nl = {};
 module['exports'] = nl;
 nl.title = "Dutch";
@@ -56867,7 +61854,7 @@ nl.lorem = require("./lorem");
 nl.name = require("./name");
 nl.phone_number = require("./phone_number");
 
-},{"./address":705,"./company":712,"./internet":717,"./lorem":718,"./name":722,"./phone_number":729}],715:[function(require,module,exports){
+},{"./address":790,"./company":797,"./internet":802,"./lorem":803,"./name":806,"./phone_number":813}],800:[function(require,module,exports){
 module["exports"] = [
   "nl",
   "com",
@@ -56875,17 +61862,15 @@ module["exports"] = [
   "org"
 ];
 
-},{}],716:[function(require,module,exports){
-module.exports=require(119)
-},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":119}],717:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":715,"./free_email":716,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],718:[function(require,module,exports){
-module.exports=require(83)
-},{"./supplemental":719,"./words":720,"/Users/a/dev/faker.js/lib/locales/cz/lorem/index.js":83}],719:[function(require,module,exports){
-module.exports=require(84)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/supplemental.js":84}],720:[function(require,module,exports){
-module.exports=require(85)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/words.js":85}],721:[function(require,module,exports){
+},{}],801:[function(require,module,exports){
+module.exports=require(140)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/internet/free_email.js":140}],802:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":800,"./free_email":801,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],803:[function(require,module,exports){
+module.exports=require(105)
+},{"./words":804,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],804:[function(require,module,exports){
+module.exports=require(106)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/words.js":106}],805:[function(require,module,exports){
 module["exports"] = [
   "Amber",
   "Anna",
@@ -56939,7 +61924,7 @@ module["exports"] = [
   "Tom"
 ];
 
-},{}],722:[function(require,module,exports){
+},{}],806:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -56949,7 +61934,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./first_name":721,"./last_name":723,"./name":724,"./prefix":725,"./suffix":726,"./tussenvoegsel":727}],723:[function(require,module,exports){
+},{"./first_name":805,"./last_name":807,"./name":808,"./prefix":809,"./suffix":810,"./tussenvoegsel":811}],807:[function(require,module,exports){
 module["exports"] = [
   "Bakker",
   "Beek",
@@ -57003,7 +61988,7 @@ module["exports"] = [
   "Wit"
 ];
 
-},{}],724:[function(require,module,exports){
+},{}],808:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name} #{suffix}",
@@ -57013,7 +61998,7 @@ module["exports"] = [
   "#{first_name} #{tussenvoegsel} #{last_name}"
 ];
 
-},{}],725:[function(require,module,exports){
+},{}],809:[function(require,module,exports){
 module["exports"] = [
   "Dhr.",
   "Mevr. Dr.",
@@ -57022,9 +62007,9 @@ module["exports"] = [
   "Prof."
 ];
 
-},{}],726:[function(require,module,exports){
-module.exports=require(680)
-},{"/Users/a/dev/faker.js/lib/locales/nb_NO/name/suffix.js":680}],727:[function(require,module,exports){
+},{}],810:[function(require,module,exports){
+module.exports=require(765)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/nb_NO/name/suffix.js":765}],811:[function(require,module,exports){
 module["exports"] = [
   "van",
   "van de",
@@ -57035,7 +62020,7 @@ module["exports"] = [
   "den"
 ];
 
-},{}],728:[function(require,module,exports){
+},{}],812:[function(require,module,exports){
 module["exports"] = [
   "(####) ######",
   "##########",
@@ -57043,13 +62028,1555 @@ module["exports"] = [
   "06 #### ####"
 ];
 
-},{}],729:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":728,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],730:[function(require,module,exports){
-module.exports=require(179)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/building_number.js":179}],731:[function(require,module,exports){
-module.exports=require(55)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/city.js":55}],732:[function(require,module,exports){
+},{}],813:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":812,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],814:[function(require,module,exports){
+module["exports"] = [
+  "#",
+  "##",
+  "###",
+  "###a",
+  "###b",
+  "###c"
+];
+
+},{}],815:[function(require,module,exports){
+module["exports"] = [
+  "#{city_prefix}",
+  "#{city_prefix}}#{city_suffix}"
+];
+
+},{}],816:[function(require,module,exports){
+module["exports"] = [
+  "'s Herenelderen",
+  "'s-Gravenvoeren",
+  "'s-Gravenwezel",
+  "Aaigem",
+  "Aalbeke",
+  "Aalst",
+  "Aalst",
+  "Aalter",
+  "Aarschot",
+  "Aarsele",
+  "Aartrijke",
+  "Aartselaar",
+  "Achel",
+  "Adegem",
+  "Adinkerke",
+  "Afsnee",
+  "Alken",
+  "Alsemberg",
+  "Alveringem",
+  "Antwerpen",
+  "Anzegem",
+  "Appels",
+  "Appelterre-Eichem",
+  "Ardooie",
+  "Arendonk",
+  "As",
+  "Aspelare",
+  "Asper",
+  "Asse",
+  "Assebroek",
+  "Assenede",
+  "Assent",
+  "Astene",
+  "Attenhoven",
+  "Attenrode-Wever",
+  "Avekapelle",
+  "Avelgem",
+  "Averbode",
+  "Baaigem",
+  "Baal",
+  "Baardegem",
+  "Baarle-Hertog",
+  "Baasrode",
+  "Bachte-Maria-Leerne",
+  "Balegem",
+  "Balen",
+  "Bambrugge",
+  "Bassevelde",
+  "Batsheers",
+  "Bavegem",
+  "Bavikhove",
+  "Bazel",
+  "Beek",
+  "Beerlegem",
+  "Beernem",
+  "Beerse",
+  "Beersel",
+  "Beerst",
+  "Beert",
+  "Beervelde",
+  "Beerzel",
+  "Begijnendijk",
+  "Beigem",
+  "Bekegem",
+  "Bekkerzeel",
+  "Bekkevoort",
+  "Bellegem",
+  "Bellem",
+  "Bellingen",
+  "Belsele",
+  "Berbroek",
+  "Berchem",
+  "Berchem",
+  "Berendrecht-Zandvliet-Lillo",
+  "Berg",
+  "Berg",
+  "Beringen",
+  "Berlaar",
+  "Berlare",
+  "Berlingen",
+  "Bertem",
+  "Beselare",
+  "Betekom",
+  "Bevel",
+  "Bever",
+  "Bevere",
+  "Beveren",
+  "Beveren",
+  "Beveren",
+  "Beveren",
+  "Beverlo",
+  "Beverst",
+  "Bierbeek",
+  "Bikschote",
+  "Bilzen",
+  "Binderveld",
+  "Binkom",
+  "Bissegem",
+  "Blaasveld",
+  "Blanden",
+  "Blankenberge",
+  "Bocholt",
+  "Boechout",
+  "Boekhout",
+  "Boekhoute",
+  "Boezinge",
+  "Bogaarden",
+  "Bommershoven",
+  "Bonheiden",
+  "Booischot",
+  "Booitshoeke",
+  "Boom",
+  "Boorsem",
+  "Boortmeerbeek",
+  "Borchtlombeek",
+  "Borgerhout",
+  "Borgloon",
+  "Borlo",
+  "Bornem",
+  "Borsbeek",
+  "Borsbeke",
+  "Bossuit",
+  "Bost",
+  "Bottelare",
+  "Boutersem",
+  "Bouwel",
+  "Bovekerke",
+  "Brasschaat",
+  "Brecht",
+  "Bredene",
+  "Bree",
+  "Breendonk",
+  "Brielen",
+  "Broechem",
+  "Broekom",
+  "Brugge",
+  "Brussegem",
+  "Brustem",
+  "Budingen",
+  "Buggenhout",
+  "Buizingen",
+  "Buken",
+  "Bulskamp",
+  "Bunsbeek",
+  "Burcht",
+  "Burst",
+  "Buvingen",
+  "Dadizele",
+  "Daknam",
+  "Damme",
+  "De Klinge",
+  "De Moeren",
+  "De Panne",
+  "De Pinte",
+  "Deerlijk",
+  "Deftinge",
+  "Deinze",
+  "Denderbelle",
+  "Denderhoutem",
+  "Denderleeuw",
+  "Dendermonde",
+  "Denderwindeke",
+  "Dentergem",
+  "Dessel",
+  "Desselgem",
+  "Destelbergen",
+  "Desteldonk",
+  "Deurle",
+  "Deurne",
+  "Deurne",
+  "Diegem",
+  "Diepenbeek",
+  "Diest",
+  "Diets-Heur",
+  "Dikkebus",
+  "Dikkele",
+  "Dikkelvenne",
+  "Diksmuide",
+  "Dilbeek",
+  "Dilsen",
+  "Doel",
+  "Donk",
+  "Dormaal",
+  "Dranouter",
+  "Drieslinter",
+  "Drogenbos",
+  "Drongen",
+  "Dudzele",
+  "Duffel",
+  "Duisburg",
+  "Duras",
+  "Dworp",
+  "Edegem",
+  "Edelare",
+  "Eeklo",
+  "Eernegem",
+  "Egem",
+  "Eggewaartskapelle",
+  "Eigenbilzen",
+  "Eindhout",
+  "Eine",
+  "Eisden",
+  "Eke",
+  "Ekeren",
+  "Eksaarde",
+  "Eksel",
+  "Elen",
+  "Elene",
+  "Elewijt",
+  "Eliksem",
+  "Elingen",
+  "Ellikom",
+  "Elsegem",
+  "Elst",
+  "Elverdinge",
+  "Elversele",
+  "Emblem",
+  "Emelgem",
+  "Ename",
+  "Engelmanshoven",
+  "Eppegem",
+  "Erembodegem",
+  "Erondegem",
+  "Erpe",
+  "Erps-Kwerps",
+  "Ertvelde",
+  "Erwetegem",
+  "Esen",
+  "Essen",
+  "Essene",
+  "Etikhove",
+  "Ettelgem",
+  "Everbeek",
+  "Everberg",
+  "Evergem",
+  "Ezemaal",
+  "Gaasbeek",
+  "Galmaarden",
+  "Gavere",
+  "Geel",
+  "Geetbets",
+  "Gelinden",
+  "Gellik",
+  "Gelrode",
+  "Geluveld",
+  "Geluwe",
+  "Genk",
+  "Genoelselderen",
+  "Gent",
+  "Gentbrugge",
+  "Geraardsbergen",
+  "Gerdingen",
+  "Gestel",
+  "Gierle",
+  "Gijverinkhove",
+  "Gijzegem",
+  "Gijzelbrechtegem",
+  "Gijzenzele",
+  "Gingelom",
+  "Gistel",
+  "Gits",
+  "Glabbeek-Zuurbemde",
+  "Godveerdegem",
+  "Goeferdinge",
+  "Goetsenhoven",
+  "Gontrode",
+  "Gooik",
+  "Gors-Opleeuw",
+  "Gorsem",
+  "Gotem",
+  "Gottem",
+  "Grammene",
+  "Grazen",
+  "Grembergen",
+  "Grimbergen",
+  "Grimminge",
+  "Grobbendonk",
+  "Groot-Bijgaarden",
+  "Groot-Gelmen",
+  "Groot-Loon",
+  "Grote-Brogel",
+  "Grote-Spouwen",
+  "Grotenberge",
+  "Gruitrode",
+  "Guigoven",
+  "Gullegem",
+  "Gutschoven",
+  "Haacht",
+  "Haaltert",
+  "Haasdonk",
+  "Haasrode",
+  "Hakendover",
+  "Halen",
+  "Hallaar",
+  "Halle",
+  "Halle",
+  "Halle-Booienhoven",
+  "Halmaal",
+  "Hamme",
+  "Hamme",
+  "Hamont",
+  "Handzame",
+  "Hansbeke",
+  "Harelbeke",
+  "Hasselt",
+  "Hechtel",
+  "Heers",
+  "Hees",
+  "Heestert",
+  "Heffen",
+  "Heikruis",
+  "Heindonk",
+  "Heist",
+  "Heist-op-den-Berg",
+  "Hekelgem",
+  "Heks",
+  "Helchteren",
+  "Heldergem",
+  "Helen-Bos",
+  "Helkijn",
+  "Hemelveerdegem",
+  "Hemiksem",
+  "Hendrieken",
+  "Henis",
+  "Heppen",
+  "Herderen",
+  "Herdersem",
+  "Herent",
+  "Herentals",
+  "Herenthout",
+  "Herfelingen",
+  "Herk-de-Stad",
+  "Herne",
+  "Herselt",
+  "Herstappe",
+  "Herten",
+  "Hertsberge",
+  "Herzele",
+  "Heule",
+  "Heurne",
+  "Heusden",
+  "Heusden",
+  "Hever",
+  "Heverlee",
+  "Hillegem",
+  "Hingene",
+  "Hoboken",
+  "Hoegaarden",
+  "Hoeilaart",
+  "Hoeke",
+  "Hoelbeek",
+  "Hoeleden",
+  "Hoepertingen",
+  "Hoeselt",
+  "Hoevenen",
+  "Hofstade",
+  "Hofstade",
+  "Hollebeke",
+  "Holsbeek",
+  "Hombeek",
+  "Hooglede",
+  "Hoogstade",
+  "Hoogstraten",
+  "Horpmaal",
+  "Houtave",
+  "Houtem",
+  "Houthalen",
+  "Houthulst",
+  "Houtvenne",
+  "Houwaart",
+  "Hove",
+  "Huise",
+  "Huizingen",
+  "Huldenberg",
+  "Hulshout",
+  "Hulste",
+  "Humbeek",
+  "Hundelgem",
+  "Ichtegem",
+  "Iddergem",
+  "Idegem",
+  "Ieper",
+  "Impe",
+  "Ingelmunster",
+  "Ingooigem",
+  "Itegem",
+  "Itterbeek",
+  "Izegem",
+  "Izenberge",
+  "Jabbeke",
+  "Jesseren",
+  "Jeuk",
+  "Kaaskerke",
+  "Kachtem",
+  "Kaggevinne",
+  "Kalken",
+  "Kallo",
+  "Kalmthout",
+  "Kampenhout",
+  "Kanegem",
+  "Kanne",
+  "Kapelle-op-den-Bos",
+  "Kapellen",
+  "Kapellen",
+  "Kaprijke",
+  "Kaster",
+  "Kasterlee",
+  "Kaulille",
+  "Keerbergen",
+  "Keiem",
+  "Kemmel",
+  "Kemzeke",
+  "Kerkhove",
+  "Kerkom",
+  "Kerkom-bij-Sint-Truiden",
+  "Kerksken",
+  "Kermt",
+  "Kerniel",
+  "Kersbeek-Miskom",
+  "Kessel",
+  "Kessel-Lo",
+  "Kessenich",
+  "Kester",
+  "Kieldrecht",
+  "Kinrooi",
+  "Klein-Gelmen",
+  "Kleine-Brogel",
+  "Kleine-Spouwen",
+  "Klemskerke",
+  "Klerken",
+  "Kluizen",
+  "Knesselare",
+  "Knokke",
+  "Kobbegem",
+  "Koekelare",
+  "Koersel",
+  "Koksijde",
+  "Koningshooikt",
+  "Koninksem",
+  "Kontich",
+  "Kooigem",
+  "Koolkerke",
+  "Koolskamp",
+  "Korbeek-Dijle",
+  "Korbeek-Lo",
+  "Kortemark",
+  "Kortenaken",
+  "Kortenberg",
+  "Kortessem",
+  "Kortijs",
+  "Kortrijk",
+  "Kortrijk-Dutsel",
+  "Kozen",
+  "Kraainem",
+  "Krombeke",
+  "Kruibeke",
+  "Kruishoutem",
+  "Kumtich",
+  "Kuringen",
+  "Kuttekoven",
+  "Kuurne",
+  "Kwaadmechelen",
+  "Kwaremont",
+  "Laar",
+  "Laarne",
+  "Lampernisse",
+  "Lanaken",
+  "Landegem",
+  "Landen",
+  "Landskouter",
+  "Langdorp",
+  "Langemark",
+  "Lanklaar",
+  "Lapscheure",
+  "Lauw",
+  "Lauwe",
+  "Lebbeke",
+  "Lede",
+  "Ledeberg",
+  "Ledegem",
+  "Leefdaal",
+  "Leerbeek",
+  "Leest",
+  "Leeuwergem",
+  "Leffinge",
+  "Leisele",
+  "Leke",
+  "Lembeek",
+  "Lembeke",
+  "Lemberge",
+  "Lendelede",
+  "Leopoldsburg",
+  "Letterhoutem",
+  "Leupegem",
+  "Leut",
+  "Leuven",
+  "Lichtaart",
+  "Lichtervelde",
+  "Liedekerke",
+  "Lieferinge",
+  "Lier",
+  "Liezele",
+  "Lille",
+  "Linden",
+  "Linkebeek",
+  "Linkhout",
+  "Lint",
+  "Lippelo",
+  "Lissewege",
+  "Lo",
+  "Lochristi",
+  "Loenhout",
+  "Loker",
+  "Lokeren",
+  "Loksbergen",
+  "Lombardsijde",
+  "Lommel",
+  "Londerzeel",
+  "Loonbeek",
+  "Loppem",
+  "Lot",
+  "Lotenhulle",
+  "Lovendegem",
+  "Lovenjoel",
+  "Lubbeek",
+  "Lummen",
+  "Maarke-Kerkem",
+  "Maaseik",
+  "Machelen",
+  "Machelen",
+  "Mal",
+  "Maldegem",
+  "Malderen",
+  "Mannekensvere",
+  "Mariakerke",
+  "Mariekerke",
+  "Marke",
+  "Markegem",
+  "Martenslinde",
+  "Massemen",
+  "Massenhoven",
+  "Mater",
+  "Mazenzele",
+  "Mechelen",
+  "Mechelen-Bovelingen",
+  "Mechelen-aan-de-Maas",
+  "Meensel-Kiezegem",
+  "Meer",
+  "Meerbeek",
+  "Meerbeke",
+  "Meerdonk",
+  "Meerhout",
+  "Meerle",
+  "Meeswijk",
+  "Meetkerke",
+  "Meeuwen",
+  "Meigem",
+  "Meilegem",
+  "Meise",
+  "Melden",
+  "Meldert",
+  "Meldert",
+  "Meldert",
+  "Melkwezer",
+  "Melle",
+  "Melsbroek",
+  "Melsele",
+  "Melsen",
+  "Membruggen",
+  "Mendonk",
+  "Menen",
+  "Merchtem",
+  "Mere",
+  "Merelbeke",
+  "Merendree",
+  "Merkem",
+  "Merksem",
+  "Merksplas",
+  "Mesen",
+  "Mespelare",
+  "Messelbroek",
+  "Mettekoven",
+  "Meulebeke",
+  "Michelbeke",
+  "Middelburg",
+  "Middelkerke",
+  "Mielen-boven-Aalst",
+  "Millen",
+  "Minderhout",
+  "Moelingen",
+  "Moen",
+  "Moerbeke",
+  "Moerbeke",
+  "Moere",
+  "Moerkerke",
+  "Moerzeke",
+  "Mol",
+  "Molenbeek-Wersbeek",
+  "Molenbeersel",
+  "Molenstede",
+  "Mollem",
+  "Montenaken",
+  "Moorsel",
+  "Moorsele",
+  "Moorslede",
+  "Moortsele",
+  "Mopertingen",
+  "Moregem",
+  "Morkhoven",
+  "Mortsel",
+  "Muizen",
+  "Muizen",
+  "Mullem",
+  "Munkzwalm",
+  "Munsterbilzen",
+  "Munte",
+  "Nazareth",
+  "Nederboelare",
+  "Nederbrakel",
+  "Nederename",
+  "Nederhasselt",
+  "Nederokkerzeel",
+  "Nederzwalm-Hermelgem",
+  "Neerglabbeek",
+  "Neerharen",
+  "Neerhespen",
+  "Neerijse",
+  "Neerlanden",
+  "Neerlinter",
+  "Neeroeteren",
+  "Neerpelt",
+  "Neerrepen",
+  "Neervelp",
+  "Neerwinden",
+  "Neigem",
+  "Nerem",
+  "Nevele",
+  "Niel",
+  "Niel-bij-As",
+  "Niel-bij-Sint-Truiden",
+  "Nieuwenhove",
+  "Nieuwenrode",
+  "Nieuwerkerken",
+  "Nieuwerkerken",
+  "Nieuwkapelle",
+  "Nieuwkerke",
+  "Nieuwkerken-Waas",
+  "Nieuwmunster",
+  "Nieuwpoort",
+  "Nieuwrode",
+  "Nijlen",
+  "Ninove",
+  "Nokere",
+  "Noorderwijk",
+  "Noordschote",
+  "Nossegem",
+  "Nukerke",
+  "Oedelem",
+  "Oekene",
+  "Oelegem",
+  "Oeren",
+  "Oeselgem",
+  "Oetingen",
+  "Oevel",
+  "Okegem",
+  "Olen",
+  "Olmen",
+  "Olsene",
+  "Onkerzele",
+  "Onze-Lieve-Vrouw-Lombeek",
+  "Onze-Lieve-Vrouw-Waver",
+  "Ooigem",
+  "Ooike",
+  "Oombergen",
+  "Oorbeek",
+  "Oordegem",
+  "Oostakker",
+  "Oostduinkerke",
+  "Oosteeklo",
+  "Oostende",
+  "Oosterzele",
+  "Oostham",
+  "Oostkamp",
+  "Oostkerke",
+  "Oostkerke",
+  "Oostmalle",
+  "Oostnieuwkerke",
+  "Oostrozebeke",
+  "Oostvleteren",
+  "Oostwinkel",
+  "Opbrakel",
+  "Opdorp",
+  "Opglabbeek",
+  "Opgrimbie",
+  "Ophasselt",
+  "Opheers",
+  "Ophoven",
+  "Opitter",
+  "Oplinter",
+  "Opoeteren",
+  "Oppuurs",
+  "Opvelp",
+  "Opwijk",
+  "Ordingen",
+  "Orsmaal-Gussenhoven",
+  "Otegem",
+  "Ottenburg",
+  "Ottergem",
+  "Oud-Heverlee",
+  "Oud-Turnhout",
+  "Oudegem",
+  "Oudekapelle",
+  "Oudenaarde",
+  "Oudenaken",
+  "Oudenburg",
+  "Outer",
+  "Outgaarden",
+  "Outrijve",
+  "Ouwegem",
+  "Overboelare",
+  "Overhespen",
+  "Overijse",
+  "Overmere",
+  "Overpelt",
+  "Overrepen",
+  "Overwinden",
+  "Paal",
+  "Pamel",
+  "Parike",
+  "Passendale",
+  "Paulatem",
+  "Peer",
+  "Pellenberg",
+  "Pepingen",
+  "Perk",
+  "Pervijze",
+  "Petegem-aan-de-Leie",
+  "Petegem-aan-de-Schelde",
+  "Peutie",
+  "Piringen",
+  "Pittem",
+  "Poederlee",
+  "Poeke",
+  "Poelkapelle",
+  "Poesele",
+  "Pollare",
+  "Pollinkhove",
+  "Poperinge",
+  "Poppel",
+  "Proven",
+  "Pulderbos",
+  "Pulle",
+  "Putte",
+  "Puurs",
+  "Ramsdonk",
+  "Ramsel",
+  "Ramskapelle",
+  "Ramskapelle",
+  "Ransberg",
+  "Ranst",
+  "Ravels",
+  "Reet",
+  "Rekem",
+  "Rekkem",
+  "Relegem",
+  "Remersdaal",
+  "Reninge",
+  "Reningelst",
+  "Reppel",
+  "Ressegem",
+  "Retie",
+  "Riemst",
+  "Rijkel",
+  "Rijkevorsel",
+  "Rijkhoven",
+  "Rijmenam",
+  "Riksingen",
+  "Rillaar",
+  "Roborst",
+  "Roesbrugge-Haringe",
+  "Roeselare",
+  "Roksem",
+  "Rollegem",
+  "Rollegem-Kapelle",
+  "Romershoven",
+  "Ronse",
+  "Ronsele",
+  "Roosbeek",
+  "Rosmeer",
+  "Rotem",
+  "Rotselaar",
+  "Rozebeke",
+  "Ruddervoorde",
+  "Ruien",
+  "Ruisbroek",
+  "Ruisbroek",
+  "Ruiselede",
+  "Rukkelingen-Loon",
+  "Rumbeke",
+  "Rummen",
+  "Rumsdorp",
+  "Rumst",
+  "Runkelen",
+  "Rupelmonde",
+  "Rutten",
+  "Schaffen",
+  "Schalkhoven",
+  "Schelderode",
+  "Scheldewindeke",
+  "Schelle",
+  "Schellebelle",
+  "Schendelbeke",
+  "Schepdaal",
+  "Scherpenheuvel",
+  "Schilde",
+  "Schoonaarde",
+  "Schore",
+  "Schorisse",
+  "Schoten",
+  "Schriek",
+  "Schuiferskapelle",
+  "Schulen",
+  "Semmerzake",
+  "Serskamp",
+  "Sijsele",
+  "Sinaai",
+  "Sint-Agatha-Rode",
+  "Sint-Amands",
+  "Sint-Amandsberg",
+  "Sint-Andries",
+  "Sint-Antelinks",
+  "Sint-Baafs-Vijve",
+  "Sint-Blasius-Boekel",
+  "Sint-Denijs",
+  "Sint-Denijs-Boekel",
+  "Sint-Denijs-Westrem",
+  "Sint-Eloois-Vijve",
+  "Sint-Eloois-Winkel",
+  "Sint-Genesius-Rode",
+  "Sint-Gillis-Waas",
+  "Sint-Gillis-bij-Dendermonde",
+  "Sint-Goriks-Oudenhove",
+  "Sint-Huibrechts-Hern",
+  "Sint-Huibrechts-Lille",
+  "Sint-Jacobskapelle",
+  "Sint-Jan",
+  "Sint-Jan-in-Eremo",
+  "Sint-Job-in-'t-Goor",
+  "Sint-Joris",
+  "Sint-Joris",
+  "Sint-Joris-Weert",
+  "Sint-Joris-Winge",
+  "Sint-Katelijne-Waver",
+  "Sint-Katherina-Lombeek",
+  "Sint-Kornelis-Horebeke",
+  "Sint-Kruis",
+  "Sint-Kruis-Winkel",
+  "Sint-Kwintens-Lennik",
+  "Sint-Lambrechts-Herk",
+  "Sint-Laureins",
+  "Sint-Laureins-Berchem",
+  "Sint-Lenaarts",
+  "Sint-Lievens-Esse",
+  "Sint-Lievens-Houtem",
+  "Sint-Margriete",
+  "Sint-Margriete-Houtem",
+  "Sint-Maria-Horebeke",
+  "Sint-Maria-Latem",
+  "Sint-Maria-Lierde",
+  "Sint-Maria-Oudenhove",
+  "Sint-Martens-Bodegem",
+  "Sint-Martens-Latem",
+  "Sint-Martens-Leerne",
+  "Sint-Martens-Lennik",
+  "Sint-Martens-Lierde",
+  "Sint-Martens-Voeren",
+  "Sint-Michiels",
+  "Sint-Niklaas",
+  "Sint-Pauwels",
+  "Sint-Pieters-Kapelle",
+  "Sint-Pieters-Kapelle",
+  "Sint-Pieters-Leeuw",
+  "Sint-Pieters-Rode",
+  "Sint-Pieters-Voeren",
+  "Sint-Rijkers",
+  "Sint-Stevens-Woluwe",
+  "Sint-Truiden",
+  "Sint-Ulriks-Kapelle",
+  "Sleidinge",
+  "Slijpe",
+  "Sluizen",
+  "Smeerebbe-Vloerzegem",
+  "Smetlede",
+  "Snaaskerke",
+  "Snellegem",
+  "Spalbeek",
+  "Spiere",
+  "Stabroek",
+  "Staden",
+  "Stalhille",
+  "Stavele",
+  "Steendorp",
+  "Steenhuffel",
+  "Steenhuize-Wijnhuize",
+  "Steenkerke",
+  "Steenokkerzeel",
+  "Stekene",
+  "Stene",
+  "Sterrebeek",
+  "Stevoort",
+  "Stokkem",
+  "Stokrooie",
+  "Strijpen",
+  "Strijtem",
+  "Strombeek-Bever",
+  "Stuivekenskerke",
+  "Temse",
+  "Teralfene",
+  "Terhagen",
+  "Ternat",
+  "Tervuren",
+  "Tessenderlo",
+  "Testelt",
+  "Teuven",
+  "Tiegem",
+  "Tielen",
+  "Tielrode",
+  "Tielt",
+  "Tielt",
+  "Tienen",
+  "Tildonk",
+  "Tisselt",
+  "Tollembeek",
+  "Tongeren",
+  "Tongerlo",
+  "Tongerlo",
+  "Torhout",
+  "Tremelo",
+  "Turnhout",
+  "Uikhoven",
+  "Uitbergen",
+  "Uitkerke",
+  "Ulbeek",
+  "Ursel",
+  "Vaalbeek",
+  "Val-Meer",
+  "Varendonk",
+  "Varsenare",
+  "Vechmaal",
+  "Veerle",
+  "Veldegem",
+  "Veldwezelt",
+  "Velm",
+  "Veltem-Beisem",
+  "Velzeke-Ruddershove",
+  "Verrebroek",
+  "Vertrijk",
+  "Veulen",
+  "Veurne",
+  "Viane",
+  "Vichte",
+  "Viersel",
+  "Vilvoorde",
+  "Vinderhoute",
+  "Vinkem",
+  "Vinkt",
+  "Vissenaken",
+  "Vladslo",
+  "Vlamertinge",
+  "Vlekkem",
+  "Vlezenbeek",
+  "Vliermaal",
+  "Vliermaalroot",
+  "Vlierzele",
+  "Vlijtingen",
+  "Vlimmeren",
+  "Vlissegem",
+  "Volkegem",
+  "Vollezele",
+  "Voorde",
+  "Voormezele",
+  "Voort",
+  "Vorselaar",
+  "Vorsen",
+  "Vorst",
+  "Vosselaar",
+  "Vosselare",
+  "Vossem",
+  "Vrasene",
+  "Vremde",
+  "Vreren",
+  "Vroenhoven",
+  "Vucht",
+  "Vurste",
+  "Waanrode",
+  "Waarbeke",
+  "Waardamme",
+  "Waarloos",
+  "Waarmaarde",
+  "Waarschoot",
+  "Waasmont",
+  "Waasmunster",
+  "Wachtebeke",
+  "Wakken",
+  "Walem",
+  "Walsbets",
+  "Walshoutem",
+  "Waltwilder",
+  "Wambeek",
+  "Wange",
+  "Wannegem-Lede",
+  "Wanzele",
+  "Waregem",
+  "Waterland-Oudeman",
+  "Watervliet",
+  "Watou",
+  "Webbekom",
+  "Wechelderzande",
+  "Weelde",
+  "Weerde",
+  "Weert",
+  "Welden",
+  "Welle",
+  "Wellen",
+  "Wemmel",
+  "Wenduine",
+  "Werchter",
+  "Werken",
+  "Werm",
+  "Wervik",
+  "Wespelaar",
+  "Westende",
+  "Westerlo",
+  "Westkapelle",
+  "Westkerke",
+  "Westmalle",
+  "Westmeerbeek",
+  "Westouter",
+  "Westrem",
+  "Westrozebeke",
+  "Westvleteren",
+  "Wetteren",
+  "Wevelgem",
+  "Wezemaal",
+  "Wezembeek-Oppem",
+  "Wezeren",
+  "Wichelen",
+  "Widooie",
+  "Wiekevorst",
+  "Wielsbeke",
+  "Wieze",
+  "Wijchmaal",
+  "Wijer",
+  "Wijgmaal",
+  "Wijnegem",
+  "Wijshagen",
+  "Wijtschate",
+  "Wilderen",
+  "Willebringen",
+  "Willebroek",
+  "Wilrijk",
+  "Wilsele",
+  "Wilskerke",
+  "Wimmertingen",
+  "Wingene",
+  "Winksele",
+  "Wintershoven",
+  "Woesten",
+  "Wolvertem",
+  "Wommelgem",
+  "Wommersom",
+  "Wondelgem",
+  "Wontergem",
+  "Wortegem",
+  "Wortel",
+  "Woubrechtegem",
+  "Woumen",
+  "Wulpen",
+  "Wulvergem",
+  "Wulveringem",
+  "Wuustwezel",
+  "Zaffelare",
+  "Zandbergen",
+  "Zande",
+  "Zandhoven",
+  "Zandvoorde",
+  "Zandvoorde",
+  "Zarlardinge",
+  "Zarren",
+  "Zaventem",
+  "Zedelgem",
+  "Zegelsem",
+  "Zele",
+  "Zelem",
+  "Zellik",
+  "Zelzate",
+  "Zemst",
+  "Zepperen",
+  "Zerkegem",
+  "Zevekote",
+  "Zeveneken",
+  "Zeveren",
+  "Zevergem",
+  "Zichem",
+  "Zichen-Zussen-Bolder",
+  "Zillebeke",
+  "Zingem",
+  "Zoerle-Parwijs",
+  "Zoersel",
+  "Zolder",
+  "Zomergem",
+  "Zonhoven",
+  "Zonnebeke",
+  "Zonnegem",
+  "Zottegem",
+  "Zoutenaaie",
+  "Zoutleeuw",
+  "Zuidschote",
+  "Zuienkerke",
+  "Zulte",
+  "Zulzeke",
+  "Zutendaal",
+  "Zwevegem",
+  "Zwevezele",
+  "Zwijnaarde",
+  "Zwijndrecht"
+];
+
+},{}],817:[function(require,module,exports){
+module["exports"] = [
+  "gem",
+  "tem",
+  "vijve",
+  "zele"
+]
+
+},{}],818:[function(require,module,exports){
+module["exports"] = [
+  "België"
+];
+
+},{}],819:[function(require,module,exports){
+var address = {};
+module['exports'] = address;
+address.city_prefix = require("./city_prefix");
+address.city_suffix = require("./city_suffix");
+
+address.building_number = require("./building_number");
+address.street_suffix = require("./street_suffix");
+address.secondary_address = require("./secondary_address");
+address.postcode = require("./postcode");
+
+address.state = require("./state");
+address.state_abbr = require("./state_abbr");
+
+address.city = require("./city");
+address.street_name = require("./street_name");
+address.street_address = require("./street_address");
+address.default_country = require("./default_country");
+
+
+},{"./building_number":814,"./city":815,"./city_prefix":816,"./city_suffix":817,"./default_country":818,"./postcode":820,"./secondary_address":821,"./state":822,"./state_abbr":823,"./street_address":824,"./street_name":825,"./street_suffix":826}],820:[function(require,module,exports){
+module.exports=require(158)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de_AT/address/postcode.js":158}],821:[function(require,module,exports){
+module["exports"] = [
+  "1e verdieping",
+  "2e verdieping",
+  "3e verdieping"
+];
+
+},{}],822:[function(require,module,exports){
+module["exports"] = [
+  "West-Vlaanderen",
+  "Oost-Vlaanderen",
+  "Vlaams-Brabant",
+  "Antwerpen",
+  "Limburg",
+  "Brussel"
+];
+
+},{}],823:[function(require,module,exports){
+module["exports"] = [
+  "WVL",
+  "OVL",
+  "VBR",
+  "ANT",
+  "LIM",
+  "BRU"
+];
+
+
+},{}],824:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],825:[function(require,module,exports){
+module.exports=require(701)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ja/address/street_name.js":701}],826:[function(require,module,exports){
+module["exports"] = [
+  "straat",
+  "laan",
+  "weg",
+  "dreef",
+  "plein",
+  "park"
+];
+
+},{}],827:[function(require,module,exports){
+arguments[4][313][0].apply(exports,arguments)
+},{"./suffix":828,"/Users/kdzuin/Badoo/faker.js/lib/locales/en_AU/company/index.js":313}],828:[function(require,module,exports){
+module["exports"] = [
+  "NV",
+  "BVBA",
+  "CVBA",
+  "VZW"
+];
+
+},{}],829:[function(require,module,exports){
+var nl_BE = {};
+module['exports'] = nl_BE;
+nl_BE.title = "Dutch (Belgium)";
+nl_BE.address = require("./address");
+nl_BE.company = require("./company");
+nl_BE.internet = require("./internet");
+nl_BE.name = require("./name");
+nl_BE.phone_number = require("./phone_number");
+
+},{"./address":819,"./company":827,"./internet":832,"./name":834,"./phone_number":840}],830:[function(require,module,exports){
+module["exports"] = [
+  "be",
+  "brussels",
+  "vlaanderen",
+  "com",
+  "net",
+  "org"
+];
+
+},{}],831:[function(require,module,exports){
+module["exports"] = [
+  "gmail.com",
+  "yahoo.com",
+  "hotmail.com",
+  "skynet.be"
+];
+
+},{}],832:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":830,"./free_email":831,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],833:[function(require,module,exports){
+module["exports"] = [
+  "Lucas",
+  "Liam",
+  "Louis",
+  "Noah",
+  "Lars",
+  "Arthur",
+  "Mathis",
+  "Kobe",
+  "Wout",
+  "Milan",
+  "Alexander",
+  "Daan",
+  "Adam",
+  "Vince",
+  "Jules",
+  "Victor",
+  "Finn",
+  "Stan",
+  "Leon",
+  "Seppe",
+  "Senne",
+  "Thomas",
+  "Mats",
+  "Robbe",
+  "Matteo",
+  "Ferre",
+  "Nathan",
+  "Warre",
+  "Jasper",
+  "Vic",
+  "Elias",
+  "Tuur",
+  "Lowie",
+  "Mauro",
+  "Maxim",
+  "Ruben",
+  "Rune",
+  "Mohamed",
+  "Simon",
+  "Rayan",
+  "Lukas",
+  "Lander",
+  "Xander",
+  "Emiel",
+  "Siebe",
+  "Jonas",
+  "Sam",
+  "Luca",
+  "Arne",
+  "Cas",
+  "Felix",
+  "Jack",
+  "Mathias",
+  "Jayden",
+  "Quinten",
+  "Tibo",
+  "Lewis",
+  "Sem",
+  "Maxime",
+  "Viktor",
+  "Emile",
+  "Sander",
+  "Aaron",
+  "Oscar",
+  "Bas",
+  "Niels",
+  "Jef",
+  "Nand",
+  "Lou",
+  "Tristan",
+  "Gust",
+  "David",
+  "Brent",
+  "Jelle",
+  "Lenn",
+  "Miel",
+  "Wannes",
+  "Gilles",
+  "Jarne",
+  "Alex",
+  "Imran",
+  "Lennert",
+  "Milo",
+  "Jens",
+  "Matthias",
+  "Dries",
+  "Axel",
+  "Juul",
+  "Hamza",
+  "Ilias",
+  "Thibo",
+  "Nicolas",
+  "Bent",
+  "Jesse",
+  "Bram",
+  "Maurice",
+  "Ilyas",
+  "Gabriel",
+  "Robin",
+  "Kasper",
+  "Emma",
+  "Louise",
+  "Marie",
+  "Elise",
+  "Noor",
+  "Ella",
+  "Julie",
+  "Lotte",
+  "Lore",
+  "Fien",
+  "Lena",
+  "Mila",
+  "Olivia",
+  "Amber",
+  "Anna",
+  "Elena",
+  "Hanne",
+  "Laura",
+  "Charlotte",
+  "Lina",
+  "Nina",
+  "Fleur",
+  "Lisa",
+  "Nora",
+  "Juliette",
+  "Luna",
+  "Amelie",
+  "Kato",
+  "Sara",
+  "Febe",
+  "Axelle",
+  "Janne",
+  "Eline",
+  "Helena",
+  "Noa",
+  "Camille",
+  "Roos",
+  "Lily",
+  "Jade",
+  "Nore",
+  "Jana",
+  "Manon",
+  "Sarah",
+  "Liv",
+  "Amélie",
+  "Lara",
+  "Mona",
+  "Alice",
+  "Tess",
+  "Kaat",
+  "Femke",
+  "Aya",
+  "Eva",
+  "Lien",
+  "Bo",
+  "Zoe",
+  "Oona",
+  "Sofia",
+  "Leonie",
+  "Linde",
+  "Jolien",
+  "Fran",
+  "Pauline",
+  "Laure",
+  "Merel",
+  "Marthe",
+  "Sam",
+  "Yana",
+  "Renée",
+  "Paulien",
+  "Margot",
+  "Yasmine",
+  "Ines",
+  "Elisa",
+  "Emily",
+  "Maya",
+  "Floor",
+  "Amy",
+  "Lize",
+  "Amina",
+  "Lucie",
+  "Julia",
+  "Lise",
+  "Hailey",
+  "Hannah",
+  "Alicia",
+  "Norah",
+  "Margaux",
+  "Lieze",
+  "Sien",
+  "Zoë",
+  "Inaya",
+  "Aline",
+  "Amira",
+  "Victoria",
+  "Flore",
+  "Lana",
+  "Sterre",
+  "Maud",
+  "Chloe"
+];
+
+},{}],834:[function(require,module,exports){
+arguments[4][687][0].apply(exports,arguments)
+},{"./first_name":833,"./last_name":835,"./name":836,"./prefix":837,"./suffix":838,"/Users/kdzuin/Badoo/faker.js/lib/locales/it/name/index.js":687}],835:[function(require,module,exports){
+module["exports"] = [
+  "Claes",
+  "Claeys",
+  "Declerck",
+  "Declercq",
+  "Decock",
+  "Decoster",
+  "Desmet",
+  "Devos",
+  "Dewilde",
+  "Gielen",
+  "Goossens",
+  "Hermans",
+  "Jacobs",
+  "Janssen",
+  "Janssens",
+  "Lemmens",
+  "Maes",
+  "Martens",
+  "Mertens",
+  "Michiels",
+  "Peeters",
+  "Smet",
+  "Smets",
+  "Thijs",
+  "Vandamme",
+  "Vandenberghe",
+  "Vandenbroeck",
+  "Vandevelde",
+  "Verhaeghe",
+  "Verstraete",
+  "Willems",
+  "Wouters"
+]
+
+},{}],836:[function(require,module,exports){
+module["exports"] = [
+  "#{prefix} #{first_name} #{last_name}",
+  "#{first_name} #{last_name} #{suffix}",
+  "#{first_name} #{last_name}",
+  "#{first_name} #{last_name}"
+];
+
+},{}],837:[function(require,module,exports){
+module["exports"] = [
+  "Dr.",
+  "Ir.",
+  "Ing.",
+  "Prof."
+];
+
+},{}],838:[function(require,module,exports){
+module["exports"] = [
+  "MBA",
+  "Phd."
+];
+
+},{}],839:[function(require,module,exports){
+module["exports"] = [
+  "###/######",
+  "###/## ## ##", 
+  "### ## ## ##",
+  "###/### ###",
+  "##########",
+  "04##/### ###",
+  "04## ## ## ##",
+  "00324 ## ## ##",
+  "+324 ## ## ## ##"
+];
+
+},{}],840:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":839,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],841:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/building_number.js":19}],842:[function(require,module,exports){
+module.exports=require(20)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/city.js":20}],843:[function(require,module,exports){
 module["exports"] = [
   "Aleksandrów Kujawski",
   "Aleksandrów Łódzki",
@@ -57961,7 +64488,7 @@ module["exports"] = [
   "Żywiec"
 ];
 
-},{}],733:[function(require,module,exports){
+},{}],844:[function(require,module,exports){
 module["exports"] = [
   "Afganistan",
   "Albania",
@@ -58146,7 +64673,6 @@ module["exports"] = [
   "Uganda",
   "Ukraina",
   "Urugwaj",
-  2008,
   "Uzbekistan",
   "Vanuatu",
   "Watykan",
@@ -58164,12 +64690,12 @@ module["exports"] = [
   "Zjednoczone Emiraty Arabskie"
 ];
 
-},{}],734:[function(require,module,exports){
+},{}],845:[function(require,module,exports){
 module["exports"] = [
   "Polska"
 ];
 
-},{}],735:[function(require,module,exports){
+},{}],846:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -58185,14 +64711,14 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":730,"./city":731,"./city_name":732,"./country":733,"./default_country":734,"./postcode":736,"./secondary_address":737,"./state":738,"./state_abbr":739,"./street_address":740,"./street_name":741,"./street_prefix":742}],736:[function(require,module,exports){
+},{"./building_number":841,"./city":842,"./city_name":843,"./country":844,"./default_country":845,"./postcode":847,"./secondary_address":848,"./state":849,"./state_abbr":850,"./street_address":851,"./street_name":852,"./street_prefix":853}],847:[function(require,module,exports){
 module["exports"] = [
   "##-###"
 ];
 
-},{}],737:[function(require,module,exports){
-module.exports=require(61)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/secondary_address.js":61}],738:[function(require,module,exports){
+},{}],848:[function(require,module,exports){
+module.exports=require(83)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/secondary_address.js":83}],849:[function(require,module,exports){
 module["exports"] = [
   "Dolnośląskie",
   "Kujawsko-pomorskie",
@@ -58212,7 +64738,7 @@ module["exports"] = [
   "Zachodniopomorskie"
 ];
 
-},{}],739:[function(require,module,exports){
+},{}],850:[function(require,module,exports){
 module["exports"] = [
   "DŚ",
   "KP",
@@ -58232,48 +64758,48 @@ module["exports"] = [
   "ZP"
 ];
 
-},{}],740:[function(require,module,exports){
-module.exports=require(65)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/street_address.js":65}],741:[function(require,module,exports){
+},{}],851:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],852:[function(require,module,exports){
 module["exports"] = [
   "#{street_prefix} #{Name.last_name}"
 ];
 
-},{}],742:[function(require,module,exports){
+},{}],853:[function(require,module,exports){
 module["exports"] = [
   "ul.",
   "al."
 ];
 
-},{}],743:[function(require,module,exports){
+},{}],854:[function(require,module,exports){
 module["exports"] = [
-  "50-###-##-##",
-  "51-###-##-##",
-  "53-###-##-##",
-  "57-###-##-##",
-  "60-###-##-##",
-  "66-###-##-##",
-  "69-###-##-##",
-  "72-###-##-##",
-  "73-###-##-##",
-  "78-###-##-##",
-  "79-###-##-##",
-  "88-###-##-##"
+  "50#-###-###",
+  "51#-###-###",
+  "53#-###-###",
+  "57#-###-###",
+  "60#-###-###",
+  "66#-###-###",
+  "69#-###-###",
+  "72#-###-###",
+  "73#-###-###",
+  "78#-###-###",
+  "79#-###-###",
+  "88#-###-###"
 ];
 
-},{}],744:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":743,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],745:[function(require,module,exports){
-module.exports=require(68)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/adjective.js":68}],746:[function(require,module,exports){
-module.exports=require(212)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_adjective.js":212}],747:[function(require,module,exports){
-module.exports=require(213)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_noun.js":213}],748:[function(require,module,exports){
-module.exports=require(70)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/bs_verb.js":70}],749:[function(require,module,exports){
-module.exports=require(71)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/descriptor.js":71}],750:[function(require,module,exports){
+},{}],855:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":854,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],856:[function(require,module,exports){
+module.exports=require(90)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/adjective.js":90}],857:[function(require,module,exports){
+module.exports=require(235)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/company/bs_adjective.js":235}],858:[function(require,module,exports){
+module.exports=require(552)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/fr/company/bs_noun.js":552}],859:[function(require,module,exports){
+module.exports=require(92)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/bs_verb.js":92}],860:[function(require,module,exports){
+module.exports=require(93)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/descriptor.js":93}],861:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -58285,13 +64811,13 @@ company.bs_adjective = require("./bs_adjective");
 company.bs_noun = require("./bs_noun");
 company.name = require("./name");
 
-},{"./adjetive":745,"./bs_adjective":746,"./bs_noun":747,"./bs_verb":748,"./descriptor":749,"./name":751,"./noun":752,"./suffix":753}],751:[function(require,module,exports){
-module.exports=require(217)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/name.js":217}],752:[function(require,module,exports){
-module.exports=require(74)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/noun.js":74}],753:[function(require,module,exports){
-module.exports=require(219)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/suffix.js":219}],754:[function(require,module,exports){
+},{"./adjetive":856,"./bs_adjective":857,"./bs_noun":858,"./bs_verb":859,"./descriptor":860,"./name":862,"./noun":863,"./suffix":864}],862:[function(require,module,exports){
+module.exports=require(240)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/company/name.js":240}],863:[function(require,module,exports){
+module.exports=require(96)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/noun.js":96}],864:[function(require,module,exports){
+module.exports=require(242)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/company/suffix.js":242}],865:[function(require,module,exports){
 var pl = {};
 module['exports'] = pl;
 pl.title = "Polish";
@@ -58303,7 +64829,7 @@ pl.lorem = require("./lorem");
 pl.phone_number = require("./phone_number");
 pl.cell_phone = require("./cell_phone");
 
-},{"./address":735,"./cell_phone":744,"./company":750,"./internet":757,"./lorem":758,"./name":762,"./phone_number":768}],755:[function(require,module,exports){
+},{"./address":846,"./cell_phone":855,"./company":861,"./internet":868,"./lorem":869,"./name":872,"./phone_number":878}],866:[function(require,module,exports){
 module["exports"] = [
   "com",
   "pl",
@@ -58312,17 +64838,15 @@ module["exports"] = [
   "org"
 ];
 
-},{}],756:[function(require,module,exports){
-module.exports=require(119)
-},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":119}],757:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":755,"./free_email":756,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],758:[function(require,module,exports){
-module.exports=require(83)
-},{"./supplemental":759,"./words":760,"/Users/a/dev/faker.js/lib/locales/cz/lorem/index.js":83}],759:[function(require,module,exports){
-module.exports=require(84)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/supplemental.js":84}],760:[function(require,module,exports){
-module.exports=require(85)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/words.js":85}],761:[function(require,module,exports){
+},{}],867:[function(require,module,exports){
+module.exports=require(140)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/internet/free_email.js":140}],868:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":866,"./free_email":867,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],869:[function(require,module,exports){
+module.exports=require(105)
+},{"./words":870,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],870:[function(require,module,exports){
+module.exports=require(106)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/words.js":106}],871:[function(require,module,exports){
 module["exports"] = [
   "Aaron",
   "Abraham",
@@ -58574,7 +65098,6 @@ module["exports"] = [
   "Angelina",
   "Anna",
   "Hanna",
-  "—",
   "Antonina",
   "Ariadna",
   "Aurora",
@@ -58735,9 +65258,9 @@ module["exports"] = [
   "Zoe"
 ];
 
-},{}],762:[function(require,module,exports){
-arguments[4][493][0].apply(exports,arguments)
-},{"./first_name":761,"./last_name":763,"./name":764,"./prefix":765,"./title":766,"/Users/a/dev/faker.js/lib/locales/fr/name/index.js":493}],763:[function(require,module,exports){
+},{}],872:[function(require,module,exports){
+arguments[4][566][0].apply(exports,arguments)
+},{"./first_name":871,"./last_name":873,"./name":874,"./prefix":875,"./title":876,"/Users/kdzuin/Badoo/faker.js/lib/locales/fr/name/index.js":566}],873:[function(require,module,exports){
 module["exports"] = [
   "Adamczak",
   "Adamczyk",
@@ -59445,17 +65968,17 @@ module["exports"] = [
   "Żyła"
 ];
 
-},{}],764:[function(require,module,exports){
-module.exports=require(538)
-},{"/Users/a/dev/faker.js/lib/locales/ge/name/name.js":538}],765:[function(require,module,exports){
+},{}],874:[function(require,module,exports){
+module.exports=require(623)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ge/name/name.js":623}],875:[function(require,module,exports){
 module["exports"] = [
   "Pan",
   "Pani"
 ];
 
-},{}],766:[function(require,module,exports){
-module.exports=require(264)
-},{"/Users/a/dev/faker.js/lib/locales/en/name/title.js":264}],767:[function(require,module,exports){
+},{}],876:[function(require,module,exports){
+module.exports=require(292)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/name/title.js":292}],877:[function(require,module,exports){
 module["exports"] = [
   "12-###-##-##",
   "13-###-##-##",
@@ -59508,11 +66031,11 @@ module["exports"] = [
   "95-###-##-##"
 ];
 
-},{}],768:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":767,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],769:[function(require,module,exports){
-module.exports=require(179)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/building_number.js":179}],770:[function(require,module,exports){
+},{}],878:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":877,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],879:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/building_number.js":19}],880:[function(require,module,exports){
 module["exports"] = [
   "Nova",
   "Velha",
@@ -59521,7 +66044,7 @@ module["exports"] = [
   "Município de"
 ];
 
-},{}],771:[function(require,module,exports){
+},{}],881:[function(require,module,exports){
 module["exports"] = [
   "do Descoberto",
   "de Nossa Senhora",
@@ -59529,7 +66052,7 @@ module["exports"] = [
   "do Sul"
 ];
 
-},{}],772:[function(require,module,exports){
+},{}],882:[function(require,module,exports){
 module["exports"] = [
   "Afeganistão",
   "Albânia",
@@ -59770,12 +66293,12 @@ module["exports"] = [
   "Zimbábue"
 ];
 
-},{}],773:[function(require,module,exports){
+},{}],883:[function(require,module,exports){
 module["exports"] = [
   "Brasil"
 ];
 
-},{}],774:[function(require,module,exports){
+},{}],884:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -59789,13 +66312,13 @@ address.state = require("./state");
 address.state_abbr = require("./state_abbr");
 address.default_country = require("./default_country");
 
-},{"./building_number":769,"./city_prefix":770,"./city_suffix":771,"./country":772,"./default_country":773,"./postcode":775,"./secondary_address":776,"./state":777,"./state_abbr":778,"./street_suffix":779}],775:[function(require,module,exports){
+},{"./building_number":879,"./city_prefix":880,"./city_suffix":881,"./country":882,"./default_country":883,"./postcode":885,"./secondary_address":886,"./state":887,"./state_abbr":888,"./street_suffix":889}],885:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "#####-###"
 ];
 
-},{}],776:[function(require,module,exports){
+},{}],886:[function(require,module,exports){
 module["exports"] = [
   "Apto. ###",
   "Sobrado ##",
@@ -59804,7 +66327,7 @@ module["exports"] = [
   "Quadra ##"
 ];
 
-},{}],777:[function(require,module,exports){
+},{}],887:[function(require,module,exports){
 module["exports"] = [
   "Acre",
   "Alagoas",
@@ -59835,7 +66358,7 @@ module["exports"] = [
   "Tocantins"
 ];
 
-},{}],778:[function(require,module,exports){
+},{}],888:[function(require,module,exports){
 module["exports"] = [
   "AC",
   "AL",
@@ -59863,7 +66386,7 @@ module["exports"] = [
   "SP"
 ];
 
-},{}],779:[function(require,module,exports){
+},{}],889:[function(require,module,exports){
 module["exports"] = [
   "Rua",
   "Avenida",
@@ -59875,16 +66398,16 @@ module["exports"] = [
   "Rodovia"
 ];
 
-},{}],780:[function(require,module,exports){
-arguments[4][166][0].apply(exports,arguments)
-},{"./name":781,"./suffix":782,"/Users/a/dev/faker.js/lib/locales/de_CH/company/index.js":166}],781:[function(require,module,exports){
+},{}],890:[function(require,module,exports){
+arguments[4][187][0].apply(exports,arguments)
+},{"./name":891,"./suffix":892,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/company/index.js":187}],891:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} e #{Name.last_name}"
 ];
 
-},{}],782:[function(require,module,exports){
+},{}],892:[function(require,module,exports){
 module["exports"] = [
   "S.A.",
   "LTDA",
@@ -59892,7 +66415,7 @@ module["exports"] = [
   "Comércio"
 ];
 
-},{}],783:[function(require,module,exports){
+},{}],893:[function(require,module,exports){
 var pt_BR = {};
 module['exports'] = pt_BR;
 pt_BR.title = "Portuguese (Brazil)";
@@ -59903,7 +66426,7 @@ pt_BR.lorem = require("./lorem");
 pt_BR.name = require("./name");
 pt_BR.phone_number = require("./phone_number");
 
-},{"./address":774,"./company":780,"./internet":786,"./lorem":787,"./name":790,"./phone_number":795}],784:[function(require,module,exports){
+},{"./address":884,"./company":890,"./internet":896,"./lorem":897,"./name":900,"./phone_number":905}],894:[function(require,module,exports){
 module["exports"] = [
   "br",
   "com",
@@ -59914,7 +66437,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],785:[function(require,module,exports){
+},{}],895:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
@@ -59923,13 +66446,13 @@ module["exports"] = [
   "bol.com.br"
 ];
 
-},{}],786:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":784,"./free_email":785,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],787:[function(require,module,exports){
-module.exports=require(121)
-},{"./words":788,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":121}],788:[function(require,module,exports){
-module.exports=require(85)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/words.js":85}],789:[function(require,module,exports){
+},{}],896:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":894,"./free_email":895,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],897:[function(require,module,exports){
+module.exports=require(105)
+},{"./words":898,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],898:[function(require,module,exports){
+module.exports=require(106)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/words.js":106}],899:[function(require,module,exports){
 module["exports"] = [
   "Alessandro",
   "Alessandra",
@@ -60024,7 +66547,7 @@ module["exports"] = [
   "Warley"
 ];
 
-},{}],790:[function(require,module,exports){
+},{}],900:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -60032,7 +66555,7 @@ name.last_name = require("./last_name");
 name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 
-},{"./first_name":789,"./last_name":791,"./prefix":792,"./suffix":793}],791:[function(require,module,exports){
+},{"./first_name":899,"./last_name":901,"./prefix":902,"./suffix":903}],901:[function(require,module,exports){
 module["exports"] = [
   "Silva",
   "Souza",
@@ -60058,7 +66581,7 @@ module["exports"] = [
   "Albuquerque"
 ];
 
-},{}],792:[function(require,module,exports){
+},{}],902:[function(require,module,exports){
 module["exports"] = [
   "Sr.",
   "Sra.",
@@ -60066,27 +66589,4461 @@ module["exports"] = [
   "Dr."
 ];
 
-},{}],793:[function(require,module,exports){
+},{}],903:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Neto",
   "Filho"
 ];
 
-},{}],794:[function(require,module,exports){
+},{}],904:[function(require,module,exports){
 module["exports"] = [
   "(##) ####-####",
   "+55 (##) ####-####",
   "(##) #####-####"
 ];
 
-},{}],795:[function(require,module,exports){
+},{}],905:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":904,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],906:[function(require,module,exports){
+module.exports=require(538)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/fr/address/building_number.js":538}],907:[function(require,module,exports){
+module.exports=require(20)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/city.js":20}],908:[function(require,module,exports){
+module["exports"] = [
+  "Abrantes",
+  "Agualva-Cacém",
+  "Águeda",
+  "Albufeira",
+  "Alcácer do Sal",
+  "Alcobaça",
+  "Alfena",
+  "Almada",
+  "Almeirim",
+  "Amadora",
+  "Amarante",
+  "Amora",
+  "Anadia",
+  "Angra do Heroísmo",
+  "Aveiro",
+  "Barcelos",
+  "Barreiro",
+  "Beja",
+  "Braga",
+  "Bragança",
+  "Caldas da Rainha",
+  "Câmara de Lobos",
+  "Caniço",
+  "Cantanhede",
+  "Cartaxo",
+  "Castelo Branco",
+  "Chaves",
+  "Coimbra",
+  "Costa da Caparica",
+  "Covilhã",
+  "Elvas",
+  "Entroncamento",
+  "Ermesinde",
+  "Esmoriz",
+  "Espinho",
+  "Esposende",
+  "Estarreja",
+  "Estremoz",
+  "Évora",
+  "Fafe",
+  "Faro",
+  "Fátima",
+  "Felgueiras",
+  "Fiães",
+  "Figueira da Foz",
+  "Freamunde",
+  "Funchal",
+  "Fundão",
+  "Gafanha da Nazaré",
+  "Gandra",
+  "Gondomar",
+  "Gouveia",
+  "Guarda",
+  "Guimarães",
+  "Horta",
+  "Ílhavo",
+  "Lagoa",
+  "Lagos",
+  "Lamego",
+  "Leiria",
+  "Lisbon",
+  "Lixa",
+  "Loulé",
+  "Loures",
+  "Lourosa",
+  "Macedo de Cavaleiros",
+  "Machico",
+  "Maia",
+  "Mangualde",
+  "Marco de Canaveses",
+  "Marinha Grande",
+  "Matosinhos",
+  "Mealhada",
+  "Mêda",
+  "Miranda do Douro",
+  "Mirandela",
+  "Montemor-o-Novo",
+  "Montijo",
+  "Moura",
+  "Odivelas",
+  "Olhão da Restauração",
+  "Oliveira de Azeméis",
+  "Oliveira do Bairro",
+  "Oliveira do Hospital",
+  "Ourém",
+  "Ovar",
+  "Paços de Ferreira",
+  "Paredes",
+  "Penafiel",
+  "Peniche",
+  "Peso da Régua",
+  "Pinhel",
+  "Pombal",
+  "Ponta Delgada",
+  "Ponte de Sor",
+  "Portalegre",
+  "Portimão",
+  "Porto",
+  "Póvoa de Santa Iria",
+  "Póvoa de Varzim",
+  "Praia da Vitória",
+  "Quarteira",
+  "Queluz",
+  "Rebordosa",
+  "Reguengos de Monsaraz",
+  "Ribeira Grande",
+  "Rio Maior",
+  "Rio Tinto",
+  "Sabugal",
+  "Sacavém",
+  "Santa Comba Dão",
+  "Santa Cruz",
+  "Santa Maria da Feira",
+  "Santana",
+  "Santarém",
+  "Santiago do Cacém",
+  "Santo Tirso",
+  "São João da Madeira",
+  "São Mamede de Infesta",
+  "São Salvador de Lordelo",
+  "Seia",
+  "Seixal",
+  "Serpa",
+  "Setúbal",
+  "Silves",
+  "Sines",
+  "Tarouca",
+  "Tavira",
+  "Tomar",
+  "Tondela",
+  "Torres Novas",
+  "Torres Vedras",
+  "Trancoso",
+  "Trofa",
+  "Valbom",
+  "Vale de Cambra",
+  "Valongo",
+  "Valpaços",
+  "Vendas Novas",
+  "Viana do Castelo",
+  "Vila Baleira (a.k.a. Porto Santo)",
+  "Vila do Conde",
+  "Vila Franca de Xira",
+  "Vila Nova de Famalicão",
+  "Vila Nova de Foz Côa",
+  "Vila Nova de Gaia",
+  "Vila Nova de Santo André",
+  "Vila Real",
+  "Vila Real de Santo António",
+  "Viseu",
+  "Vizela"
+];
+
+},{}],909:[function(require,module,exports){
+module["exports"] = [
+];
+
+},{}],910:[function(require,module,exports){
+module.exports=require(909)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/pt_PT/address/city_prefix.js":909}],911:[function(require,module,exports){
+module["exports"] = [
+  "África do Sul",
+  "Áustria",
+  "Índia",
+  "Afeganistão",
+  "Albânia",
+  "Alemanha",
+  "Andorra",
+  "Angola",
+  "Anguila",
+  "Antárctida",
+  "Antígua e Barbuda",
+  "Antilhas Neerlandesas",
+  "Arábia Saudita",
+  "Argélia",
+  "Argentina",
+  "Arménia",
+  "Aruba",
+  "Austrália",
+  "Azerbaijão",
+  "Bélgica",
+  "Bósnia e Herzegovina",
+  "Baamas",
+  "Bangladeche",
+  "Barém",
+  "Barbados",
+  "Belize",
+  "Benim",
+  "Bermudas",
+  "Bielorrússia",
+  "Birmânia",
+  "Bolívia",
+  "Botsuana",
+  "Brasil",
+  "Brunei",
+  "Bulgária",
+  "Burúndi",
+  "Burquina Faso",
+  "Butão",
+  "Cabo Verde",
+  "Camarões",
+  "Camboja",
+  "Canadá",
+  "Catar",
+  "Cazaquistão",
+  "Chade",
+  "Chile",
+  "China",
+  "Chipre",
+  "Colômbia",
+  "Comores",
+  "Congo-Brazzaville",
+  "Congo-Kinshasa",
+  "Coreia do Norte",
+  "Coreia do Sul",
+  "Costa Rica",
+  "Costa do Marfim",
+  "Croácia",
+  "Cuba",
+  "Dinamarca",
+  "Domínica",
+  "Egipto",
+  "Emiratos Árabes Unidos",
+  "Equador",
+  "Eritreia",
+  "Eslováquia",
+  "Eslovénia",
+  "Espanha",
+  "Estónia",
+  "Estados Unidos",
+  "Etiópia",
+  "Faroé",
+  "Fiji",
+  "Filipinas",
+  "Finlândia",
+  "França",
+  "Gâmbia",
+  "Gabão",
+  "Gana",
+  "Geórgia",
+  "Geórgia do Sul e Sandwich do Sul",
+  "Gibraltar",
+  "Grécia",
+  "Granada",
+  "Gronelândia",
+  "Guadalupe",
+  "Guame",
+  "Guatemala",
+  "Guiana",
+  "Guiana Francesa",
+  "Guiné",
+  "Guiné Equatorial",
+  "Guiné-Bissau",
+  "Haiti",
+  "Honduras",
+  "Hong Kong",
+  "Hungria",
+  "Iémen",
+  "Ilha Bouvet",
+  "Ilha Norfolk",
+  "Ilha do Natal",
+  "Ilhas Caimão",
+  "Ilhas Cook",
+  "Ilhas Falkland",
+  "Ilhas Heard e McDonald",
+  "Ilhas Marshall",
+  "Ilhas Menores Distantes dos Estados Unidos",
+  "Ilhas Salomão",
+  "Ilhas Turcas e Caicos",
+  "Ilhas Virgens Americanas",
+  "Ilhas Virgens Britânicas",
+  "Ilhas dos Cocos",
+  "Indonésia",
+  "Irão",
+  "Iraque",
+  "Irlanda",
+  "Islândia",
+  "Israel",
+  "Itália",
+  "Jamaica",
+  "Japão",
+  "Jibuti",
+  "Jordânia",
+  "Jugoslávia",
+  "Kuwait",
+  "Líbano",
+  "Líbia",
+  "Laos",
+  "Lesoto",
+  "Letónia",
+  "Libéria",
+  "Listenstaine",
+  "Lituânia",
+  "Luxemburgo",
+  "México",
+  "Mónaco",
+  "Macau",
+  "Macedónia",
+  "Madagáscar",
+  "Malásia",
+  "Malávi",
+  "Maldivas",
+  "Mali",
+  "Malta",
+  "Marianas do Norte",
+  "Marrocos",
+  "Martinica",
+  "Maurícia",
+  "Mauritânia",
+  "Mayotte",
+  "Micronésia",
+  "Moçambique",
+  "Moldávia",
+  "Mongólia",
+  "Monserrate",
+  "Níger",
+  "Namíbia",
+  "Nauru",
+  "Nepal",
+  "Nicarágua",
+  "Nigéria",
+  "Niue",
+  "Noruega",
+  "Nova Caledónia",
+  "Nova Zelândia",
+  "Omã",
+  "Países Baixos",
+  "Palau",
+  "Panamá",
+  "Papua-Nova Guiné",
+  "Paquistão",
+  "Paraguai",
+  "Peru",
+  "Pitcairn",
+  "Polónia",
+  "Polinésia Francesa",
+  "Porto Rico",
+  "Portugal",
+  "Quénia",
+  "Quirguizistão",
+  "Quiribáti",
+  "Rússia",
+  "Reino Unido",
+  "República Centro-Africana",
+  "República Checa",
+  "República Dominicana",
+  "Reunião",
+  "Roménia",
+  "Ruanda",
+  "São Cristóvão e Neves",
+  "São Marinho",
+  "São Pedro e Miquelon",
+  "São Tomé e Príncipe",
+  "São Vicente e Granadinas",
+  "Síria",
+  "Salvador",
+  "Samoa",
+  "Samoa Americana",
+  "Santa Helena",
+  "Santa Lúcia",
+  "Sara Ocidental",
+  "Seicheles",
+  "Senegal",
+  "Serra Leoa",
+  "Singapura",
+  "Somália",
+  "Sri Lanca",
+  "Suécia",
+  "Suíça",
+  "Suazilândia",
+  "Sudão",
+  "Suriname",
+  "Svalbard e Jan Mayen",
+  "Tailândia",
+  "Taiwan",
+  "Tajiquistão",
+  "Tanzânia",
+  "Território Britânico do Oceano Índico",
+  "Territórios Austrais Franceses",
+  "Timor Leste",
+  "Togo",
+  "Tokelau",
+  "Tonga",
+  "Trindade e Tobago",
+  "Tunísia",
+  "Turquemenistão",
+  "Turquia",
+  "Tuvalu",
+  "Ucrânia",
+  "Uganda",
+  "Uruguai",
+  "Usbequistão",
+  "Vanuatu",
+  "Vaticano",
+  "Venezuela",
+  "Vietname",
+  "Wallis e Futuna",
+  "Zâmbia",
+  "Zimbabué"
+];
+
+},{}],912:[function(require,module,exports){
+module["exports"] = [
+  "Portugal"
+];
+
+},{}],913:[function(require,module,exports){
+module["exports"] = [
+  "Norte",
+  "Este",
+  "Sul",
+  "Oeste",
+  "Nordeste",
+  "Noroeste",
+  "Sudeste",
+  "Sodoeste"
+];
+
+},{}],914:[function(require,module,exports){
+var address = {};
+module['exports'] = address;
+address.country = require("./country");
+address.street_name = require("./street_name");
+address.building_number = require("./building_number");
+address.street_prefix = require("./street_prefix");
+address.postcode = require("./postcode");
+address.city_prefix = require("./city_prefix");
+address.city_name = require("./city_name");
+address.city_suffix = require("./city_suffix");
+address.city = require("./city");
+address.direction = require("./direction");
+address.street_address = require("./street_address");
+address.default_country = require("./default_country");
+
+},{"./building_number":906,"./city":907,"./city_name":908,"./city_prefix":909,"./city_suffix":910,"./country":911,"./default_country":912,"./direction":913,"./postcode":915,"./street_address":916,"./street_name":917,"./street_prefix":918}],915:[function(require,module,exports){
+module["exports"] = [
+  "####-###"
+];
+
+},{}],916:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],917:[function(require,module,exports){
+module["exports"] = [
+  "#{street_prefix} #{Name.first_name} #{Name.last_name}",
+  "N#",
+  "N##",
+  "N###",
+  "N###-#"
+];
+
+},{}],918:[function(require,module,exports){
+module["exports"] = [
+  "Acesso",
+  "Alameda",
+  "Avenida",
+  "Azinhaga",
+  "Bairro",
+  "Beco",
+  "Calçada",
+  "Caminho",
+  "Escadas",
+  "Estrada",
+  "Jardim",
+  "Ladeira",
+  "Largo",
+  "Praça",
+  "Praceta",
+  "Quinta",
+  "Rua",
+  "Travessa",
+  "Urbanização",
+  "Viela"
+];
+
+},{}],919:[function(require,module,exports){
+module["exports"] = [
+  "+351 91#######",
+  "+351 93#######",
+  "+351 96#######"
+];
+
+},{}],920:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":919,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],921:[function(require,module,exports){
+module["exports"] = [
+  "vermelho",
+  "verde",
+  "azul",
+  "amarelo",
+  "roxo",
+  "branco",
+  "preto",
+  "laranja",
+  "rosa",
+  "cinzento",
+  "castanho",
+  "violeta",
+  "turquesa",
+  "bronzeado",
+  "salmão",
+  "ameixa",
+  "orquídea",
+  "magenta",
+  "lima",
+  "marfim",
+  "índigo",
+  "ouro",
+  "fúcsia",
+  "ciano",
+  "azure",
+  "lavanda",
+  "prata"
+];
+
+},{}],922:[function(require,module,exports){
+module["exports"] = [
+  "Livros",
+  "Filmes",
+  "Música",
+  "Jogos",
+  "Electrónica",
+  "Computadores",
+  "Casa",
+  "Jardim",
+  "Ferramentas",
+  "Mercearia",
+  "Saúde",
+  "Beleza",
+  "Brinquedos",
+  "Crianças",
+  "Bebé",
+  "Roupas",
+  "Sapatos",
+  "Jóias",
+  "Desporto",
+  "Ar Livre",
+  "Automóveis",
+  "Industrial"
+];
+
+},{}],923:[function(require,module,exports){
 arguments[4][53][0].apply(exports,arguments)
-},{"./formats":794,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],796:[function(require,module,exports){
-module.exports=require(16)
-},{"/Users/a/dev/faker.js/lib/locales/az/address/building_number.js":16}],797:[function(require,module,exports){
-module.exports=require(17)
-},{"/Users/a/dev/faker.js/lib/locales/az/address/city.js":17}],798:[function(require,module,exports){
+},{"./color":921,"./department":922,"./product_name":924,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/commerce/index.js":53}],924:[function(require,module,exports){
+module["exports"] = {
+  "adjective": [
+    "Pequeno",
+    "Ergonómico",
+    "Rústico",
+    "Inteligente",
+    "Linda",
+    "Incrível",
+    "Fantástico",
+    "Prático",
+    "Lustroso",
+    "Impressionante",
+    "Genérico",
+    "Artesanal",
+    "Feito à Mão",
+    "Licenciado",
+    "Refinado",
+    "Sem Marca",
+    "Saboroso"
+  ],
+  "material": [
+    "Aço",
+    "Madeira",
+    "Betão",
+    "Plástico",
+    "Algodão",
+    "Granito",
+    "Borracha",
+    "Metal",
+    "Suave",
+    "Fresco",
+    "Congelado"
+  ],
+  "product": [
+    "Cadeira",
+    "Carro",
+    "Computador",
+    "Teclado",
+    "Rato",
+    "Bicicleta",
+    "Bola",
+    "Luvas",
+    "Calças",
+    "Camisa",
+    "Mesa",
+    "Sapatos",
+    "Chapéu",
+    "Toalhas",
+    "Sabonete",
+    "Atum",
+    "Frango",
+    "Peixe",
+    "Queijo",
+    "Bacon",
+    "Pizza",
+    "Salada",
+    "Salsichas",
+    "Batatas Fritas"
+  ]
+};
+
+},{}],925:[function(require,module,exports){
+arguments[4][59][0].apply(exports,arguments)
+},{"./month":926,"./weekday":927,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/date/index.js":59}],926:[function(require,module,exports){
+// Source: https://unicode.org/cldr/trac/browser/trunk/common/main/pt.xml?rev=14409#L1811
+module["exports"] = {
+  wide: [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro"
+  ],
+  abbr: [
+    "Jan",
+    "Fev",
+    "Mar",
+    "Abr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Set",
+    "Out",
+    "Nov",
+    "Dez"
+  ]
+};
+
+},{}],927:[function(require,module,exports){
+// Source: https://unicode.org/cldr/trac/browser/trunk/common/main/pt_PT.xml?rev=14409#L491
+module["exports"] = {
+  wide: [
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+    "Domingo"
+  ],
+  abbr: [
+    "Seg",
+    "Ter",
+    "Qua",
+    "Qui",
+    "Sex",
+    "Sáb",
+    "Dom"
+  ]
+};
+
+},{}],928:[function(require,module,exports){
+var pt_PT = {};
+module['exports'] = pt_PT;
+pt_PT.title = "Portuguese (Portugal)";
+pt_PT.address = require("./address");
+pt_PT.internet = require("./internet");
+pt_PT.name = require("./name");
+pt_PT.phone_number = require("./phone_number");
+pt_PT.cell_phone = require("./cell_phone");
+pt_PT.commerce = require("./commerce");
+pt_PT.date = require("./date");
+
+},{"./address":914,"./cell_phone":920,"./commerce":923,"./date":925,"./internet":931,"./name":935,"./phone_number":943}],929:[function(require,module,exports){
+module["exports"] = [
+  "pt",
+  "gov.pt",
+  "com.pt",
+  "org.pt",
+  "eu",
+  "com",
+  "biz",
+  "info",
+  "name",
+  "net",
+  "org"
+];
+
+},{}],930:[function(require,module,exports){
+module["exports"] = [
+  "gmail.com",
+  "yahoo.com",
+  "hotmail.com",
+  "outlook.com",
+  "live.com",
+  "portugalmail.pt",
+  "mail.pt",
+  "sapo.pt",
+  "aeiou.pt"
+];
+
+},{}],931:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":929,"./free_email":930,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],932:[function(require,module,exports){
+module["exports"] = [
+  "Adriana",
+  "Alexandra",
+  "Alice",
+  "Amélia",
+  "Ana",
+  "Ariana",
+  "Áurea",
+  "Aurora",
+  "Bárbara",
+  "Beatriz",
+  "Benedita",
+  "Bruna",
+  "Caetana",
+  "Camila",
+  "Carla",
+  "Carlota",
+  "Carminho",
+  "Carmo",
+  "Carolina",
+  "Catarina",
+  "Cecília",
+  "Célia",
+  "Clara",
+  "Constança",
+  "Daniela",
+  "Débora",
+  "Diana",
+  "Eduarda",
+  "Elisa",
+  "Ema",
+  "Emília",
+  "Érica",
+  "Eva",
+  "Fabiana",
+  "Filipa",
+  "Flor",
+  "Francisca",
+  "Frederica",
+  "Gabriela",
+  "Helena",
+  "Inês",
+  "Irina",
+  "Íris",
+  "Isabel",
+  "Jéssica",
+  "Joana",
+  "Júlia",
+  "Juliana",
+  "Julieta",
+  "Lara",
+  "Laura",
+  "Leonor",
+  "Letícia",
+  "Lia",
+  "Lorena",
+  "Luana",
+  "Luena",
+  "Luísa",
+  "Luna",
+  "Madalena",
+  "Mafalda",
+  "Mara",
+  "Márcia",
+  "Margarida",
+  "Maria",
+  "Mariana",
+  "Marta",
+  "Matilde",
+  "Melissa",
+  "Mia",
+  "Miriam",
+  "Natália",
+  "Nicole",
+  "Núria",
+  "Ofélia",
+  "Olívia",
+  "Paula",
+  "Pilar",
+  "Rafaela",
+  "Raquel",
+  "Rita",
+  "Rosa",
+  "Safira",
+  "Sara",
+  "Sílvia",
+  "Sofia",
+  "Soraia",
+  "Tatiana",
+  "Teresa",
+  "Valentina",
+  "Vânia",
+  "Vera",
+  "Vitória"
+];
+
+},{}],933:[function(require,module,exports){
+module["exports"] = [
+  "Sra.",
+  "Dra.",
+  "Prof.ª",
+  "Eng.ª"
+];
+
+},{}],934:[function(require,module,exports){
+module["exports"] = [
+  "Adriana",
+  "Afonso",
+  "Alexandra",
+  "Alexandre",
+  "Alice",
+  "Amélia",
+  "Ana",
+  "André",
+  "Ângelo",
+  "António",
+  "Ariana",
+  "Artur",
+  "Áurea",
+  "Aurora",
+  "Bárbara",
+  "Beatriz",
+  "Benedita",
+  "Benjamim",
+  "Bernardo",
+  "Bruna",
+  "Bruno",
+  "Caetana",
+  "Camila",
+  "Carla",
+  "Carlos",
+  "Carlota",
+  "Carminho",
+  "Carmo",
+  "Carolina",
+  "Catarina",
+  "Cecília",
+  "Célia",
+  "César",
+  "Clara",
+  "Constança",
+  "Cristiano",
+  "Daniel",
+  "Daniela",
+  "David",
+  "Débora",
+  "Diana",
+  "Dinis",
+  "Diogo",
+  "Duarte",
+  "Edgar",
+  "Eduarda",
+  "Eduardo",
+  "Elias",
+  "Elisa",
+  "Ema",
+  "Emanuel",
+  "Emília",
+  "Érica",
+  "Eva",
+  "Fabiana",
+  "Fábio",
+  "Feliciano",
+  "Fernando",
+  "Filipa",
+  "Filipe",
+  "Flor",
+  "Francisca",
+  "Francisco",
+  "Frederica",
+  "Frederico",
+  "Gabriel",
+  "Gabriela",
+  "Gaspar",
+  "Gil",
+  "Gonçalo",
+  "Guilherme",
+  "Gustavo",
+  "Helena",
+  "Hélio",
+  "Henrique",
+  "Hugo",
+  "Igor",
+  "Ígor",
+  "Inês",
+  "Irina",
+  "Íris",
+  "Isabel",
+  "Isac",
+  "Ivan",
+  "Ivo",
+  "Jaime",
+  "Jéssica",
+  "Joana",
+  "João",
+  "Joaquim",
+  "Jorge",
+  "José",
+  "Josué",
+  "Júlia",
+  "Juliana",
+  "Julieta",
+  "Júlio",
+  "Lara",
+  "Laura",
+  "Leandro",
+  "Leonardo",
+  "Leonor",
+  "Letícia",
+  "Lia",
+  "Lorena",
+  "Lourenço",
+  "Luana",
+  "Lucas",
+  "Luena",
+  "Luís",
+  "Luísa",
+  "Luna",
+  "Madalena",
+  "Mafalda",
+  "Manel",
+  "Manuel",
+  "Mara",
+  "Marcelo",
+  "Márcia",
+  "Marco",
+  "Marcos",
+  "Margarida",
+  "Maria",
+  "Mariana",
+  "Mário",
+  "Marta",
+  "Martim",
+  "Mateus",
+  "Matias",
+  "Matilde",
+  "Mauro",
+  "Melissa",
+  "Mia",
+  "Micael",
+  "Miguel",
+  "Miriam",
+  "Moisés",
+  "Natália",
+  "Nicole",
+  "Norberto",
+  "Nuno",
+  "Núria",
+  "Ofélia",
+  "Olívia",
+  "Paula",
+  "Paulo",
+  "Pedro",
+  "Pilar",
+  "Rafael",
+  "Rafaela",
+  "Raquel",
+  "Raul",
+  "Renato",
+  "Ricardo",
+  "Rita",
+  "Roberto",
+  "Rodrigo",
+  "Romeu",
+  "Rosa",
+  "Rúben",
+  "Rui",
+  "Safira",
+  "Salvador",
+  "Samuel",
+  "Sandro",
+  "Santiago",
+  "Sara",
+  "Sebastião",
+  "Sérgio",
+  "Sílvia",
+  "Simão",
+  "Sofia",
+  "Soraia",
+  "Tatiana",
+  "Teresa",
+  "Tiago",
+  "Tomás",
+  "Tomé",
+  "Valentim",
+  "Valentina",
+  "Valter",
+  "Vânia",
+  "Vasco",
+  "Vera",
+  "Vicente",
+  "Vítor",
+  "Vitória",
+  "Xavier"
+];
+
+},{}],935:[function(require,module,exports){
+var name = {};
+module['exports'] = name;
+name.male_prefix = require("./male_prefix");
+name.male_first_name = require("./male_first_name");
+name.female_prefix = require("./female_prefix");
+name.female_first_name = require("./female_first_name");
+name.first_name = require("./first_name");
+name.last_name = require("./last_name");
+name.prefix = require("./prefix");
+name.suffix = require("./suffix");
+name.name = require("./name");
+
+},{"./female_first_name":932,"./female_prefix":933,"./first_name":934,"./last_name":936,"./male_first_name":937,"./male_prefix":938,"./name":939,"./prefix":940,"./suffix":941}],936:[function(require,module,exports){
+module["exports"] = [
+  "Abreu",
+  "Albuquerque",
+  "Almeida",
+  "Alves",
+  "Amaral",
+  "Amorim",
+  "Andrade",
+  "Anjos",
+  "Antunes",
+  "Araújo",
+  "Assunção",
+  "Azevedo",
+  "Baptista",
+  "Barbosa",
+  "Barros",
+  "Batista",
+  "Borges",
+  "Braga",
+  "Branco",
+  "Brito",
+  "Campos",
+  "Cardoso",
+  "Carneiro",
+  "Carvalho",
+  "Castro",
+  "Coelho",
+  "Correia",
+  "Costa",
+  "Cruz",
+  "Cunha",
+  "Domingues",
+  "Esteves",
+  "Faria",
+  "Fernandes",
+  "Ferreira",
+  "Figueiredo",
+  "Fonseca",
+  "Freitas",
+  "Garcia",
+  "Gaspar",
+  "Gomes",
+  "Gonçalves",
+  "Guerreiro",
+  "Henriques",
+  "Jesus",
+  "Leal",
+  "Leite",
+  "Lima",
+  "Lopes",
+  "Loureiro",
+  "Lourenço",
+  "Macedo",
+  "Machado",
+  "Magalhães",
+  "Maia",
+  "Marques",
+  "Martins",
+  "Matias",
+  "Matos",
+  "Melo",
+  "Mendes",
+  "Miranda",
+  "Monteiro",
+  "Morais",
+  "Moreira",
+  "Mota",
+  "Moura",
+  "Nascimento",
+  "Neto",
+  "Neves",
+  "Nobre",
+  "Nogueira",
+  "Nunes",
+  "Oliveira",
+  "Pacheco",
+  "Paiva",
+  "Pereira",
+  "Pinheiro",
+  "Pinho",
+  "Pinto",
+  "Pires",
+  "Ramos",
+  "Raposo",
+  "Reis",
+  "Ribeiro",
+  "Rocha",
+  "Rodrigues",
+  "Santos",
+  "Saraiva",
+  "Silva",
+  "Simões",
+  "Soares",
+  "Sousa",
+  "Sá",
+  "Tavares",
+  "Teixeira",
+  "Torres",
+  "Valente",
+  "Vaz",
+  "Vicente",
+  "Vieira"
+];
+
+},{}],937:[function(require,module,exports){
+module["exports"] = [
+  "Afonso",
+  "Alexandre",
+  "André",
+  "Ângelo",
+  "António",
+  "Artur",
+  "Benjamim",
+  "Bernardo",
+  "Bruno",
+  "Carlos",
+  "César",
+  "Cristiano",
+  "Daniel",
+  "David",
+  "Dinis",
+  "Diogo",
+  "Duarte",
+  "Edgar",
+  "Eduardo",
+  "Elias",
+  "Emanuel",
+  "Fábio",
+  "Feliciano",
+  "Fernando",
+  "Filipe",
+  "Francisco",
+  "Frederico",
+  "Gabriel",
+  "Gaspar",
+  "Gil",
+  "Gonçalo",
+  "Guilherme",
+  "Gustavo",
+  "Hélio",
+  "Henrique",
+  "Hugo",
+  "Igor",
+  "Ígor",
+  "Isac",
+  "Ivan",
+  "Ivo",
+  "Jaime",
+  "João",
+  "Joaquim",
+  "Jorge",
+  "José",
+  "Josué",
+  "Júlio",
+  "Leandro",
+  "Leonardo",
+  "Lourenço",
+  "Lucas",
+  "Luís",
+  "Manel",
+  "Manuel",
+  "Marcelo",
+  "Marco",
+  "Marcos",
+  "Mário",
+  "Martim",
+  "Mateus",
+  "Matias",
+  "Mauro",
+  "Micael",
+  "Miguel",
+  "Moisés",
+  "Norberto",
+  "Nuno",
+  "Paulo",
+  "Pedro",
+  "Rafael",
+  "Raul",
+  "Renato",
+  "Ricardo",
+  "Roberto",
+  "Rodrigo",
+  "Romeu",
+  "Rúben",
+  "Rui",
+  "Salvador",
+  "Samuel",
+  "Sandro",
+  "Santiago",
+  "Sebastião",
+  "Sérgio",
+  "Simão",
+  "Tiago",
+  "Tomás",
+  "Tomé",
+  "Valentim",
+  "Valter",
+  "Vasco",
+  "Vicente",
+  "Vítor",
+  "Xavier"
+];
+
+},{}],938:[function(require,module,exports){
+module["exports"] = [
+  "Sr.",
+  "Dr.",
+  "Prof.",
+  "Eng.º",
+];
+
+},{}],939:[function(require,module,exports){
+module["exports"] = [
+  "#{first_name} #{last_name}",
+  "#{male_first_name} #{last_name}",
+  "#{female_first_name} #{last_name}",
+  "#{male_prefix} #{male_first_name} #{last_name}",
+  "#{female_prefix} #{female_first_name} #{last_name}"
+];
+
+},{}],940:[function(require,module,exports){
+module["exports"] = [
+  "#{female_prefix}",
+  "#{male_prefix}"
+];
+
+},{}],941:[function(require,module,exports){
+module.exports=require(909)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/pt_PT/address/city_prefix.js":909}],942:[function(require,module,exports){
+module["exports"] = [
+  "+351 2########",
+  "+351 91#######",
+  "+351 93#######",
+  "+351 96#######"
+];
+
+},{}],943:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":942,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],944:[function(require,module,exports){
+module["exports"] = [
+  "Bloc ##"
+];
+
+},{}],945:[function(require,module,exports){
+module["exports"] = [
+    "București",
+    "Cluj-Napoca",
+    "Timișoara",
+    "Iași",
+    "Constanța",
+    "Craiova",
+    "Brașov",
+    "Galați",
+    "Ploiești",
+    "Oradea",
+    "Brăila",
+    "Arad",
+    "Pitești",
+    "Sibiu",
+    "Bacău",
+    "Târgu Mureș",
+    "Baia Mare",
+    "Buzău",
+    "Botoșani",
+    "Satu Mare",
+    "Râmnicu Vâlcea",
+    "Drobeta-Turnu Severin",
+    "Suceava",
+    "Piatra Neamț",
+    "Târgu Jiu",
+    "Târgoviște",
+    "Focșani",
+    "Bistrița",
+    "Reșița",
+    "Tulcea",
+    "Călărași",
+    "Alba Iulia",
+    "Giurgiu",
+    "Deva",
+    "Hunedoara",
+    "Zalău",
+    "Sfântu Gheorghe",
+    "Bârlad",
+    "Vaslui",
+    "1387",
+    "Slobozia",
+    "Turda",
+    "Mediaș",
+    "Voluntari",
+    "Lugoj",
+    "Medgidia",
+    "Onești",
+    "Miercurea Ciuc",
+    "Sighetu Marmației",
+    "Petroșani",
+    "Mangalia",
+    "Tecuci",
+    "Râmnicu Sărat",
+    "Pașcani",
+    "Dej",
+    "Reghin",
+    "Năvodari",
+    "Odorheiu Secuiesc",
+    "Câmpina",
+    "Mioveni",
+    "Câmpulung",
+    "Caracal",
+    "Săcele",
+    "Făgăraș",
+    "Fetești",
+    "Sighișoara",
+    "Borșa",
+    "Roșiorii de Vede",
+    "Curtea de Argeș",
+    "Sebeș",
+    "Huși",
+    "Fălticeni",
+    "Pantelimon",
+    "Oltenița",
+    "Turnu Măgurele",
+    "Caransebeș",
+    "Dorohoi",
+    "Rădăuți",
+    "Zărnești",
+    "Lupeni",
+    "Aiud",
+    "Petrila",
+    "Buftea",
+    "Moinești",
+    "Târnăveni",
+    "Câmpia Turzii",
+    "Popești-Leordeni",
+    "Gherla",
+    "Carei",
+    "Cugir",
+    "Blaj",
+    "Codlea",
+    "Comănești",
+    "Târgu Neamț",
+    "Motru",
+    "Târgu Secuiesc",
+    "Moreni",
+    "Gheorgheni",
+    "Băicoi",
+    "Orăștie",
+    "Salonta",
+    "Balș",
+    "Drăgășani",
+    "Băilești",
+    "Calafat",
+    "Filiași",
+    "Cernavodă",
+    "Câmpulung Moldovenesc",
+    "Breaza",
+    "Marghita",
+    "Baia Sprie",
+    "Luduș",
+    "Corabia",
+    "Adjud",
+    "Vișeu de Sus",
+    "Bragadiru",
+    "Bocșa",
+    "Râșnov",
+    "Urziceni",
+    "Pucioasa",
+    "Vatra Dornei",
+    "Cisnădie",
+    "Mizil",
+    "Toplița",
+    "Chitila",
+    "Șimleu Silvaniei",
+    "Buhuși",
+    "Vicovu de Sus",
+    "Zimnicea",
+    "Găești",
+    "Gura Humorului",
+    "Otopeni",
+    "Ocna Mureș",
+    "Avrig",
+    "Simeria",
+    "Pecica",
+    "Dăbuleni",
+    "Bolintin-Vale",
+    "Rovinari",
+    "Comarnic",
+    "Vălenii de Munte",
+    "Sânnicolau Mare",
+    "Dărmănești",
+    "Moldova Nouă",
+    "Târgu Lăpuș",
+    "Săcueni",
+    "Videle",
+    "Scornicești",
+    "Boldești-Scăeni",
+    "Sântana",
+    "Târgu Ocna",
+    "Măgurele",
+    "Călan",
+    "Beclean",
+    "Țăndărei",
+    "Sovata",
+    "Oravița",
+    "Jibou",
+    "Urlați",
+    "Hârlău",
+    "Beiuș",
+    "Ianca",
+    "Jimbolia",
+    "Topoloveni",
+    "Drăgănești-Olt",
+    "Sinaia",
+    "Nehoiu",
+    "Covasna",
+    "Negrești-Oaș",
+    "Strehaia",
+    "Dolhasca",
+    "Orșova",
+    "Valea lui Mihai",
+    "Murfatlar",
+    "Aleșd",
+    "Darabani",
+    "Cristuru Secuiesc",
+    "Flămânzi",
+    "Mărășești",
+    "Sângeorz-Băi",
+    "Liteni",
+    "Târgu Frumos",
+    "Titu",
+    "Hațeg",
+    "Oțelu Roșu",
+    "Ineu",
+    "Năsăud",
+    "Huedin",
+    "Odobești",
+    "Hârșova",
+    "Bumbești-Jiu",
+    "Seini",
+    "Salcea",
+    "Podu Iloaiei",
+    "Eforie",
+    "Uricani",
+    "Baraolt",
+    "Bușteni",
+    "Tășnad",
+    "Iernut",
+    "Agnita",
+    "Babadag",
+    "Băbeni",
+    "Târgu Cărbunești",
+    "Negrești",
+    "Recaș",
+    "Siret",
+    "Măcin",
+    "Chișineu-Criș",
+    "Plopeni",
+    "Mihăilești",
+    "Șomcuta Mare",
+    "Fieni",
+    "Întorsura Buzăului",
+    "Călimănești",
+    "Panciu",
+    "Nădlac",
+    "Zlatna",
+    "Pătârlagele",
+    "Cehu Silvaniei",
+    "Amara",
+    "Budești",
+    "Anina",
+    "Dumbrăveni",
+    "Câmpeni",
+    "Pogoanele",
+    "Tăuții-Măgherăuș",
+    "Tismana",
+    "Curtici",
+    "Techirghiol",
+    "Sărmașu",
+    "Vlăhița",
+    "Cajvana",
+    "Săveni",
+    "Segarcea",
+    "Pâncota",
+    "Răcari",
+    "Făget",
+    "Tălmaciu",
+    "Buziaș",
+    "Fundulea",
+    "Murgeni",
+    "Teiuș",
+    "Însurăței",
+    "Bicaz",
+    "Târgu Bujor",
+    "Ștei",
+    "Lehliu Gară",
+    "Horezu",
+    "Deta",
+    "Slănic",
+    "Piatra-Olt",
+    "Ardud",
+    "Bălan",
+    "Sebiș",
+    "Brezoi",
+    "Potcoava",
+    "Gătaia",
+    "Novaci",
+    "Miercurea Nirajului",
+    "Baia de Aramă",
+    "Copșa Mică",
+    "Vânju Mare",
+    "Sângeorgiu de Pădure",
+    "Geoagiu",
+    "Săliște",
+    "Ciacova",
+    "Rupea",
+    "Milișăuți",
+    "Isaccea",
+    "Abrud",
+    "Fierbinți-Târg",
+    "Cavnic",
+    "Săliștea de Sus",
+    "Băile Herculane",
+    "Bălcești",
+    "Berbești",
+    "Ghimbav",
+    "Predeal",
+    "Țicleni",
+    "Azuga",
+    "Aninoasa",
+    "Bucecea",
+    "Băile Olănești",
+    "Slănic Moldova",
+    "Miercurea Sibiului",
+    "Sulina",
+    "Baia de Arieș",
+    "Făurei",
+    "Ocna Sibiului",
+    "Bechet",
+    "Căzănești",
+    "Ocnele Mari",
+    "Berești",
+    "Borsec",
+    "Băile Govora",
+    "Vașcău",
+    "Nucet",
+    "Solca",
+    "Băile Tușnad"
+];
+},{}],946:[function(require,module,exports){
+module["exports"] = [
+    "Alba",
+    "Arad",
+    "Arges",
+    "Bacau",
+    "Bihor",
+    "Bistrita-Nasaud",
+    "Botosani",
+    "Braila",
+    "Brasov",
+    "Bucuresti",
+    "Buzau",
+    "Calarasi",
+    "Caras-Severin",
+    "Cluj",
+    "Constanta",
+    "Covasna",
+    "Dambovita",
+    "Dolj",
+    "Galati",
+    "Giurgiu",
+    "Gorj",
+    "Harghita",
+    "Hunedoara",
+    "Ialomita",
+    "Iasi",
+    "Ilfov",
+    "Maramures",
+    "Mehedinti",
+    "Mures",
+    "Neamt",
+    "Olt",
+    "Prahova",
+    "Salaj",
+    "Satu-Mare",
+    "Sibiu",
+    "Suceava",
+    "Teleorman",
+    "Timis",
+    "Tulcea",
+    "Valcea",
+    "Vaslui",
+    "Vrancea"
+];
+
+},{}],947:[function(require,module,exports){
+module["exports"] = [
+  "România"
+];
+
+},{}],948:[function(require,module,exports){
+var address = {};
+module['exports'] = address;
+address.building_number = require("./building_number");
+address.city = require("./city");
+address.county = require("./county");
+address.default_country = require("./default_country");
+address.postcode = require("./postcode");
+address.secondary_address = require("./secondary_address");
+address.state = require("./state");
+address.state_abbr = require("./state_abbr");
+address.street_address = require("./street_address");
+address.street_name = require("./street_name");
+address.street_suffix = require("./street_suffix");
+address.streets = require("./streets");
+
+},{"./building_number":944,"./city":945,"./county":946,"./default_country":947,"./postcode":949,"./secondary_address":950,"./state":951,"./state_abbr":952,"./street_address":953,"./street_name":954,"./street_suffix":955,"./streets":956}],949:[function(require,module,exports){
+module["exports"] = [
+  "######"
+];
+
+},{}],950:[function(require,module,exports){
+module["exports"] = [
+  "Ap. ##",
+  "Ap. ###"
+];
+
+},{}],951:[function(require,module,exports){
+module.exports=require(946)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ro/address/county.js":946}],952:[function(require,module,exports){
+module["exports"] = [
+    "AB",
+    "AR",
+    "AG",
+    "BC",
+    "BH",
+    "BN",
+    "BT",
+    "BR",
+    "BV",
+    "B",
+    "BZ",
+    "CL",
+    "CS",
+    "CJ",
+    "CT",
+    "CV",
+    "DB",
+    "DJ",
+    "GL",
+    "GR",
+    "GJ",
+    "HR",
+    "HD",
+    "IL",
+    "IS",
+    "IF",
+    "MM",
+    "MH",
+    "MS",
+    "NT",
+    "OT",
+    "PH",
+    "SJ",
+    "SM",
+    "SB",
+    "SV",
+    "TR",
+    "TM",
+    "TL",
+    "VL",
+    "VS",
+    "VN"
+];
+},{}],953:[function(require,module,exports){
+module["exports"] = [
+    "#{street_name}, #{building_number}, #{secondary_address}"
+];
+
+},{}],954:[function(require,module,exports){
+module["exports"] = [
+  "#{street_suffix} #{streets}"
+];
+
+},{}],955:[function(require,module,exports){
+module["exports"] = [
+    "Aleea",
+    "Bulevardul",
+    "Intrarea"
+];
+
+},{}],956:[function(require,module,exports){
+module["exports"] = [
+    "Capalna",
+    "Gheorghe Duca",
+    "Acvila",
+    "Lisabona",
+    "Campulung",
+    "Ilie Gurita",
+    "Succesului",
+    "Siret",
+    "Mihai Viteazul",
+    "Complexului",
+    "Chihlimbarului",
+    "Prahova",
+    "George Cosbuc",
+    "Bobalna",
+    "Eroina De La Jiu",
+    "Cucuzel Ion",
+    "Sergent Turturica",
+    "Timisul De Sus",
+    "Tuberozelor",
+    "Rulmentului",
+    "Soldat Polosca Tanase",
+    "Nabucului",
+    "Flautului",
+    "Poiana Codrului",
+    "Daia",
+    "Soldat Dima Dumitru",
+    "Bulandra Tony",
+    "Pastravilor",
+    "Eternitatii",
+    "Tufanilor",
+    "Discului",
+    "Garnitei",
+    "Costaforu",
+    "Aerogarii",
+    "Preluca",
+    "Delureni",
+    "Soldat Velicu Stefan",
+    "Ocalei",
+    "Calboranu George",
+    "Cercelus",
+    "Timocului",
+    "Alexandru Locusteanu",
+    "Pumnul Aron",
+    "Migdalului",
+    "Valului",
+    "Inginer Radu Elie",
+    "Cricovului",
+    "Mavrogheni",
+    "Bauxitei",
+    "Movilitei",
+    "Pictor Hentia Sava",
+    "Abus",
+    "Fieni",
+    "Zambetului",
+    "Izvorul Muresului",
+    "Rolei",
+    "Utiesului",
+    "Gheorghe Popescu",
+    "Radulescu Drumea",
+    "Sacele",
+    "Soimarestilor",
+    "Romeo",
+    "Voicesti",
+    "Carada Eugeniu",
+    "Barometrului",
+    "Tudorache Gheorghe",
+    "Morii",
+    "Jules Michelet",
+    "Nicolae G. Caranfil",
+    "Sergent Anghel Gheorghe",
+    "Reconstructiei",
+    "Vespasian",
+    "Tincani",
+    "Stirbei Voda",
+    "Ariesu Mare",
+    "Penelului",
+    "Piscul Vechi",
+    "Natiunile Unite",
+    "Doctor Tanasescu Ion",
+    "Stefan Greceanu",
+    "Banul Scarlat",
+    "Crinului",
+    "Domnita Florica",
+    "Plutonier Nita Ion",
+    "Soldat Ionita Stere",
+    "Rovine",
+    "Tropicelor",
+    "Matei Millo",
+    "Veronica Micle",
+    "Pictor Iser Iosif",
+    "Mitropolit Nifon",
+    "Locotenent Victor Manu",
+    "Studioului",
+    "Piatra Morii",
+    "Valea Lupului",
+    "Episcop Chesarie",
+    "Sergent Major Drag Marin",
+    "Bega",
+    "Dobrun",
+    "Fulgeresti"
+];
+},{}],957:[function(require,module,exports){
+module["exports"] = [
+    "0726######",
+    "0723######",
+    "0722######",
+    "0721######",
+    "0720######",
+    "0728######",
+    "0729######",
+    "0730######",
+    "0739######",
+    "0738######",
+    "0737######",
+    "0736######",
+    "0735######",
+    "0734######",
+    "0733######",
+    "0732######",
+    "0731######",
+    "0780######",
+    "0788######",
+    "0753######",
+    "0754######",
+    "0755######",
+    "0756######",
+    "0757######",
+    "0758######",
+    "0759######",
+    "0748######",
+    "0747######",
+    "0746######",
+    "0740######",
+    "0741######",
+    "0742######",
+    "0743######",
+    "0744######",
+    "0745######",
+    "0711######",
+    "0727######",
+    "0725######",
+    "0724######",
+    "0786######",
+    "0760######",
+    "0761######",
+    "0762######",
+    "0763######",
+    "0764######",
+    "0765######",
+    "0766######",
+    "0767######",
+    "0785######",
+    "0768######",
+    "0769######",
+    "0784######",
+    "0770######",
+    "0772######",
+    "0771######",
+    "0749######",
+    "0750######",
+    "0751######",
+    "0752######"
+];
+
+},{}],958:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":957,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],959:[function(require,module,exports){
+arguments[4][59][0].apply(exports,arguments)
+},{"./month":960,"./weekday":961,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/date/index.js":59}],960:[function(require,module,exports){
+module["exports"] = {
+  wide: [
+    "Ianuarie",
+    "Februarie",
+    "Martie",
+    "Aprilie",
+    "Mai",
+    "Iunie",
+    "Iulie",
+    "August",
+    "Septembrie",
+    "Octombrie",
+    "Noiembrie",
+    "Decembrie"
+  ],
+  // Property "wide_context" is optional, if not set then "wide" will be used instead
+  // It is used to specify a word in context, which may differ from a stand-alone word
+  wide_context: [
+    "Ianuarie",
+    "Februarie",
+    "Martie",
+    "Aprilie",
+    "Mai",
+    "Iunie",
+    "Iulie",
+    "August",
+    "Septembrie",
+    "Octombrie",
+    "Noiembrie",
+    "Decembrie"
+  ],
+  abbr: [
+    "Ian",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mai",
+    "Iun",
+    "Iul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Noi",
+    "Dec"
+  ],
+  // Property "abbr_context" is optional, if not set then "abbr" will be used instead
+  // It is used to specify a word in context, which may differ from a stand-alone word
+  abbr_context: [
+    "Ian",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mai",
+    "Iun",
+    "Iul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Noi",
+    "Dec"
+  ]
+};
+
+},{}],961:[function(require,module,exports){
+module["exports"] = {
+  wide: [
+    "Luni",
+    "Marți",
+    "Miercuri",
+    "Joi",
+    "Vineri",
+    "Sâmbătă",
+    "Duminică"
+  ],
+  // Property "wide_context" is optional, if not set then "wide" will be used instead
+  // It is used to specify a word in context, which may differ from a stand-alone word
+  wide_context: [
+    "Luni",
+    "Marți",
+    "Miercuri",
+    "Joi",
+    "Vineri",
+    "Sâmbătă",
+    "Duminică"
+  ],
+  abbr: [
+    "Luni",
+    "Marți",
+    "Miercuri",
+    "Joi",
+    "Vineri",
+    "Sâmbătă",
+    "Duminică"
+  ],
+  // Property "abbr_context" is optional, if not set then "abbr" will be used instead
+  // It is used to specify a word in context, which may differ from a stand-alone word
+  abbr_context: [
+    "Luni",
+    "Marți",
+    "Miercuri",
+    "Joi",
+    "Vineri",
+    "Sâmbătă",
+    "Duminică"
+  ]
+};
+
+},{}],962:[function(require,module,exports){
+var ro = {};
+module['exports'] = ro;
+ro.title = "Romanian";
+ro.address = require("./address");
+ro.cell_phone = require("./cell_phone");
+ro.date = require("./date");
+ro.internet = require("./internet");
+ro.name = require("./name");
+ro.phone_number = require("./phone_number");
+
+},{"./address":948,"./cell_phone":958,"./date":959,"./internet":966,"./name":968,"./phone_number":975}],963:[function(require,module,exports){
+module["exports"] = [
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jarjan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mahdif/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sprayaga/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ruzinav/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/Skyhartman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/moscoz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kurafire/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/91bilal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/igorgarybaldi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/calebogden/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/malykhinv/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joelhelin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kushsolitary/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/coreyweb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/snowshade/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/areus/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/holdenweb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/heyimjuani/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/envex/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/unterdreht/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/collegeman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/peejfancher/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andyisonline/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ultragex/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/fuck_you_two/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/adellecharles/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ateneupopular/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ahmetalpbalkan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/Stievius/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kerem/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/osvaldas/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/angelceballos/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thierrykoblentz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/peterlandt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/catarino/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/wr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/weglov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/brandclay/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/flame_kaizar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ahmetsulek/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nicolasfolliot/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jayrobinson/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/victorerixon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kolage/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/michzen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/markjenkins/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nicolai_larsen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/noxdzine/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alagoon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/idiot/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mizko/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chadengle/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mutlu82/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/simobenso/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vocino/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/guiiipontes/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/soyjavi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joshaustin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tomaslau/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/VinThomas/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ManikRathee/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/langate/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cemshid/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/leemunroe/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/_shahedk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/enda/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/BillSKenney/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/divya/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joshhemsley/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sindresorhus/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/soffes/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/9lessons/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/linux29/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/Chakintosh/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/anaami/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joreira/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/shadeed9/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/scottkclark/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jedbridges/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/salleedesign/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marakasina/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ariil/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/BrianPurkiss/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/michaelmartinho/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bublienko/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/devankoshal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ZacharyZorbas/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/timmillwood/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joshuasortino/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/damenleeturks/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tomas_janousek/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/herrhaase/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/RussellBishop/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/brajeshwar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nachtmeister/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cbracco/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bermonpainter/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/abdullindenis/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/isacosta/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/suprb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/yalozhkin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chandlervdw/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/iamgarth/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/_victa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/commadelimited/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/roybarberuk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/axel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vladarbatov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ffbel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/syropian/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ankitind/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/traneblow/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/flashmurphy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ChrisFarina78/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/baliomega/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/saschamt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jm_denis/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/anoff/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kennyadr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chatyrko/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dingyi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mds/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/terryxlife/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aaroni/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kinday/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/prrstn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/eduardostuart/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dhilipsiva/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/GavicoInd/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/baires/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rohixx/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bigmancho/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/blakesimkins/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/leeiio/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tjrus/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/uberschizo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kylefoundry/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/claudioguglieri/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ripplemdk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/exentrich/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jakemoore/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joaoedumedeiros/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/poormini/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tereshenkov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/keryilmaz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/haydn_woods/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rude/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/llun/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sgaurav_baghel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jamiebrittain/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/badlittleduck/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/pifagor/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/agromov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/benefritz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/erwanhesry/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/diesellaws/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jeremiaha/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/koridhandy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chaensel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andrewcohen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/smaczny/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gonzalorobaina/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nandini_m/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sydlawrence/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cdharrison/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tgerken/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lewisainslie/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/charliecwaite/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/robbschiller/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/flexrs/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mattdetails/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/raquelwilson/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/karsh/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mrmartineau/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/opnsrce/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hgharrygo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/maximseshuk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/uxalex/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/samihah/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chanpory/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sharvin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/josemarques/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jefffis/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/krystalfister/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lokesh_coder/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thedamianhdez/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dpmachado/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/funwatercat/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/timothycd/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ivanfilipovbg/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/picard102/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marcobarbosa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/krasnoukhov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/g3d/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ademilter/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rickdt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/operatino/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bungiwan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hugomano/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/logorado/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dc_user/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/horaciobella/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/SlaapMe/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/teeragit/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/iqonicd/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ilya_pestov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andrewarrow/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ssiskind/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/stan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/HenryHoffman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rdsaunders/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/adamsxu/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/curiousoffice/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/themadray/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/michigangraham/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kohette/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nickfratter/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/runningskull/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/madysondesigns/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/brenton_clarke/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jennyshen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bradenhamm/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kurtinc/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/amanruzaini/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/coreyhaggard/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/Karimmove/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aaronalfred/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/wtrsld/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jitachi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/therealmarvin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/pmeissner/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ooomz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chacky14/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jesseddy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thinmatt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/shanehudson/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/akmur/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/IsaryAmairani/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/arthurholcombe1/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andychipster/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/boxmodel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ehsandiary/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/LucasPerdidao/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/shalt0ni/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/swaplord/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kaelifa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/plbabin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/guillemboti/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/arindam_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/renbyrd/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thiagovernetti/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jmillspaysbills/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mikemai2awesome/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jervo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mekal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sta1ex/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/robergd/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/felipecsl/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andrea211087/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/garand/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dhooyenga/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/abovefunction/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/pcridesagain/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/randomlies/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/BryanHorsey/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/heykenneth/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dahparra/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/allthingssmitty/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/danvernon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/beweinreich/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/increase/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/falvarad/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alxndrustinov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/souuf/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/orkuncaylar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/AM_Kn2/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gearpixels/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bassamology/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vimarethomas/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kosmar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/SULiik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mrjamesnoble/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/silvanmuhlemann/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/shaneIxD/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nacho/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/yigitpinarbasi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/buzzusborne/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aaronkwhite/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rmlewisuk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/giancarlon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nbirckel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/d_nny_m_cher/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sdidonato/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/atariboy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/abotap/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/karalek/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/psdesignuk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ludwiczakpawel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nemanjaivanovic/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/baluli/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ahmadajmi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vovkasolovev/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/samgrover/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/derienzo777/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jonathansimmons/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nelsonjoyce/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/S0ufi4n3/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/xtopherpaul/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/oaktreemedia/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nateschulte/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/findingjenny/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/namankreative/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/antonyzotov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/we_social/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/leehambley/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/solid_color/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/abelcabans/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mbilderbach/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kkusaa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jordyvdboom/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/carlosgavina/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/pechkinator/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vc27/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rdbannon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/croakx/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/suribbles/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kerihenare/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/catadeleon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gcmorley/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/duivvv/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/saschadroste/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/victorDubugras/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/wintopia/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mattbilotti/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/taylorling/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/megdraws/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/meln1ks/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mahmoudmetwally/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/Silveredge9/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/derekebradley/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/happypeter1983/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/travis_arnold/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/artem_kostenko/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/adobi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/daykiine/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alek_djuric/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/scips/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/miguelmendes/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/justinrhee/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alsobrooks/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/fronx/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mcflydesign/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/santi_urso/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/allfordesign/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/stayuber/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bertboerland/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marosholly/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/adamnac/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cynthiasavard/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/muringa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/danro/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hiemil/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jackiesaik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/zacsnider/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/iduuck/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/antjanus/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aroon_sharma/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dshster/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thehacker/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/michaelbrooksjr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ryanmclaughlin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/clubb3rry/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/taybenlor/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/xripunov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/myastro/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/adityasutomo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/digitalmaverick/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hjartstrorn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/itolmach/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vaughanmoffitt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/abdots/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/isnifer/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sergeysafonov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/maz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/scrapdnb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chrismj83/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vitorleal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sokaniwaal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/zaki3d/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/illyzoren/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mocabyte/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/osmanince/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/djsherman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/davidhemphill/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/waghner/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/necodymiconer/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/praveen_vijaya/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/fabbrucci/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cliffseal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/travishines/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kuldarkalvik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/Elt_n/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/phillapier/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/okseanjay/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/id835559/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kudretkeskin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/anjhero/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/duck4fuck/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/scott_riley/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/noufalibrahim/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/h1brd/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/borges_marcos/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/devinhalladay/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ciaranr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/stefooo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mikebeecham/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tonymillion/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joshuaraichur/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/irae/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/petrangr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dmitriychuta/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/charliegann/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/arashmanteghi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ainsleywagon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/svenlen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/faisalabid/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/beshur/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/carlyson/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dutchnadia/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/teddyzetterlund/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/samuelkraft/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aoimedia/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/toddrew/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/codepoet_ru/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/artvavs/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/benoitboucart/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jomarmen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kolmarlopez/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/creartinc/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/homka/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gaborenton/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/robinclediere/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/maximsorokin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/plasticine/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/j2deme/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/peachananr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kapaluccio/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/de_ascanio/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rikas/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dawidwu/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marcoramires/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/angelcreative/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rpatey/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/popey/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rehatkathuria/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/the_purplebunny/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/1markiz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ajaxy_ru/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/brenmurrell/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dudestein/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/oskarlevinson/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/victorstuber/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nehfy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vicivadeline/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/leandrovaranda/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/scottgallant/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/victor_haydin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sawrb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ryhanhassan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/amayvs/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/a_brixen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/karolkrakowiak_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/herkulano/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/geran7/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cggaurav/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chris_witko/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lososina/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/polarity/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mattlat/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/brandonburke/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/constantx/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/teylorfeliz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/craigelimeliah/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rachelreveley/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/reabo101/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rahmeen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ky/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rickyyean/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/j04ntoh/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/spbroma/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sebashton/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jpenico/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/francis_vega/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/oktayelipek/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kikillo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/fabbianz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/larrygerard/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/BroumiYoussef/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/0therplanet/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mbilalsiddique1/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ionuss/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/grrr_nl/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/liminha/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rawdiggie/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ryandownie/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sethlouey/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/pixage/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/arpitnj/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/switmer777/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/josevnclch/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kanickairaj/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/puzik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tbakdesigns/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/besbujupi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/supjoey/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lowie/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/linkibol/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/balintorosz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/imcoding/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/agustincruiz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gusoto/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thomasschrijer/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/superoutman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kalmerrautam/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gabrielizalo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gojeanyn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/davidbaldie/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/_vojto/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/laurengray/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jydesign/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mymyboy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nellleo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marciotoledo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ninjad3m0/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/to_soham/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hasslunsford/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/muridrahhal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/levisan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/grahamkennery/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lepetitogre/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/antongenkin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nessoila/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/amandabuzard/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/safrankov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cocolero/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dss49/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/matt3224/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bluesix/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/quailandquasar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/AlbertoCococi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lepinski/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sementiy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mhudobivnik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thibaut_re/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/olgary/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/shojberg/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mtolokonnikov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bereto/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/naupintos/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/wegotvices/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/xadhix/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/macxim/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rodnylobos/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/madcampos/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/madebyvadim/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bartoszdawydzik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/supervova/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/markretzloff/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vonachoo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/darylws/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/stevedesigner/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mylesb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/herbigt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/depaulawagner/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/geshan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gizmeedevil1991/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/_scottburgess/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lisovsky/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/davidsasda/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/artd_sign/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/YoungCutlass/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mgonto/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/itstotallyamy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/victorquinn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/osmond/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/oksanafrewer/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/zauerkraut/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/iamkeithmason/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nitinhayaran/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lmjabreu/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mandalareopens/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thinkleft/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ponchomendivil/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/juamperro/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/brunodesign1206/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/caseycavanagh/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/luxe/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dotgridline/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/spedwig/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/madewulf/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mattsapii/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/helderleal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chrisstumph/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jayphen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nsamoylov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chrisvanderkooi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/justme_timothyg/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/otozk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/prinzadi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gu5taf/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cyril_gaillard/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/d_kobelyatsky/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/daniloc/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nwdsha/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/romanbulah/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/skkirilov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dvdwinden/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dannol/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thekevinjones/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jwalter14/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/timgthomas/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/buddhasource/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/uxpiper/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thatonetommy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/diansigitp/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/adrienths/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/klimmka/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gkaam/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/derekcramer/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jennyyo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nerrsoft/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/xalionmalik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/edhenderson/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/keyuri85/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/roxanejammet/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kimcool/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/edkf/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/matkins/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alessandroribe/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jacksonlatka/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lebronjennan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kostaspt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/karlkanall/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/moynihan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/danpliego/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/saulihirvi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/wesleytrankin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/fjaguero/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bowbrick/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mashaaaaal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/yassiryahya/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dparrelli/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/fotomagin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aka_james/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/denisepires/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/iqbalperkasa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/martinansty/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jarsen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/r_oy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/justinrob/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gabrielrosser/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/malgordon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/carlfairclough/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/michaelabehsera/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/pierrestoffe/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/enjoythetau/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/loganjlambert/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rpeezy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/coreyginnivan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/michalhron/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/msveet/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lingeswaran/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kolsvein/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/peter576/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/reideiredale/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joeymurdah/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/raphaelnikson/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mvdheuvel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/maxlinderman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jimmuirhead/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/begreative/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/frankiefreesbie/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/robturlinckx/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/Talbi_ConSept/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/longlivemyword/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vanchesz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/maiklam/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hermanobrother/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rez___a/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gregsqueeb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/greenbes/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/_ragzor/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/anthonysukow/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/fluidbrush/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dactrtr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jehnglynn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bergmartin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hugocornejo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/_kkga/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dzantievm/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sawalazar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sovesove/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jonsgotwood/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/byryan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vytautas_a/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mizhgan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cicerobr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nilshelmersson/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/d33pthought/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/davecraige/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nckjrvs/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alexandermayes/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jcubic/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/craigrcoles/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bagawarman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rob_thomas10/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cofla/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/maikelk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rtgibbons/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/russell_baylis/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mhesslow/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/codysanfilippo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/webtanya/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/madebybrenton/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dcalonaci/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/perfectflow/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jjsiii/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/saarabpreet/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kumarrajan12123/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/iamsteffen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/themikenagle/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ceekaytweet/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/larrybolt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/conspirator/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dallasbpeters/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/n3dmax/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/terpimost/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kirillz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/byrnecore/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/j_drake_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/calebjoyce/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/russoedu/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hoangloi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tobysaxon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gofrasdesign/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dimaposnyy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tjisousa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/okandungel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/billyroshan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/oskamaya/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/motionthinks/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/knilob/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ashocka18/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marrimo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bartjo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/omnizya/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ernestsemerda/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andreas_pr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/edgarchris99/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thomasgeisen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gseguin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joannefournier/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/demersdesigns/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/adammarsbar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nasirwd/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/n_tassone/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/javorszky/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/themrdave/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/yecidsm/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nicollerich/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/canapud/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nicoleglynn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/judzhin_miles/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/designervzm/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kianoshp/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/evandrix/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alterchuca/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dhrubo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ma_tiax/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ssbb_me/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dorphern/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mauriolg/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bruno_mart/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mactopus/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/the_winslet/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joemdesign/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/Shriiiiimp/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jacobbennett/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nfedoroff/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/iamglimy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/allagringaus/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aiiaiiaii/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/olaolusoga/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/buryaknick/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/wim1k/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nicklacke/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/a1chapone/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/steynviljoen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/strikewan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ryankirkman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andrewabogado/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/doooon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jagan123/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ariffsetiawan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/elenadissi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mwarkentin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thierrymeier_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/r_garcia/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dmackerman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/borantula/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/konus/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/spacewood_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ryuchi311/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/evanshajed/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tristanlegros/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/shoaib253/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aislinnkelly/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/okcoker/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/timpetricola/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sunshinedgirl/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chadami/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aleclarsoniv/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nomidesigns/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/petebernardo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/scottiedude/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/millinet/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/imsoper/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/imammuht/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/benjamin_knight/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nepdud/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joki4/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lanceguyatt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bboy1895/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/amywebbb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rweve/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/haruintesettden/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ricburton/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nelshd/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/batsirai/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/primozcigler/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jffgrdnr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/8d3k/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/geneseleznev/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/al_li/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/souperphly/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mslarkina/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/2fockus/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cdavis565/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/xiel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/turkutuuli/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/uxward/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lebinoclard/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gauravjassal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/davidmerrique/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mdsisto/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andrewofficer/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kojourin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dnirmal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kevka/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mr_shiznit/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aluisio_azevedo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cloudstudio/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/danvierich/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alexivanichkin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/fran_mchamy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/perretmagali/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/betraydan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cadikkara/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/matbeedotcom/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jeremyworboys/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bpartridge/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/michaelkoper/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/silv3rgvn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alevizio/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/johnsmithagency/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lawlbwoy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vitor376/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/desastrozo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thimo_cz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jasonmarkjones/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lhausermann/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/xravil/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/guischmitt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vigobronx/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/panghal0/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/miguelkooreman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/surgeonist/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/christianoliff/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/caspergrl/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/iamkarna/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ipavelek/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/pierre_nel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/y2graphic/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sterlingrules/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/elbuscainfo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bennyjien/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/stushona/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/estebanuribe/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/embrcecreations/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/danillos/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/elliotlewis/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/charlesrpratt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vladyn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/emmeffess/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/carlosblanco_eu/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/leonfedotov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rangafangs/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chris_frees/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tgormtx/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bryan_topham/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jpscribbles/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mighty55/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/carbontwelve/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/isaacfifth/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/iamjdeleon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/snowwrite/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/barputro/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/drewbyreese/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sachacorazzi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bistrianiosip/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/magoo04/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/pehamondello/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/yayteejay/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/a_harris88/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/algunsanabria/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/zforrester/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ovall/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/carlosjgsousa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/geobikas/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ah_lice/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/looneydoodle/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nerdgr8/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ddggccaa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/zackeeler/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/normanbox/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/el_fuertisimo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ismail_biltagi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/juangomezw/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jnmnrd/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/patrickcoombe/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ryanjohnson_me/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/markolschesky/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jeffgolenski/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kvasnic/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lindseyzilla/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gauchomatt/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/afusinatto/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kevinoh/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/okansurreel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/adamawesomeface/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/emileboudeling/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/arishi_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/juanmamartinez/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/wikiziner/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/danthms/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mkginfo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/terrorpixel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/curiousonaut/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/prheemo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/michaelcolenso/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/foczzi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/martip07/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thaodang17/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/johncafazza/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/robinlayfield/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/franciscoamk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/abdulhyeuk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marklamb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/edobene/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andresenfredrik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mikaeljorhult/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chrisslowik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vinciarts/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/meelford/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/elliotnolten/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/yehudab/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vijaykarthik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bfrohs/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/josep_martins/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/attacks/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sur4dye/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tumski/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/instalox/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mangosango/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/paulfarino/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kazaky999/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kiwiupover/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nvkznemo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tom_even/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ratbus/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/woodsman001/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joshmedeski/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thewillbeard/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/psaikali/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joe_black/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aleinadsays/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marcusgorillius/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hota_v/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jghyllebert/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/shinze/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/janpalounek/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jeremiespoken/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/her_ruu/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dansowter/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/felipeapiress/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/magugzbrand2d/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/posterjob/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nathalie_fs/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bobbytwoshoes/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dreizle/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jeremymouton/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/elisabethkjaer/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/notbadart/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mohanrohith/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jlsolerdeltoro/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/itskawsar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/slowspock/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/zvchkelly/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/wiljanslofstra/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/craighenneberry/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/trubeatto/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/juaumlol/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/samscouto/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/BenouarradeM/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gipsy_raf/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/netonet_il/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/arkokoley/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/itsajimithing/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/smalonso/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/victordeanda/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/_dwite_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/richardgarretts/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gregrwilkinson/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/anatolinicolae/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lu4sh1i/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/stefanotirloni/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ostirbu/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/darcystonge/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/naitanamoreno/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/michaelcomiskey/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/adhiardana/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marcomano_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/davidcazalis/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/falconerie/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gregkilian/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bcrad/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bolzanmarco/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/low_res/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vlajki/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/petar_prog/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jonkspr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/akmalfikri/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mfacchinello/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/atanism/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/harry_sistalam/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/murrayswift/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bobwassermann/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gavr1l0/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/madshensel/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mr_subtle/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/deviljho_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/salimianoff/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joetruesdell/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/twittypork/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/airskylar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dnezkumar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dgajjar/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cherif_b/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/salvafc/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/louis_currie/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/deeenright/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cybind/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/eyronn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vickyshits/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sweetdelisa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/cboller1/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andresdjasso/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/melvindidit/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andysolomon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thaisselenator_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lvovenok/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/giuliusa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/belyaev_rs/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/overcloacked/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kamal_chaneman/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/incubo82/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hellofeverrrr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mhaligowski/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sunlandictwin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bu7921/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/andytlaw/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jeremery/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/finchjke/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/manigm/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/umurgdk/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/scottfeltham/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ganserene/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mutu_krish/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jodytaggart/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ntfblog/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tanveerrao/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hfalucas/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alxleroydeval/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kucingbelang4/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bargaorobalo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/colgruv/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/stalewine/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kylefrost/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/baumannzone/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/angelcolberg/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sachingawas/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jjshaw14/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ramanathan_pdy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/johndezember/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nilshoenson/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/brandonmorreale/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nutzumi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/brandonflatsoda/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sergeyalmone/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/klefue/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kirangopal/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/baumann_alex/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/matthewkay_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jay_wilburn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/shesgared/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/apriendeau/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/johnriordan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/wake_gs/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aleksitappura/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/emsgulam/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/xilantra/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/imomenui/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sircalebgrove/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/newbrushes/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hsinyo23/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/m4rio/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/katiemdaly/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/s4f1/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ecommerceil/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marlinjayakody/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/swooshycueb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sangdth/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/coderdiaz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bluefx_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vivekprvr/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sasha_shestakov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/eugeneeweb/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dgclegg/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/n1ght_coder/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dixchen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/blakehawksworth/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/trueblood_33/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hai_ninh_nguyen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marclgonzales/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/yesmeck/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/stephcoue/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/doronmalki/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ruehldesign/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/anasnakawa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kijanmaharjan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/wearesavas/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/stefvdham/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tweetubhai/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alecarpentier/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/fiterik/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/antonyryndya/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/d00maz/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/theonlyzeke/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/missaaamy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/carlosm/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/manekenthe/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/reetajayendra/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jeremyshimko/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/justinrgraham/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/stefanozoffoli/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/overra/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mrebay007/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/shvelo96/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/pyronite/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/thedjpetersen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/rtyukmaev/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/_williamguerra/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/albertaugustin/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vikashpathak18/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kevinjohndayy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vj_demien/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/colirpixoil/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/goddardlewis/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/laasli/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jqiuss/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/heycamtaylor/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nastya_mane/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mastermindesign/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ccinojasso1/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/nyancecom/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sandywoodruff/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/bighanddesign/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sbtransparent/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aviddayentonbay/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/richwild/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kaysix_dizzy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/tur8le/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/seyedhossein1/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/privetwagner/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/emmandenn/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dev_essentials/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jmfsocial/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/_yardenoon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mateaodviteza/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/weavermedia/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mufaddal_mw/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hafeeskhan/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ashernatali/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sulaqo/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/eddiechen/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/josecarlospsh/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vm_f/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/enricocicconi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/danmartin70/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/gmourier/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/donjain/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mrxloka/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/_pedropinho/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/eitarafa/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/oscarowusu/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ralph_lam/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/panchajanyag/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/woodydotmx/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/jerrybai1907/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/marshallchen_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/xamorep/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aio___/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/chaabane_wail/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/txcx/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/akashsharma39/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/falling_soul/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sainraja/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mugukamil/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/johannesneu/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/markwienands/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/karthipanraj/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/balakayuriy/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/alan_zhang_/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/layerssss/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/kaspernordkvist/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/mirfanqureshi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/hanna_smi/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/VMilescu/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/aeon56/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/m_kalibry/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/sreejithexp/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dicesales/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/dhoot_amit/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/smenov/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/lonesomelemon/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vladimirdevic/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/joelcipriano/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/haligaliharun/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/buleswapnil/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/serefka/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/ifarafonow/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/vikasvinfotech/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/urrutimeoli/128.jpg",
+  "https://s3.amazonaws.com/uifaces/faces/twitter/areandacom/128.jpg"
+];
+
+},{}],964:[function(require,module,exports){
+module["exports"] = [
+    "com",
+    "biz",
+    "info",
+    "name",
+    "net",
+    "org",
+    // Romanian
+    "ro",
+    "com.ro",
+    "org.ro",
+    "tm.ro",
+    "store.ro",
+    "info.ro",
+    "nom.ro",
+    "nt.ro",
+    "firm.ro",
+    "www.ro",
+    "arts.ro",
+    "rec.ro"
+];
+
+},{}],965:[function(require,module,exports){
+module.exports=require(140)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/internet/free_email.js":140}],966:[function(require,module,exports){
+var internet = {};
+module['exports'] = internet;
+internet.free_email = require("./free_email");
+internet.domain_suffix = require("./domain_suffix");
+internet.avatar_uri = require("./avatar_uri");
+
+},{"./avatar_uri":963,"./domain_suffix":964,"./free_email":965}],967:[function(require,module,exports){
+module["exports"] = [
+    "Ada",
+    "Adela",
+    "Adelaida",
+    "Adelina",
+    "Adina",
+    "Adriana",
+    "Agata",
+    "Aglaia",
+    "Agripina",
+    "Aida",
+    "Alberta",
+    "Albertina",
+    "Alexandra",
+    "Alexandrina",
+    "Alida",
+    "Alina",
+    "Alice",
+    "Alis",
+    "Alma",
+    "Amalia",
+    "Amelia",
+    "Amanda",
+    "Ana",
+    "Anabela",
+    "Anaida",
+    "Anamaria",
+    "Anastasia",
+    "Anca",
+    "Ancuța",
+    "Anda",
+    "Andra",
+    "Andrada",
+    "Andreea",
+    "Anemona",
+    "Aneta",
+    "Angela",
+    "Anghelina",
+    "Anica",
+    "Anișoara",
+    "Antoaneta",
+    "Antonia",
+    "Antonela",
+    "Anuța",
+    "Ariadna",
+    "Ariana",
+    "Arina",
+    "Aristița",
+    "Artemisa",
+    "Astrid",
+    "Atena",
+    "Augustina",
+    "Aura",
+    "Aurelia",
+    "Aureliana",
+    "Aurica",
+    "Aurora",
+    "Beatrice",
+    "Betina",
+    "Bianca",
+    "Blanduzia",
+    "Bogdana",
+    "Brândușa",
+    "Camelia",
+    "Carina",
+    "Carla",
+    "Carmen",
+    "Carmina",
+    "Carolina",
+    "Casandra",
+    "Casiana",
+    "Caterina",
+    "Catinca",
+    "Catrina",
+    "Catrinel",
+    "Cătălina",
+    "Cecilia",
+    "Celia",
+    "Cerasela",
+    "Cezara",
+    "Cipriana",
+    "Clara",
+    "Clarisa",
+    "Claudia",
+    "Clementina",
+    "Cleopatra",
+    "Codrina",
+    "Codruța",
+    "Constantina",
+    "Constanța",
+    "Consuela",
+    "Coralia",
+    "Corina",
+    "Cornelia",
+    "Cosmina",
+    "Crenguța",
+    "Crina",
+    "Cristina",
+    "Daciana",
+    "Dafina",
+    "Daiana",
+    "Dalia",
+    "Dana",
+    "Daniela",
+    "Daria",
+    "Dariana",
+    "Delia",
+    "Demetra",
+    "Denisa",
+    "Despina",
+    "Diana",
+    "Dida",
+    "Didina",
+    "Dimitrina",
+    "Dina",
+    "Dochia",
+    "Doina",
+    "Domnica",
+    "Dora",
+    "Doriana",
+    "Dorina",
+    "Dorli",
+    "Draga",
+    "Dumitra",
+    "Dumitrana",
+    "Ecaterina",
+    "Eftimia",
+    "Elena",
+    "Eleonora",
+    "Eliana",
+    "Elisabeta",
+    "Elisaveta",
+    "Eliza",
+    "Elodia",
+    "Elvira",
+    "Emilia",
+    "Emanuela",
+    "Erica",
+    "Estera",
+    "Eufrosina",
+    "Eugenia",
+    "Eusebia",
+    "Eva",
+    "Evanghelina",
+    "Evelina",
+    "Fabia",
+    "Fabiana",
+    "Felicia",
+    "Filofteia",
+    "Fiona",
+    "Flavia",
+    "Floare",
+    "Floarea",
+    "Flora",
+    "Floriana",
+    "Florica",
+    "Florina",
+    "Florentina",
+    "Florența",
+    "Francesca",
+    "Frusina",
+    "Gabriela",
+    "Geanina",
+    "Gențiana",
+    "Georgeta",
+    "Georgia",
+    "Georgiana",
+    "Geta",
+    "Gherghina",
+    "Gianina",
+    "Gina",
+    "Giorgiana",
+    "Grațiana",
+    "Grațiela",
+    "Hortensia",
+    "Henrieta",
+    "Heracleea",
+    "Iasmina",
+    "Ica",
+    "Ileana",
+    "Ilinca",
+    "Ilona",
+    "Ina",
+    "Ioana",
+    "Ioanina",
+    "Iolanda",
+    "Ionela",
+    "Ionelia",
+    "Iosefina",
+    "Irina",
+    "Iridenta",
+    "Iris",
+    "Isabela",
+    "Iulia",
+    "Iuliana",
+    "Iustina",
+    "Ivona",
+    "Izabela",
+    "Jana",
+    "Janeta",
+    "Janina",
+    "Jasmina",
+    "Jeana",
+    "Julia",
+    "Julieta",
+    "Larisa",
+    "Laura",
+    "Laurenția",
+    "Lavinia",
+    "Lăcrămioara",
+    "Leana",
+    "Lelia",
+    "Leontina",
+    "Leopoldina",
+    "Letiția",
+    "Lia",
+    "Liana",
+    "Lidia",
+    "Ligia",
+    "Lili",
+    "Liliana",
+    "Lioara",
+    "Livia",
+    "Loredana",
+    "Lorelei",
+    "Lorena",
+    "Luana",
+    "Lucia",
+    "Luciana",
+    "Lucreția",
+    "Ludovica",
+    "Ludmila",
+    "Luiza",
+    "Luminița",
+    "Magdalena",
+    "Maia",
+    "Manuela",
+    "Mara",
+    "Marcela",
+    "Marga",
+    "Margareta",
+    "Marcheta",
+    "Maria",
+    "Mariana",
+    "Maricica",
+    "Marilena",
+    "Marina",
+    "Marinela",
+    "Marioara",
+    "Marta",
+    "Matilda",
+    "Malvina",
+    "Mădălina",
+    "Mălina",
+    "Mărioara",
+    "Măriuca",
+    "Melania",
+    "Melina",
+    "Mihaela",
+    "Milena",
+    "Mina",
+    "Minodora",
+    "Mioara",
+    "Mirabela",
+    "Mirela",
+    "Mirona",
+    "Miruna",
+    "Mona",
+    "Monalisa",
+    "Monica",
+    "Nadia",
+    "Narcisa",
+    "Natalia",
+    "Natașa",
+    "Noemi",
+    "Nicoleta",
+    "Niculina",
+    "Nidia",
+    "Nora",
+    "Norica",
+    "Oana",
+    "Octavia",
+    "Octaviana",
+    "Ofelia",
+    "Olga",
+    "Olimpia",
+    "Olivia",
+    "Ortansa",
+    "Otilia",
+    "Ozana",
+    "Pamela",
+    "Paraschiva",
+    "Paula",
+    "Paulica",
+    "Paulina",
+    "Patricia",
+    "Petronela",
+    "Petruța",
+    "Pompilia",
+    "Profira",
+    "Rada",
+    "Rafila",
+    "Raluca",
+    "Ramona",
+    "Rebeca",
+    "Renata",
+    "Rica",
+    "Roberta",
+    "Robertina",
+    "Rodica",
+    "Romanița",
+    "Romina",
+    "Roza",
+    "Rozalia",
+    "Roxana",
+    "Roxelana",
+    "Ruxanda",
+    "Ruxandra",
+    "Sabina",
+    "Sabrina",
+    "Safta",
+    "Salomea",
+    "Sanda",
+    "Saveta",
+    "Savina",
+    "Sânziana",
+    "Semenica",
+    "Severina",
+    "Sidonia",
+    "Silvia",
+    "Silvana",
+    "Silviana",
+    "Simina",
+    "Simona",
+    "Smaranda",
+    "Sofia",
+    "Sonia",
+    "Sorana",
+    "Sorina",
+    "Speranța",
+    "Stana",
+    "Stanca",
+    "Stela",
+    "Steliana",
+    "Steluța",
+    "Suzana",
+    "Svetlana",
+    "Ștefana",
+    "Ștefania",
+    "Tamara",
+    "Tania",
+    "Tatiana",
+    "Teea",
+    "Teodora",
+    "Teodosia",
+    "Teona",
+    "Tiberia",
+    "Timea",
+    "Tinca",
+    "Tincuța",
+    "Tudora",
+    "Tudorița",
+    "Tudosia",
+    "Valentina",
+    "Valeria",
+    "Vanesa",
+    "Varvara",
+    "Vasilica",
+    "Venera",
+    "Vera",
+    "Veronica",
+    "Veta",
+    "Vicenția",
+    "Victoria",
+    "Violeta",
+    "Viorela",
+    "Viorica",
+    "Virginia",
+    "Viviana",
+    "Voichița",
+    "Xenia",
+    "Zaharia",
+    "Zamfira",
+    "Zaraza",
+    "Zenobia",
+    "Zenovia",
+    "Zina",
+    "Zoe"
+];
+
+},{}],968:[function(require,module,exports){
+var name = {};
+module['exports'] = name;
+name.male_first_name = require("./male_first_name");
+name.female_first_name = require("./female_first_name");
+name.last_name = require("./last_name");
+name.prefix = require("./prefix");
+name.suffix = require("./suffix");
+name.name = require("./name");
+
+},{"./female_first_name":967,"./last_name":969,"./male_first_name":970,"./name":971,"./prefix":972,"./suffix":973}],969:[function(require,module,exports){
+module["exports"] = [
+    "Achim",
+    "Adam",
+    "Albu",
+    "Aldea",
+    "Alexa",
+    "Alexandrescu",
+    "Alexandru",
+    "Alexe",
+    "Andrei",
+    "Anghel",
+    "Antal",
+    "Anton",
+    "Apostol",
+    "Ardelean",
+    "Ardeleanu",
+    "Avram",
+    "Baciu",
+    "Badea",
+    "Balan",
+    "Balint",
+    "Banica",
+    "Banu",
+    "Barbu",
+    "Barbulescu",
+    "Bejan",
+    "Biro",
+    "Blaga",
+    "Boboc",
+    "Bodea",
+    "Bogdan",
+    "Bota",
+    "Botezatu",
+    "Bratu",
+    "Bucur",
+    "Buda",
+    "Bunea",
+    "Burlacu",
+    "Calin",
+    "Catana",
+    "Cazacu",
+    "Chiriac",
+    "Chirila",
+    "Chirita",
+    "Chis",
+    "Chivu",
+    "Ciobanu",
+    "Ciocan",
+    "Cojocaru",
+    "Coman",
+    "Constantin",
+    "Constantinescu",
+    "Cornea",
+    "Cosma",
+    "Costache",
+    "Costea",
+    "Costin",
+    "Covaci",
+    "Cozma",
+    "Craciun",
+    "Cretu",
+    "Crisan",
+    "Cristea",
+    "Cristescu",
+    "Croitoru",
+    "Cucu",
+    "Damian",
+    "Dan",
+    "Danciu",
+    "Danila",
+    "Dascalu",
+    "David",
+    "Diaconescu",
+    "Diaconu",
+    "Dima",
+    "Dinca",
+    "Dinu",
+    "Dobre",
+    "Dobrescu",
+    "Dogaru",
+    "Dragan",
+    "Draghici",
+    "Dragoi",
+    "Dragomir",
+    "Dumitrache",
+    "Dumitrascu",
+    "Dumitrescu",
+    "Dumitriu",
+    "Dumitru",
+    "Duta",
+    "Enache",
+    "Ene",
+    "Farcas",
+    "Filimon",
+    "Filip",
+    "Florea",
+    "Florescu",
+    "Fodor",
+    "Fratila",
+    "Gabor",
+    "Gal",
+    "Ganea",
+    "Gavrila",
+    "Georgescu",
+    "Gheorghe",
+    "Gheorghita",
+    "Gheorghiu",
+    "Gherman",
+    "Ghita",
+    "Giurgiu",
+    "Grecu",
+    "Grigoras",
+    "Grigore",
+    "Grigorescu",
+    "Grosu",
+    "Groza",
+    "Horvath",
+    "Iacob",
+    "Iancu",
+    "Ichim",
+    "Ignat",
+    "Ilie",
+    "Iliescu",
+    "Ion",
+    "Ionescu",
+    "Ionita",
+    "Iordache",
+    "Iorga",
+    "Iosif",
+    "Irimia",
+    "Ispas",
+    "Istrate",
+    "Ivan",
+    "Ivascu",
+    "Kiss",
+    "Kovacs",
+    "Lazar",
+    "Luca",
+    "Lungu",
+    "Lupu",
+    "Macovei",
+    "Maftei",
+    "Man",
+    "Manea",
+    "Manolache",
+    "Manole",
+    "Marcu",
+    "Marginean",
+    "Marian",
+    "Marin",
+    "Marinescu",
+    "Martin",
+    "Mateescu",
+    "Matei",
+    "Maxim",
+    "Mazilu",
+    "Micu",
+    "Mihai",
+    "Mihaila",
+    "Mihailescu",
+    "Mihalache",
+    "Mihalcea",
+    "Milea",
+    "Militaru",
+    "Mircea",
+    "Mirea",
+    "Miron",
+    "Miu",
+    "Mocanu",
+    "Moga",
+    "Moise",
+    "Moldovan",
+    "Moldoveanu",
+    "Molnar",
+    "Morar",
+    "Moraru",
+    "Muntean",
+    "Munteanu",
+    "Muresan",
+    "Musat",
+    "Nagy",
+    "Nastase",
+    "Neacsu",
+    "Neagoe",
+    "Neagu",
+    "Neamtu",
+    "Nechita",
+    "Necula",
+    "Nedelcu",
+    "Negoita",
+    "Negrea",
+    "Negru",
+    "Nemes",
+    "Nica",
+    "Nicoara",
+    "Nicolae",
+    "Nicolescu",
+    "Niculae",
+    "Niculescu",
+    "Nistor",
+    "Nita",
+    "Nitu",
+    "Oancea",
+    "Olariu",
+    "Olaru",
+    "Oltean",
+    "Olteanu",
+    "Oprea",
+    "Opris",
+    "Paduraru",
+    "Pana",
+    "Panait",
+    "Paraschiv",
+    "Parvu",
+    "Pasca",
+    "Pascu",
+    "Patrascu",
+    "Paun",
+    "Pavel",
+    "Petcu",
+    "Peter",
+    "Petre",
+    "Petrea",
+    "Petrescu",
+    "Pintea",
+    "Pintilie",
+    "Pirvu",
+    "Pop",
+    "Popa",
+    "Popescu",
+    "Popovici",
+    "Preda",
+    "Prodan",
+    "Puiu",
+    "Radoi",
+    "Radu",
+    "Radulescu",
+    "Roman",
+    "Rosca",
+    "Rosu",
+    "Rotaru",
+    "Rus",
+    "Rusu",
+    "Sabau",
+    "Sandor",
+    "Sandu",
+    "Sarbu",
+    "Sava",
+    "Savu",
+    "Serban",
+    "Sima",
+    "Simion",
+    "Simionescu",
+    "Simon",
+    "Sirbu",
+    "Soare",
+    "Solomon",
+    "Staicu",
+    "Stan",
+    "Stanciu",
+    "Stancu",
+    "Stanescu",
+    "Stefan",
+    "Stefanescu",
+    "Stoian",
+    "Stoica",
+    "Stroe",
+    "Suciu",
+    "Szabo",
+    "Szasz",
+    "Szekely",
+    "Tamas",
+    "Tanase",
+    "Tataru",
+    "Teodorescu",
+    "Toader",
+    "Toma",
+    "Tomescu",
+    "Toth",
+    "Trandafir",
+    "Trif",
+    "Trifan",
+    "Tudor",
+    "Tudorache",
+    "Tudose",
+    "Turcu",
+    "Ungureanu",
+    "Ursu",
+    "Vaduva",
+    "Varga",
+    "Vasile",
+    "Vasilescu",
+    "Vasiliu",
+    "Veres",
+    "Vintila",
+    "Visan",
+    "Vlad",
+    "Voicu",
+    "Voinea",
+    "Zaharia",
+    "Zamfir"
+];
+
+},{}],970:[function(require,module,exports){
+module["exports"] = [
+    "Achim",
+    "Adam",
+    "Adelin",
+    "Adonis",
+    "Adrian",
+    "Adi",
+    "Agnos",
+    "Albert",
+    "Alex",
+    "Alexandru",
+    "Alexe",
+    "Aleodor",
+    "Alin",
+    "Alistar",
+    "Amedeu",
+    "Amza",
+    "Anatolie",
+    "Andrei",
+    "Angel",
+    "Anghel",
+    "Antim",
+    "Anton",
+    "Antonie",
+    "Antoniu",
+    "Arian",
+    "Aristide",
+    "Arsenie",
+    "Augustin",
+    "Aurel",
+    "Aurelian",
+    "Aurică",
+    "Avram",
+    "Axinte",
+    "Barbu",
+    "Bartolomeu",
+    "Basarab",
+    "Bănel",
+    "Bebe",
+    "Beniamin",
+    "Benone",
+    "Bernard",
+    "Bogdan",
+    "Brăduț",
+    "Bucur",
+    "Caius",
+    "Camil",
+    "Cantemir",
+    "Carol",
+    "Casian",
+    "Cazimir",
+    "Călin",
+    "Cătălin",
+    "Cedrin",
+    "Cezar",
+    "Ciprian",
+    "Claudiu",
+    "Codin",
+    "Codrin",
+    "Codruț",
+    "Cornel",
+    "Corneliu",
+    "Corvin",
+    "Constantin",
+    "Cosmin",
+    "Costache",
+    "Costel",
+    "Costin",
+    "Crin",
+    "Cristea",
+    "Cristian",
+    "Cristobal",
+    "Cristofor",
+    "Dacian",
+    "Damian",
+    "Dan",
+    "Daniel",
+    "Darius",
+    "David",
+    "Decebal",
+    "Denis",
+    "Dinu",
+    "Dominic",
+    "Dorel",
+    "Dorian",
+    "Dorin",
+    "Dorinel",
+    "Doru",
+    "Dragoș",
+    "Ducu",
+    "Dumitru",
+    "Edgar",
+    "Edmond",
+    "Eduard",
+    "Eftimie",
+    "Emil",
+    "Emilian",
+    "Emanoil",
+    "Emanuel",
+    "Emanuil",
+    "Eremia",
+    "Eric",
+    "Ernest",
+    "Eugen",
+    "Eusebiu",
+    "Eustațiu",
+    "Fabian",
+    "Felix",
+    "Filip",
+    "Fiodor",
+    "Flaviu",
+    "Florea",
+    "Florentin",
+    "Florian",
+    "Florin",
+    "Francisc",
+    "Frederic",
+    "Gabi",
+    "Gabriel",
+    "Gelu",
+    "George",
+    "Georgel",
+    "Georgian",
+    "Ghenadie",
+    "Gheorghe",
+    "Gheorghiță",
+    "Ghiță",
+    "Gică",
+    "Gicu",
+    "Giorgian",
+    "Grațian",
+    "Gregorian",
+    "Grigore",
+    "Haralamb",
+    "Haralambie",
+    "Horațiu",
+    "Horea",
+    "Horia",
+    "Iacob",
+    "Iancu",
+    "Ianis",
+    "Ieremia",
+    "Ilarie",
+    "Ilarion",
+    "Ilie",
+    "Inocențiu",
+    "Ioan",
+    "Ion",
+    "Ionel",
+    "Ionică",
+    "Ionuț",
+    "Iosif",
+    "Irinel",
+    "Iulian",
+    "Iuliu",
+    "Iurie",
+    "Iustin",
+    "Iustinian",
+    "Ivan",
+    "Jan",
+    "Jean",
+    "Jenel",
+    "Ladislau",
+    "Lascăr",
+    "Laurențiu",
+    "Laurian",
+    "Lazăr",
+    "Leonard",
+    "Leontin",
+    "Lică",
+    "Liviu",
+    "Lorin",
+    "Luca",
+    "Lucențiu",
+    "Lucian",
+    "Lucrețiu",
+    "Ludovic",
+    "Manole",
+    "Marcel",
+    "Marcu",
+    "Marian",
+    "Marin",
+    "Marius",
+    "Martin",
+    "Matei",
+    "Maxim",
+    "Maximilian",
+    "Mădălin",
+    "Mihai",
+    "Mihail",
+    "Mihnea",
+    "Mircea",
+    "Miron",
+    "Mitică",
+    "Mitruț",
+    "Mugur",
+    "Mugurel",
+    "Nae",
+    "Narcis",
+    "Nechifor",
+    "Nelu",
+    "Nichifor",
+    "Nicoară",
+    "Nicodim",
+    "Nicolae",
+    "Nicolaie",
+    "Nicu",
+    "Nicuță",
+    "Niculiță",
+    "Nicușor",
+    "Norbert",
+    "Norman",
+    "Octav",
+    "Octavian",
+    "Octaviu",
+    "Olimpian",
+    "Olimpiu",
+    "Oliviu",
+    "Ovidiu",
+    "Pamfil",
+    "Panait",
+    "Panagachie",
+    "Paul",
+    "Pavel",
+    "Pătru",
+    "Petre",
+    "Petrică",
+    "Petrișor",
+    "Petru",
+    "Petruț",
+    "Pompiliu",
+    "Radu",
+    "Rafael",
+    "Rareș",
+    "Raul",
+    "Răducu",
+    "Răzvan",
+    "Relu",
+    "Remus",
+    "Robert",
+    "Romeo",
+    "Romulus",
+    "Sabin",
+    "Sandu",
+    "Sava",
+    "Sebastian",
+    "Sergiu",
+    "Sever",
+    "Severin",
+    "Silvian",
+    "Silviu",
+    "Simi",
+    "Simion",
+    "Sinică",
+    "Sorin",
+    "Stan",
+    "Stancu",
+    "Stelian",
+    "Sandu",
+    "Șerban",
+    "Ștefan",
+    "Teodor",
+    "Teofil",
+    "Teohari",
+    "Theodor",
+    "Tiberiu",
+    "Timotei",
+    "Titus",
+    "Todor",
+    "Toma",
+    "Traian",
+    "Tudor",
+    "Valentin",
+    "Valeriu",
+    "Valter",
+    "Vasile",
+    "Vasilică",
+    "Veniamin",
+    "Vicențiu",
+    "Victor",
+    "Vincențiu",
+    "Viorel",
+    "Visarion",
+    "Vlad",
+    "Vladimir",
+    "Vlaicu",
+    "Voicu",
+    "Zamfir",
+    "Zeno"
+];
+
+},{}],971:[function(require,module,exports){
+module["exports"] = [
+    "#{male_first_name} #{last_name}",
+    "#{male_first_name} #{last_name}",
+    "#{male_first_name} #{last_name}",
+    "#{male_first_name} #{last_name}",
+    "#{male_first_name} #{last_name}",
+    "#{male_first_name} #{last_name}",
+    "#{last_name} #{male_first_name}",
+    "#{last_name} #{male_first_name}",
+    "#{last_name} #{male_first_name}",
+    "#{last_name} #{male_first_name}",
+    "#{last_name} #{male_first_name}",
+    "#{last_name} #{male_first_name}",
+    "#{prefix} #{male_first_name} #{last_name}",
+    "#{prefix} #{male_first_name} #{last_name}",
+    "#{prefix} #{male_first_name} #{last_name}",
+    "#{male_first_name} #{last_name}, #{suffix}",
+    "#{prefix} #{male_first_name} #{last_name}, #{suffix}",
+    "#{female_first_name} #{last_name}",
+    "#{female_first_name} #{last_name}",
+    "#{female_first_name} #{last_name}",
+    "#{female_first_name} #{last_name}",
+    "#{female_first_name} #{last_name}",
+    "#{female_first_name} #{last_name}",
+    "#{last_name} #{female_first_name}",
+    "#{last_name} #{female_first_name}",
+    "#{last_name} #{female_first_name}",
+    "#{last_name} #{female_first_name}",
+    "#{last_name} #{female_first_name}",
+    "#{last_name} #{female_first_name}",
+    "#{prefix} #{female_first_name} #{last_name}",
+    "#{prefix} #{female_first_name} #{last_name}",
+    "#{prefix} #{female_first_name} #{last_name}"
+];
+
+},{}],972:[function(require,module,exports){
+module["exports"] = [
+    "Dl",
+    "Dna",
+    "Dra"
+];
+
+},{}],973:[function(require,module,exports){
+module["exports"] = [
+    "Jr.",
+    "Sr."
+];
+
+},{}],974:[function(require,module,exports){
+module["exports"] = [
+    "021######",
+    "031######",
+    "0258######",
+    "0358######",
+    "0257######",
+    "0357######",
+    "0248######",
+    "0348######",
+    "0234######",
+    "0334######",
+    "0259######",
+    "0359######",
+    "0263######",
+    "0363######",
+    "0231######",
+    "0331######",
+    "0239######",
+    "0339######",
+    "0268######",
+    "0368######",
+    "0238######",
+    "0338######",
+    "0242######",
+    "0342######",
+    "0255######",
+    "0355######",
+    "0264######",
+    "0364######",
+    "0241######",
+    "0341######",
+    "0267######",
+    "0367######",
+    "0245######",
+    "0345######",
+    "0251######",
+    "0351######",
+    "0236######",
+    "0336######",
+    "0246######",
+    "0346######",
+    "0253######",
+    "0353######",
+    "0266######",
+    "0366######",
+    "0254######",
+    "0354######",
+    "0243######",
+    "0343######",
+    "0232######",
+    "0332######",
+    "0262######",
+    "0362######",
+    "0252######",
+    "0352######",
+    "0265######",
+    "0365######",
+    "0233######",
+    "0333######",
+    "0249######",
+    "0349######",
+    "0244######",
+    "0344######",
+    "0260######",
+    "0360######",
+    "0261######",
+    "0361######",
+    "0269######",
+    "0369######",
+    "0230######",
+    "0330######",
+    "0247######",
+    "0347######",
+    "0256######",
+    "0356######",
+    "0240######",
+    "0340######",
+    "0250######",
+    "0350######",
+    "0235######",
+    "0335######",
+    "0237######",
+    "0337######"
+];
+
+},{}],975:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":974,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],976:[function(require,module,exports){
+module.exports=require(38)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/address/building_number.js":38}],977:[function(require,module,exports){
+module.exports=require(39)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/address/city.js":39}],978:[function(require,module,exports){
 module["exports"] = [
   "Москва",
   "Владимир",
@@ -60136,7 +71093,7 @@ module["exports"] = [
   "Сочи"
 ];
 
-},{}],799:[function(require,module,exports){
+},{}],979:[function(require,module,exports){
 module["exports"] = [
   "Австралия",
   "Австрия",
@@ -60350,24 +71307,21 @@ module["exports"] = [
   "Япония"
 ];
 
-},{}],800:[function(require,module,exports){
+},{}],980:[function(require,module,exports){
 module["exports"] = [
   "Россия"
 ];
 
-},{}],801:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"./building_number":796,"./city":797,"./city_name":798,"./country":799,"./default_country":800,"./postcode":802,"./secondary_address":803,"./state":804,"./street_address":805,"./street_name":806,"./street_suffix":807,"./street_title":808,"/Users/a/dev/faker.js/lib/locales/az/address/index.js":21}],802:[function(require,module,exports){
-module["exports"] = [
-  "######"
-];
-
-},{}],803:[function(require,module,exports){
+},{}],981:[function(require,module,exports){
+arguments[4][43][0].apply(exports,arguments)
+},{"./building_number":976,"./city":977,"./city_name":978,"./country":979,"./default_country":980,"./postcode":982,"./secondary_address":983,"./state":984,"./street_address":985,"./street_name":986,"./street_suffix":987,"./street_title":988,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/address/index.js":43}],982:[function(require,module,exports){
+module.exports=require(949)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ro/address/postcode.js":949}],983:[function(require,module,exports){
 module["exports"] = [
   "кв. ###"
 ];
 
-},{}],804:[function(require,module,exports){
+},{}],984:[function(require,module,exports){
 module["exports"] = [
   "Республика Адыгея",
   "Республика Башкортостан",
@@ -60457,11 +71411,11 @@ module["exports"] = [
   "Чеченская Республика"
 ];
 
-},{}],805:[function(require,module,exports){
-module.exports=require(25)
-},{"/Users/a/dev/faker.js/lib/locales/az/address/street_address.js":25}],806:[function(require,module,exports){
-module.exports=require(26)
-},{"/Users/a/dev/faker.js/lib/locales/az/address/street_name.js":26}],807:[function(require,module,exports){
+},{}],985:[function(require,module,exports){
+module.exports=require(47)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/address/street_address.js":47}],986:[function(require,module,exports){
+module.exports=require(48)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/address/street_name.js":48}],987:[function(require,module,exports){
 module["exports"] = [
   "ул.",
   "улица",
@@ -60471,7 +71425,7 @@ module["exports"] = [
   "пл."
 ];
 
-},{}],808:[function(require,module,exports){
+},{}],988:[function(require,module,exports){
 module["exports"] = [
   "Советская",
   "Молодежная",
@@ -60576,7 +71530,7 @@ module["exports"] = [
   "Майская"
 ];
 
-},{}],809:[function(require,module,exports){
+},{}],989:[function(require,module,exports){
 module["exports"] = [
   "красный",
   "зеленый",
@@ -60611,7 +71565,7 @@ module["exports"] = [
   "серебряный"
 ];
 
-},{}],810:[function(require,module,exports){
+},{}],990:[function(require,module,exports){
 module["exports"] = [
   "Книги",
   "Фильмы",
@@ -60633,12 +71587,15 @@ module["exports"] = [
   "Спорт",
   "туризм",
   "Автомобильное",
+  "Галантерея",
+  "Меха",
+  "Пряжа",
   "промышленное"
 ];
 
-},{}],811:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"./color":809,"./department":810,"./product_name":812,"/Users/a/dev/faker.js/lib/locales/az/commerce/index.js":31}],812:[function(require,module,exports){
+},{}],991:[function(require,module,exports){
+arguments[4][53][0].apply(exports,arguments)
+},{"./color":989,"./department":990,"./product_name":992,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/commerce/index.js":53}],992:[function(require,module,exports){
 module["exports"] = {
   "adjective": [
     "Маленький",
@@ -60647,8 +71604,10 @@ module["exports"] = {
     "Интеллектуальный",
     "Великолепный",
     "Невероятный",
+    "Свободный",
+    "Большой",
     "Фантастический",
-    "Практчиный",
+    "Практичный",
     "Лоснящийся",
     "Потрясающий"
   ],
@@ -60659,6 +71618,10 @@ module["exports"] = {
     "Пластиковый",
     "Хлопковый",
     "Гранитный",
+    "Кожанный",
+    "Неодимовый",
+    "Меховой",
+    "Натуральный",
     "Резиновый"
   ],
   "product": [
@@ -60670,26 +71633,38 @@ module["exports"] = {
     "Стол",
     "Свитер",
     "Ремень",
+    "Ножницы",
+    "Носки",
+    "Майка",
+    "Кепка",
+    "Куртка",
+    "Плащ",
+    "Сабо",
+    "Шарф",
+    "Клатч",
+    "Кошелек",
+    "Портмоне",
     "Ботинок"
   ]
 };
 
-},{}],813:[function(require,module,exports){
-arguments[4][33][0].apply(exports,arguments)
-},{"./name":814,"./prefix":815,"./suffix":816,"/Users/a/dev/faker.js/lib/locales/az/company/index.js":33}],814:[function(require,module,exports){
-module.exports=require(34)
-},{"/Users/a/dev/faker.js/lib/locales/az/company/name.js":34}],815:[function(require,module,exports){
+},{}],993:[function(require,module,exports){
+arguments[4][55][0].apply(exports,arguments)
+},{"./name":994,"./prefix":995,"./suffix":996,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/company/index.js":55}],994:[function(require,module,exports){
+module.exports=require(56)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/company/name.js":56}],995:[function(require,module,exports){
 module["exports"] = [
   "ИП",
   "ООО",
   "ЗАО",
   "ОАО",
+  "ПАО",
   "НКО",
   "ТСЖ",
   "ОП"
 ];
 
-},{}],816:[function(require,module,exports){
+},{}],996:[function(require,module,exports){
 module["exports"] = [
   "Снаб",
   "Торг",
@@ -60698,9 +71673,9 @@ module["exports"] = [
   "Сбыт"
 ];
 
-},{}],817:[function(require,module,exports){
-arguments[4][37][0].apply(exports,arguments)
-},{"./month":818,"./weekday":819,"/Users/a/dev/faker.js/lib/locales/az/date/index.js":37}],818:[function(require,module,exports){
+},{}],997:[function(require,module,exports){
+arguments[4][59][0].apply(exports,arguments)
+},{"./month":998,"./weekday":999,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/date/index.js":59}],998:[function(require,module,exports){
 // source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/ru.xml#L1734
 module["exports"] = {
   wide: [
@@ -60761,7 +71736,7 @@ module["exports"] = {
   ]
 };
 
-},{}],819:[function(require,module,exports){
+},{}],999:[function(require,module,exports){
 // source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/ru.xml#L1825
 module["exports"] = {
   wide: [
@@ -60802,7 +71777,155 @@ module["exports"] = {
   ]
 };
 
-},{}],820:[function(require,module,exports){
+},{}],1000:[function(require,module,exports){
+module["exports"] = [
+  "БИОС",
+  "Гб",
+  "ИИ",
+  "ОС",
+  "ОЗУ",
+  "ПО",
+  "СУБД",
+  "ХЗ",
+  "ЭВМ",
+  "HTTP",
+  "SDD",
+  "CSS",
+  "SSL",
+  "AGP",
+  "FTP",
+  "PCI",
+  "ADP",
+  "RSS",
+  "XML",
+  "EXE",
+  "COM",
+  "НМЖД",
+  "ПЗУ",
+  "SMTP",
+  "SMS",
+  "USB",
+  "PNG",
+  "SAS",
+  "JSON",
+  "XSS"
+];
+
+},{}],1001:[function(require,module,exports){
+module["exports"] = [
+  "вспомогательный",
+  "основной",
+  "внутренний",
+  "цифровой",
+  "свободно-распростроняемый",
+  "виртуальный",
+  "кросс-платформенный",
+  "излишний",
+  "онлайн",
+  "сенсорный",
+  "многобайтный",
+  "беспроводной",
+  "1080-пиксельный",
+  "нейронный",
+  "оптический",
+  "твердотельный",
+  "мобильный"
+];
+
+},{}],1002:[function(require,module,exports){
+arguments[4][269][0].apply(exports,arguments)
+},{"./abbreviation":1000,"./adjective":1001,"./ingverb":1003,"./noun":1004,"./phrase":1005,"./verb":1006,"/Users/kdzuin/Badoo/faker.js/lib/locales/en/hacker/index.js":269}],1003:[function(require,module,exports){
+module["exports"] = [
+  "резервное копирование",
+  "обход",
+  "архивирование",
+  "взлом",
+  "шифрование",
+  "переопределение",
+  "сжатие",
+  "скачивание",
+  "копирование",
+  "навигация",
+  "индексирование",
+  "соединение",
+  "генерация",
+  "определение количества",
+  "вычисление",
+  "синтез",
+  "передача",
+  "программирование",
+  "разбор"
+];
+
+},{}],1004:[function(require,module,exports){
+module["exports"] = [
+  "драйвер",
+  "протокол",
+  "ограничитель",
+  "интерфейс",
+  "микрочип",
+  "код",
+  "парсер",
+  "сокет",
+  "кортеж",
+  "порт",
+  "ключ",
+  "массив",
+  "интерфейс",
+  "объект",
+  "сенсор",
+  "брандмауэр",
+  "винчестер",
+  "пиксель",
+  "механизм сигнализации",
+  "поглотитель",
+  "монитор",
+  "продукт",
+  "передатчик",
+  "блок разведения",
+  "канал",
+  "конденсатор",
+  "оператор"
+];
+
+},{}],1005:[function(require,module,exports){
+module["exports"] = [
+  "Чтобы {{verb}} {{noun}}, мы можем получить {{abbreviation}} {{noun}} через {{adjective}} {{abbreviation}} {{noun}}!",
+  "Необходимо {{verb}} {{adjective}} {{abbreviation}} {{noun}}!",
+  "Попробуйте {{verb}} {{abbreviation}} {{noun}}, возможно это позволит {{verb}} {{adjective}} {{noun}}!",
+  "Вы не можете {{verb}} {{noun}}, требуется {{ingverb}} или {{ingverb}}!",
+  "Используйте {{adjective}} {{abbreviation}} {{noun}}, для того чтобы {{verb}} {{adjective}} {{noun}}!",
+  "{{abbreviation}} {{noun}} недоступен, требуется {{verb}} {{adjective}} {{noun}}, чтобы мы могли {{verb}} {{abbreviation}} {{noun}}!",
+  "{{ingverb}} не работает, попробуйте {{verb}} {{adjective}} {{abbreviation}} {{noun}}!",
+  "Я планирую {{verb}} {{adjective}} {{abbreviation}} {{noun}}, это должно помочь {{verb}} {{abbreviation}} {{noun}}!"
+];
+},{}],1006:[function(require,module,exports){
+module["exports"] = [
+  "сохранить",
+  "обойти",
+  "взломать",
+  "переопределить",
+  "сжать",
+  "зашифровать",
+  "импортировать",
+  "экспортировать",
+  "копировать",
+  "навигировать",
+  "индексировать",
+  "соединить",
+  "генерировать",
+  "распарсить",
+  "квантифицировать",
+  "вычислить",
+  "синтезировать",
+  "ввести",
+  "передать",
+  "запрограммировать",
+  "перезагрузить",
+  "разобрать"
+];
+
+},{}],1007:[function(require,module,exports){
 var ru = {};
 module['exports'] = ru;
 ru.title = "Russian";
@@ -60814,8 +71937,8 @@ ru.phone_number = require("./phone_number");
 ru.commerce = require("./commerce");
 ru.company = require("./company");
 ru.date = require("./date");
-
-},{"./address":801,"./commerce":811,"./company":813,"./date":817,"./internet":823,"./name":827,"./phone_number":835}],821:[function(require,module,exports){
+ru.hacker = require("./hacker");
+},{"./address":981,"./commerce":991,"./company":993,"./date":997,"./hacker":1002,"./internet":1010,"./name":1014,"./phone_number":1022}],1008:[function(require,module,exports){
 module["exports"] = [
   "com",
   "ru",
@@ -60825,7 +71948,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],822:[function(require,module,exports){
+},{}],1009:[function(require,module,exports){
 module["exports"] = [
   "yandex.ru",
   "ya.ru",
@@ -60835,9 +71958,9 @@ module["exports"] = [
   "hotmail.com"
 ];
 
-},{}],823:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":821,"./free_email":822,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],824:[function(require,module,exports){
+},{}],1010:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":1008,"./free_email":1009,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],1011:[function(require,module,exports){
 module["exports"] = [
   "Анна",
   "Алёна",
@@ -60897,7 +72020,7 @@ module["exports"] = [
   "Юлия"
 ];
 
-},{}],825:[function(require,module,exports){
+},{}],1012:[function(require,module,exports){
 module["exports"] = [
   "Смирнова",
   "Иванова",
@@ -61151,7 +72274,7 @@ module["exports"] = [
   "Турова"
 ];
 
-},{}],826:[function(require,module,exports){
+},{}],1013:[function(require,module,exports){
 module["exports"] = [
   "Александровна",
   "Алексеевна",
@@ -61206,7 +72329,7 @@ module["exports"] = [
   "Ярославовна"
 ];
 
-},{}],827:[function(require,module,exports){
+},{}],1014:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.male_first_name = require("./male_first_name");
@@ -61219,7 +72342,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./female_first_name":824,"./female_last_name":825,"./female_middle_name":826,"./male_first_name":828,"./male_last_name":829,"./male_middle_name":830,"./name":831,"./prefix":832,"./suffix":833}],828:[function(require,module,exports){
+},{"./female_first_name":1011,"./female_last_name":1012,"./female_middle_name":1013,"./male_first_name":1015,"./male_last_name":1016,"./male_middle_name":1017,"./name":1018,"./prefix":1019,"./suffix":1020}],1015:[function(require,module,exports){
 module["exports"] = [
   "Александр",
   "Алексей",
@@ -61275,7 +72398,7 @@ module["exports"] = [
   "Ярослав"
 ];
 
-},{}],829:[function(require,module,exports){
+},{}],1016:[function(require,module,exports){
 module["exports"] = [
   "Смирнов",
   "Иванов",
@@ -61529,7 +72652,7 @@ module["exports"] = [
   "Туров"
 ];
 
-},{}],830:[function(require,module,exports){
+},{}],1017:[function(require,module,exports){
 module["exports"] = [
   "Александрович",
   "Алексеевич",
@@ -61585,7 +72708,7 @@ module["exports"] = [
   "Ярославович"
 ];
 
-},{}],831:[function(require,module,exports){
+},{}],1018:[function(require,module,exports){
 module["exports"] = [
   "#{male_first_name} #{male_last_name}",
   "#{male_last_name} #{male_first_name}",
@@ -61597,19 +72720,19 @@ module["exports"] = [
   "#{female_last_name} #{female_first_name} #{female_middle_name}"
 ];
 
-},{}],832:[function(require,module,exports){
-module.exports=require(50)
-},{"/Users/a/dev/faker.js/lib/locales/az/name/prefix.js":50}],833:[function(require,module,exports){
-module.exports=require(50)
-},{"/Users/a/dev/faker.js/lib/locales/az/name/prefix.js":50}],834:[function(require,module,exports){
-module.exports=require(52)
-},{"/Users/a/dev/faker.js/lib/locales/az/phone_number/formats.js":52}],835:[function(require,module,exports){
-module.exports=require(53)
-},{"./formats":834,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],836:[function(require,module,exports){
-module.exports=require(54)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/building_number.js":54}],837:[function(require,module,exports){
-module.exports=require(55)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/city.js":55}],838:[function(require,module,exports){
+},{}],1019:[function(require,module,exports){
+module.exports=require(72)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/name/prefix.js":72}],1020:[function(require,module,exports){
+module.exports=require(72)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/name/prefix.js":72}],1021:[function(require,module,exports){
+module.exports=require(74)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/phone_number/formats.js":74}],1022:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":1021,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],1023:[function(require,module,exports){
+module.exports=require(76)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/building_number.js":76}],1024:[function(require,module,exports){
+module.exports=require(20)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/address/city.js":20}],1025:[function(require,module,exports){
 module["exports"] = [
   "Bánovce nad Bebravou",
   "Banská Bystrica",
@@ -61692,11 +72815,11 @@ module["exports"] = [
   "Zvolen"
 ];
 
-},{}],839:[function(require,module,exports){
-module.exports=require(181)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/city_prefix.js":181}],840:[function(require,module,exports){
-module.exports=require(182)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/city_suffix.js":182}],841:[function(require,module,exports){
+},{}],1026:[function(require,module,exports){
+module.exports=require(202)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/address/city_prefix.js":202}],1027:[function(require,module,exports){
+module.exports=require(203)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/address/city_suffix.js":203}],1028:[function(require,module,exports){
 module["exports"] = [
   "Afganistan",
   "Afgánsky islamský štát",
@@ -62082,12 +73205,12 @@ module["exports"] = [
   "Zimbabwianska republika"
 ];
 
-},{}],842:[function(require,module,exports){
+},{}],1029:[function(require,module,exports){
 module["exports"] = [
   "Slovensko"
 ];
 
-},{}],843:[function(require,module,exports){
+},{}],1030:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -62106,20 +73229,20 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":836,"./city":837,"./city_name":838,"./city_prefix":839,"./city_suffix":840,"./country":841,"./default_country":842,"./postcode":844,"./secondary_address":845,"./state":846,"./state_abbr":847,"./street":848,"./street_address":849,"./street_name":850,"./time_zone":851}],844:[function(require,module,exports){
+},{"./building_number":1023,"./city":1024,"./city_name":1025,"./city_prefix":1026,"./city_suffix":1027,"./country":1028,"./default_country":1029,"./postcode":1031,"./secondary_address":1032,"./state":1033,"./state_abbr":1034,"./street":1035,"./street_address":1036,"./street_name":1037,"./time_zone":1038}],1031:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "### ##",
   "## ###"
 ];
 
-},{}],845:[function(require,module,exports){
-module.exports=require(61)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/secondary_address.js":61}],846:[function(require,module,exports){
-module.exports=require(50)
-},{"/Users/a/dev/faker.js/lib/locales/az/name/prefix.js":50}],847:[function(require,module,exports){
-module.exports=require(50)
-},{"/Users/a/dev/faker.js/lib/locales/az/name/prefix.js":50}],848:[function(require,module,exports){
+},{}],1032:[function(require,module,exports){
+module.exports=require(83)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/secondary_address.js":83}],1033:[function(require,module,exports){
+module.exports=require(72)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/name/prefix.js":72}],1034:[function(require,module,exports){
+module.exports=require(72)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/name/prefix.js":72}],1035:[function(require,module,exports){
 module["exports"] = [
   "Adámiho",
   "Ahoj",
@@ -63283,29 +74406,29 @@ module["exports"] = [
   "Župné námestie"
 ];
 
-},{}],849:[function(require,module,exports){
-module.exports=require(65)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/street_address.js":65}],850:[function(require,module,exports){
-module.exports=require(66)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/street_name.js":66}],851:[function(require,module,exports){
-module.exports=require(67)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/time_zone.js":67}],852:[function(require,module,exports){
-module.exports=require(68)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/adjective.js":68}],853:[function(require,module,exports){
-module.exports=require(69)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/bs_noun.js":69}],854:[function(require,module,exports){
-module.exports=require(70)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/bs_verb.js":70}],855:[function(require,module,exports){
-module.exports=require(71)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/descriptor.js":71}],856:[function(require,module,exports){
-module.exports=require(72)
-},{"./adjective":852,"./bs_noun":853,"./bs_verb":854,"./descriptor":855,"./name":857,"./noun":858,"./suffix":859,"/Users/a/dev/faker.js/lib/locales/cz/company/index.js":72}],857:[function(require,module,exports){
-module.exports=require(73)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/name.js":73}],858:[function(require,module,exports){
-module.exports=require(74)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/noun.js":74}],859:[function(require,module,exports){
-module.exports=require(75)
-},{"/Users/a/dev/faker.js/lib/locales/cz/company/suffix.js":75}],860:[function(require,module,exports){
+},{}],1036:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],1037:[function(require,module,exports){
+module.exports=require(88)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_name.js":88}],1038:[function(require,module,exports){
+module.exports=require(89)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/time_zone.js":89}],1039:[function(require,module,exports){
+module.exports=require(90)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/adjective.js":90}],1040:[function(require,module,exports){
+module.exports=require(91)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/bs_noun.js":91}],1041:[function(require,module,exports){
+module.exports=require(92)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/bs_verb.js":92}],1042:[function(require,module,exports){
+module.exports=require(93)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/descriptor.js":93}],1043:[function(require,module,exports){
+module.exports=require(94)
+},{"./adjective":1039,"./bs_noun":1040,"./bs_verb":1041,"./descriptor":1042,"./name":1044,"./noun":1045,"./suffix":1046,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/index.js":94}],1044:[function(require,module,exports){
+module.exports=require(95)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/name.js":95}],1045:[function(require,module,exports){
+module.exports=require(96)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/noun.js":96}],1046:[function(require,module,exports){
+module.exports=require(97)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/company/suffix.js":97}],1047:[function(require,module,exports){
 var sk = {};
 module['exports'] = sk;
 sk.title = "Slovakian";
@@ -63316,7 +74439,7 @@ sk.lorem = require("./lorem");
 sk.name = require("./name");
 sk.phone_number = require("./phone_number");
 
-},{"./address":843,"./company":856,"./internet":863,"./lorem":864,"./name":869,"./phone_number":877}],861:[function(require,module,exports){
+},{"./address":1030,"./company":1043,"./internet":1050,"./lorem":1051,"./name":1055,"./phone_number":1063}],1048:[function(require,module,exports){
 module["exports"] = [
   "sk",
   "com",
@@ -63325,22 +74448,20 @@ module["exports"] = [
   "org"
 ];
 
-},{}],862:[function(require,module,exports){
+},{}],1049:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "zoznam.sk",
   "azet.sk"
 ];
 
-},{}],863:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":861,"./free_email":862,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],864:[function(require,module,exports){
-module.exports=require(83)
-},{"./supplemental":865,"./words":866,"/Users/a/dev/faker.js/lib/locales/cz/lorem/index.js":83}],865:[function(require,module,exports){
-module.exports=require(84)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/supplemental.js":84}],866:[function(require,module,exports){
-module.exports=require(85)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/words.js":85}],867:[function(require,module,exports){
+},{}],1050:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":1048,"./free_email":1049,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],1051:[function(require,module,exports){
+module.exports=require(105)
+},{"./words":1052,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],1052:[function(require,module,exports){
+module.exports=require(106)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/words.js":106}],1053:[function(require,module,exports){
 module["exports"] = [
   "Alexandra",
   "Karina",
@@ -63544,7 +74665,7 @@ module["exports"] = [
   "Milada"
 ];
 
-},{}],868:[function(require,module,exports){
+},{}],1054:[function(require,module,exports){
 module["exports"] = [
   "Antalová",
   "Babková",
@@ -63799,9 +74920,9 @@ module["exports"] = [
   "Šťastná"
 ];
 
-},{}],869:[function(require,module,exports){
-arguments[4][88][0].apply(exports,arguments)
-},{"./female_first_name":867,"./female_last_name":868,"./male_first_name":870,"./male_last_name":871,"./name":872,"./prefix":873,"./suffix":874,"./title":875,"/Users/a/dev/faker.js/lib/locales/cz/name/index.js":88}],870:[function(require,module,exports){
+},{}],1055:[function(require,module,exports){
+arguments[4][109][0].apply(exports,arguments)
+},{"./female_first_name":1053,"./female_last_name":1054,"./male_first_name":1056,"./male_last_name":1057,"./name":1058,"./prefix":1059,"./suffix":1060,"./title":1061,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/name/index.js":109}],1056:[function(require,module,exports){
 module["exports"] = [
   "Drahoslav",
   "Severín",
@@ -63997,7 +75118,7 @@ module["exports"] = [
   "Silvester"
 ];
 
-},{}],871:[function(require,module,exports){
+},{}],1057:[function(require,module,exports){
 module["exports"] = [
   "Antal",
   "Babka",
@@ -64258,15 +75379,15 @@ module["exports"] = [
   "Šťastný"
 ];
 
-},{}],872:[function(require,module,exports){
-module.exports=require(91)
-},{"/Users/a/dev/faker.js/lib/locales/cz/name/name.js":91}],873:[function(require,module,exports){
-module.exports=require(92)
-},{"/Users/a/dev/faker.js/lib/locales/cz/name/prefix.js":92}],874:[function(require,module,exports){
-module.exports=require(93)
-},{"/Users/a/dev/faker.js/lib/locales/cz/name/suffix.js":93}],875:[function(require,module,exports){
-module.exports=require(264)
-},{"/Users/a/dev/faker.js/lib/locales/en/name/title.js":264}],876:[function(require,module,exports){
+},{}],1058:[function(require,module,exports){
+module.exports=require(112)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/name/name.js":112}],1059:[function(require,module,exports){
+module.exports=require(113)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/name/prefix.js":113}],1060:[function(require,module,exports){
+module.exports=require(114)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/name/suffix.js":114}],1061:[function(require,module,exports){
+module.exports=require(292)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/name/title.js":292}],1062:[function(require,module,exports){
 module["exports"] = [
   "09## ### ###",
   "0## #### ####",
@@ -64274,16 +75395,16 @@ module["exports"] = [
   "+421 ### ### ###"
 ];
 
-},{}],877:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":876,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],878:[function(require,module,exports){
-module.exports=require(511)
-},{"/Users/a/dev/faker.js/lib/locales/ge/address/building_number.js":511}],879:[function(require,module,exports){
+},{}],1063:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":1062,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],1064:[function(require,module,exports){
+module.exports=require(596)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ge/address/building_number.js":596}],1065:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix}#{city_suffix}"
 ];
 
-},{}],880:[function(require,module,exports){
+},{}],1066:[function(require,module,exports){
 module["exports"] = [
   "Söder",
   "Norr",
@@ -64312,7 +75433,7 @@ module["exports"] = [
   "Ny"
 ];
 
-},{}],881:[function(require,module,exports){
+},{}],1067:[function(require,module,exports){
 module["exports"] = [
   "stad",
   "land",
@@ -64335,13 +75456,13 @@ module["exports"] = [
   "vik"
 ];
 
-},{}],882:[function(require,module,exports){
+},{}],1068:[function(require,module,exports){
 module["exports"] = [
   "s Väg",
   "s Gata"
 ];
 
-},{}],883:[function(require,module,exports){
+},{}],1069:[function(require,module,exports){
 module["exports"] = [
   "Ryssland",
   "Kanada",
@@ -64550,12 +75671,12 @@ module["exports"] = [
   "Vatikanstaten"
 ];
 
-},{}],884:[function(require,module,exports){
+},{}],1070:[function(require,module,exports){
 module["exports"] = [
   "Sverige"
 ];
 
-},{}],885:[function(require,module,exports){
+},{}],1071:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -64574,15 +75695,15 @@ address.secondary_address = require("./secondary_address");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":878,"./city":879,"./city_prefix":880,"./city_suffix":881,"./common_street_suffix":882,"./country":883,"./default_country":884,"./postcode":886,"./secondary_address":887,"./state":888,"./street_address":889,"./street_name":890,"./street_prefix":891,"./street_root":892,"./street_suffix":893}],886:[function(require,module,exports){
-module.exports=require(379)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":379}],887:[function(require,module,exports){
+},{"./building_number":1064,"./city":1065,"./city_prefix":1066,"./city_suffix":1067,"./common_street_suffix":1068,"./country":1069,"./default_country":1070,"./postcode":1072,"./secondary_address":1073,"./state":1074,"./street_address":1075,"./street_name":1076,"./street_prefix":1077,"./street_root":1078,"./street_suffix":1079}],1072:[function(require,module,exports){
+module.exports=require(436)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/address/postcode.js":436}],1073:[function(require,module,exports){
 module["exports"] = [
   "Lgh. ###",
   "Hus ###"
 ];
 
-},{}],888:[function(require,module,exports){
+},{}],1074:[function(require,module,exports){
 module["exports"] = [
   "Blekinge",
   "Dalarna",
@@ -64609,11 +75730,11 @@ module["exports"] = [
   "Östergötland"
 ];
 
-},{}],889:[function(require,module,exports){
-module.exports=require(65)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/street_address.js":65}],890:[function(require,module,exports){
-module.exports=require(663)
-},{"/Users/a/dev/faker.js/lib/locales/nb_NO/address/street_name.js":663}],891:[function(require,module,exports){
+},{}],1075:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],1076:[function(require,module,exports){
+module.exports=require(748)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/nb_NO/address/street_name.js":748}],1077:[function(require,module,exports){
 module["exports"] = [
   "Västra",
   "Östra",
@@ -64623,7 +75744,7 @@ module["exports"] = [
   "Undre"
 ];
 
-},{}],892:[function(require,module,exports){
+},{}],1078:[function(require,module,exports){
 module["exports"] = [
   "Björk",
   "Järnvägs",
@@ -64655,7 +75776,7 @@ module["exports"] = [
   "Asp"
 ];
 
-},{}],893:[function(require,module,exports){
+},{}],1079:[function(require,module,exports){
 module["exports"] = [
   "vägen",
   "gatan",
@@ -64664,25 +75785,25 @@ module["exports"] = [
   "allén"
 ];
 
-},{}],894:[function(require,module,exports){
+},{}],1080:[function(require,module,exports){
 module["exports"] = [
   56,
   62,
   59
 ];
 
-},{}],895:[function(require,module,exports){
+},{}],1081:[function(require,module,exports){
 module["exports"] = [
   "#{common_cell_prefix}-###-####"
 ];
 
-},{}],896:[function(require,module,exports){
+},{}],1082:[function(require,module,exports){
 var cell_phone = {};
 module['exports'] = cell_phone;
 cell_phone.common_cell_prefix = require("./common_cell_prefix");
 cell_phone.formats = require("./formats");
 
-},{"./common_cell_prefix":894,"./formats":895}],897:[function(require,module,exports){
+},{"./common_cell_prefix":1080,"./formats":1081}],1083:[function(require,module,exports){
 module["exports"] = [
   "vit",
   "silver",
@@ -64701,7 +75822,7 @@ module["exports"] = [
   "korall"
 ];
 
-},{}],898:[function(require,module,exports){
+},{}],1084:[function(require,module,exports){
 module["exports"] = [
   "Böcker",
   "Filmer",
@@ -64722,9 +75843,9 @@ module["exports"] = [
   "Sport"
 ];
 
-},{}],899:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"./color":897,"./department":898,"./product_name":900,"/Users/a/dev/faker.js/lib/locales/az/commerce/index.js":31}],900:[function(require,module,exports){
+},{}],1085:[function(require,module,exports){
+arguments[4][53][0].apply(exports,arguments)
+},{"./color":1083,"./department":1084,"./product_name":1086,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/commerce/index.js":53}],1086:[function(require,module,exports){
 module["exports"] = {
   "adjective": [
     "Liten",
@@ -64762,16 +75883,16 @@ module["exports"] = {
   ]
 };
 
-},{}],901:[function(require,module,exports){
-arguments[4][166][0].apply(exports,arguments)
-},{"./name":902,"./suffix":903,"/Users/a/dev/faker.js/lib/locales/de_CH/company/index.js":166}],902:[function(require,module,exports){
+},{}],1087:[function(require,module,exports){
+arguments[4][187][0].apply(exports,arguments)
+},{"./name":1088,"./suffix":1089,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/company/index.js":187}],1088:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} #{suffix}"
 ];
 
-},{}],903:[function(require,module,exports){
+},{}],1089:[function(require,module,exports){
 module["exports"] = [
   "Gruppen",
   "AB",
@@ -64782,9 +75903,9 @@ module["exports"] = [
   "Aktiebolag"
 ];
 
-},{}],904:[function(require,module,exports){
-arguments[4][37][0].apply(exports,arguments)
-},{"./month":905,"./weekday":906,"/Users/a/dev/faker.js/lib/locales/az/date/index.js":37}],905:[function(require,module,exports){
+},{}],1090:[function(require,module,exports){
+arguments[4][59][0].apply(exports,arguments)
+},{"./month":1091,"./weekday":1092,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/date/index.js":59}],1091:[function(require,module,exports){
 // Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1799
 module["exports"] = {
   wide: [
@@ -64817,7 +75938,7 @@ module["exports"] = {
   ]
 };
 
-},{}],906:[function(require,module,exports){
+},{}],1092:[function(require,module,exports){
 // Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1847
 module["exports"] = {
   wide: [
@@ -64840,7 +75961,7 @@ module["exports"] = {
   ]
 };
 
-},{}],907:[function(require,module,exports){
+},{}],1093:[function(require,module,exports){
 var sv = {};
 module['exports'] = sv;
 sv.title = "Swedish";
@@ -64854,7 +75975,7 @@ sv.commerce = require("./commerce");
 sv.team = require("./team");
 sv.date = require("./date");
 
-},{"./address":885,"./cell_phone":896,"./commerce":899,"./company":901,"./date":904,"./internet":909,"./name":912,"./phone_number":918,"./team":919}],908:[function(require,module,exports){
+},{"./address":1071,"./cell_phone":1082,"./commerce":1085,"./company":1087,"./date":1090,"./internet":1095,"./name":1098,"./phone_number":1104,"./team":1105}],1094:[function(require,module,exports){
 module["exports"] = [
   "se",
   "nu",
@@ -64863,9 +75984,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],909:[function(require,module,exports){
-arguments[4][171][0].apply(exports,arguments)
-},{"./domain_suffix":908,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":171}],910:[function(require,module,exports){
+},{}],1095:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":1094,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],1096:[function(require,module,exports){
 module["exports"] = [
   "Erik",
   "Lars",
@@ -64879,10 +76000,24 @@ module["exports"] = [
   "Hans"
 ];
 
-},{}],911:[function(require,module,exports){
+},{}],1097:[function(require,module,exports){
 module["exports"] = [
-  "Maria",
+  "Astrid",
   "Anna",
+  "Alice",
+  "Amanda",
+  "Ann",
+  "Agneta",
+  "Anette",
+  "Anneli",
+  "Alexandra",
+  "Agnes",
+  "Anne",
+  "Alva",	
+  "Alma",	
+  "Angelica",	
+  "Ann-Marie",
+  "Maria",
   "Margareta",
   "Elisabeth",
   "Eva",
@@ -64890,10 +76025,12 @@ module["exports"] = [
   "Kristina",
   "Karin",
   "Elisabet",
-  "Marie"
+  "Marie",
+  "Lotta",
+  "Ronja",
+  "Veronica"
 ];
-
-},{}],912:[function(require,module,exports){
+},{}],1098:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name_women = require("./first_name_women");
@@ -64903,7 +76040,7 @@ name.prefix = require("./prefix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./first_name_men":910,"./first_name_women":911,"./last_name":913,"./name":914,"./prefix":915,"./title":916}],913:[function(require,module,exports){
+},{"./first_name_men":1096,"./first_name_women":1097,"./last_name":1099,"./name":1100,"./prefix":1101,"./title":1102}],1099:[function(require,module,exports){
 module["exports"] = [
   "Johansson",
   "Andersson",
@@ -64917,7 +76054,7 @@ module["exports"] = [
   "Gustafsson"
 ];
 
-},{}],914:[function(require,module,exports){
+},{}],1100:[function(require,module,exports){
 module["exports"] = [
   "#{first_name_women} #{last_name}",
   "#{first_name_men} #{last_name}",
@@ -64929,35 +76066,35 @@ module["exports"] = [
   "#{prefix} #{first_name_women} #{last_name}"
 ];
 
-},{}],915:[function(require,module,exports){
+},{}],1101:[function(require,module,exports){
 module["exports"] = [
   "Dr.",
   "Prof.",
   "PhD."
 ];
 
-},{}],916:[function(require,module,exports){
-module.exports=require(264)
-},{"/Users/a/dev/faker.js/lib/locales/en/name/title.js":264}],917:[function(require,module,exports){
+},{}],1102:[function(require,module,exports){
+module.exports=require(292)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en/name/title.js":292}],1103:[function(require,module,exports){
 module["exports"] = [
   "####-#####",
   "####-######"
 ];
 
-},{}],918:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":917,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],919:[function(require,module,exports){
+},{}],1104:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":1103,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],1105:[function(require,module,exports){
 var team = {};
 module['exports'] = team;
 team.suffix = require("./suffix");
 team.name = require("./name");
 
-},{"./name":920,"./suffix":921}],920:[function(require,module,exports){
+},{"./name":1106,"./suffix":1107}],1106:[function(require,module,exports){
 module["exports"] = [
   "#{Address.city} #{suffix}"
 ];
 
-},{}],921:[function(require,module,exports){
+},{}],1107:[function(require,module,exports){
 module["exports"] = [
   "IF",
   "FF",
@@ -64974,9 +76111,9 @@ module["exports"] = [
   "IK"
 ];
 
-},{}],922:[function(require,module,exports){
-module.exports=require(97)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/building_number.js":97}],923:[function(require,module,exports){
+},{}],1108:[function(require,module,exports){
+module.exports=require(118)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/address/building_number.js":118}],1109:[function(require,module,exports){
 module["exports"] = [
   "Adana",
   "Adıyaman",
@@ -65061,7 +76198,7 @@ module["exports"] = [
   "Düzce"
 ];
 
-},{}],924:[function(require,module,exports){
+},{}],1110:[function(require,module,exports){
 module["exports"] = [
   "Afganistan",
   "Almanya",
@@ -65301,12 +76438,12 @@ module["exports"] = [
   "Zimbabve"
 ];
 
-},{}],925:[function(require,module,exports){
+},{}],1111:[function(require,module,exports){
 module["exports"] = [
   "Türkiye"
 ];
 
-},{}],926:[function(require,module,exports){
+},{}],1112:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city = require("./city");
@@ -65318,13 +76455,13 @@ address.building_number = require("./building_number");
 address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 
-},{"./building_number":922,"./city":923,"./country":924,"./default_country":925,"./postcode":927,"./street_address":928,"./street_name":929,"./street_root":930}],927:[function(require,module,exports){
-module.exports=require(379)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":379}],928:[function(require,module,exports){
-module.exports=require(65)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/street_address.js":65}],929:[function(require,module,exports){
-module.exports=require(109)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_name.js":109}],930:[function(require,module,exports){
+},{"./building_number":1108,"./city":1109,"./country":1110,"./default_country":1111,"./postcode":1113,"./street_address":1114,"./street_name":1115,"./street_root":1116}],1113:[function(require,module,exports){
+module.exports=require(436)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/address/postcode.js":436}],1114:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/street_address.js":87}],1115:[function(require,module,exports){
+module.exports=require(130)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/de/address/street_name.js":130}],1116:[function(require,module,exports){
 module["exports"] = [
   "Atatürk Bulvarı",
   "Alparslan Türkeş Bulvarı",
@@ -65369,7 +76506,7 @@ module["exports"] = [
   "Bandak Sokak"
 ];
 
-},{}],931:[function(require,module,exports){
+},{}],1117:[function(require,module,exports){
 module["exports"] = [
   "+90-53#-###-##-##",
   "+90-54#-###-##-##",
@@ -65377,9 +76514,9 @@ module["exports"] = [
   "+90-50#-###-##-##"
 ];
 
-},{}],932:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":931,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],933:[function(require,module,exports){
+},{}],1118:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":1117,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],1119:[function(require,module,exports){
 var tr = {};
 module['exports'] = tr;
 tr.title = "Turkish";
@@ -65390,7 +76527,7 @@ tr.phone_number = require("./phone_number");
 tr.cell_phone = require("./cell_phone");
 tr.name = require("./name");
 
-},{"./address":926,"./cell_phone":932,"./internet":935,"./lorem":936,"./name":939,"./phone_number":945}],934:[function(require,module,exports){
+},{"./address":1112,"./cell_phone":1118,"./internet":1121,"./lorem":1122,"./name":1125,"./phone_number":1131}],1120:[function(require,module,exports){
 module["exports"] = [
   "com.tr",
   "com",
@@ -65400,13 +76537,13 @@ module["exports"] = [
   "gov.tr"
 ];
 
-},{}],935:[function(require,module,exports){
-arguments[4][171][0].apply(exports,arguments)
-},{"./domain_suffix":934,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":171}],936:[function(require,module,exports){
-module.exports=require(121)
-},{"./words":937,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":121}],937:[function(require,module,exports){
-module.exports=require(85)
-},{"/Users/a/dev/faker.js/lib/locales/cz/lorem/words.js":85}],938:[function(require,module,exports){
+},{}],1121:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":1120,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],1122:[function(require,module,exports){
+module.exports=require(105)
+},{"./words":1123,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],1123:[function(require,module,exports){
+module.exports=require(106)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/words.js":106}],1124:[function(require,module,exports){
 module["exports"] = [
   "Aba",
   "Abak",
@@ -66141,9 +77278,9 @@ module["exports"] = [
   "Kızılalma"
 ];
 
-},{}],939:[function(require,module,exports){
-arguments[4][173][0].apply(exports,arguments)
-},{"./first_name":938,"./last_name":940,"./name":941,"./prefix":942,"/Users/a/dev/faker.js/lib/locales/de_CH/name/index.js":173}],940:[function(require,module,exports){
+},{}],1125:[function(require,module,exports){
+arguments[4][194][0].apply(exports,arguments)
+},{"./first_name":1124,"./last_name":1126,"./name":1127,"./prefix":1128,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/name/index.js":194}],1126:[function(require,module,exports){
 module["exports"] = [
   "Abacı",
   "Abadan",
@@ -66345,9 +77482,9 @@ module["exports"] = [
   "Öztuna"
 ];
 
-},{}],941:[function(require,module,exports){
-module.exports=require(538)
-},{"/Users/a/dev/faker.js/lib/locales/ge/name/name.js":538}],942:[function(require,module,exports){
+},{}],1127:[function(require,module,exports){
+module.exports=require(623)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ge/name/name.js":623}],1128:[function(require,module,exports){
 module["exports"] = [
   "Bay",
   "Bayan",
@@ -66355,7 +77492,7 @@ module["exports"] = [
   "Prof. Dr."
 ];
 
-},{}],943:[function(require,module,exports){
+},{}],1129:[function(require,module,exports){
 module["exports"] = [
   "392",
   "510",
@@ -66456,27 +77593,27 @@ module["exports"] = [
   "372"
 ];
 
-},{}],944:[function(require,module,exports){
+},{}],1130:[function(require,module,exports){
 module["exports"] = [
   "+90-###-###-##-##",
   "+90-###-###-#-###"
 ];
 
-},{}],945:[function(require,module,exports){
+},{}],1131:[function(require,module,exports){
 var phone_number = {};
 module['exports'] = phone_number;
 phone_number.area_code = require("./area_code");
 phone_number.formats = require("./formats");
 
-},{"./area_code":943,"./formats":944}],946:[function(require,module,exports){
-module.exports=require(54)
-},{"/Users/a/dev/faker.js/lib/locales/cz/address/building_number.js":54}],947:[function(require,module,exports){
+},{"./area_code":1129,"./formats":1130}],1132:[function(require,module,exports){
+module.exports=require(76)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/address/building_number.js":76}],1133:[function(require,module,exports){
 module["exports"] = [
   "#{city_name}",
   "#{city_prefix} #{Name.male_first_name}"
 ];
 
-},{}],948:[function(require,module,exports){
+},{}],1134:[function(require,module,exports){
 module["exports"] = [
   "Алчевськ",
   "Артемівськ",
@@ -66537,7 +77674,7 @@ module["exports"] = [
   "Ялта"
 ];
 
-},{}],949:[function(require,module,exports){
+},{}],1135:[function(require,module,exports){
 module["exports"] = [
   "Південний",
   "Північний",
@@ -66545,12 +77682,12 @@ module["exports"] = [
   "Західний"
 ];
 
-},{}],950:[function(require,module,exports){
+},{}],1136:[function(require,module,exports){
 module["exports"] = [
   "град"
 ];
 
-},{}],951:[function(require,module,exports){
+},{}],1137:[function(require,module,exports){
 module["exports"] = [
   "Австралія",
   "Австрія",
@@ -66747,12 +77884,12 @@ module["exports"] = [
   "Японія"
 ];
 
-},{}],952:[function(require,module,exports){
+},{}],1138:[function(require,module,exports){
 module["exports"] = [
   "Україна"
 ];
 
-},{}],953:[function(require,module,exports){
+},{}],1139:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -66771,11 +77908,11 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":946,"./city":947,"./city_name":948,"./city_prefix":949,"./city_suffix":950,"./country":951,"./default_country":952,"./postcode":954,"./secondary_address":955,"./state":956,"./street_address":957,"./street_name":958,"./street_prefix":959,"./street_suffix":960,"./street_title":961}],954:[function(require,module,exports){
-module.exports=require(379)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":379}],955:[function(require,module,exports){
-module.exports=require(803)
-},{"/Users/a/dev/faker.js/lib/locales/ru/address/secondary_address.js":803}],956:[function(require,module,exports){
+},{"./building_number":1132,"./city":1133,"./city_name":1134,"./city_prefix":1135,"./city_suffix":1136,"./country":1137,"./default_country":1138,"./postcode":1140,"./secondary_address":1141,"./state":1142,"./street_address":1143,"./street_name":1144,"./street_prefix":1145,"./street_suffix":1146,"./street_title":1147}],1140:[function(require,module,exports){
+module.exports=require(436)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/es/address/postcode.js":436}],1141:[function(require,module,exports){
+module.exports=require(983)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ru/address/secondary_address.js":983}],1142:[function(require,module,exports){
 module["exports"] = [
   "АР Крим",
   "Вінницька область",
@@ -66806,15 +77943,15 @@ module["exports"] = [
   "Севастополь"
 ];
 
-},{}],957:[function(require,module,exports){
-module.exports=require(25)
-},{"/Users/a/dev/faker.js/lib/locales/az/address/street_address.js":25}],958:[function(require,module,exports){
+},{}],1143:[function(require,module,exports){
+module.exports=require(47)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/address/street_address.js":47}],1144:[function(require,module,exports){
 module["exports"] = [
   "#{street_prefix} #{Address.street_title}",
   "#{Address.street_title} #{street_suffix}"
 ];
 
-},{}],959:[function(require,module,exports){
+},{}],1145:[function(require,module,exports){
 module["exports"] = [
   "вул.",
   "вулиця",
@@ -66826,12 +77963,12 @@ module["exports"] = [
   "провулок"
 ];
 
-},{}],960:[function(require,module,exports){
+},{}],1146:[function(require,module,exports){
 module["exports"] = [
   "майдан"
 ];
 
-},{}],961:[function(require,module,exports){
+},{}],1147:[function(require,module,exports){
 module["exports"] = [
   "Зелена",
   "Молодіжна",
@@ -66848,11 +77985,11 @@ module["exports"] = [
   "Коліївщини"
 ];
 
-},{}],962:[function(require,module,exports){
-arguments[4][33][0].apply(exports,arguments)
-},{"./name":963,"./prefix":964,"./suffix":965,"/Users/a/dev/faker.js/lib/locales/az/company/index.js":33}],963:[function(require,module,exports){
-module.exports=require(34)
-},{"/Users/a/dev/faker.js/lib/locales/az/company/name.js":34}],964:[function(require,module,exports){
+},{}],1148:[function(require,module,exports){
+arguments[4][55][0].apply(exports,arguments)
+},{"./name":1149,"./prefix":1150,"./suffix":1151,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/company/index.js":55}],1149:[function(require,module,exports){
+module.exports=require(56)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/az/company/name.js":56}],1150:[function(require,module,exports){
 module["exports"] = [
   "ТОВ",
   "ПАТ",
@@ -66864,7 +78001,7 @@ module["exports"] = [
   "ФОП"
 ];
 
-},{}],965:[function(require,module,exports){
+},{}],1151:[function(require,module,exports){
 module["exports"] = [
   "Постач",
   "Торг",
@@ -66873,7 +78010,7 @@ module["exports"] = [
   "Збут"
 ];
 
-},{}],966:[function(require,module,exports){
+},{}],1152:[function(require,module,exports){
 var uk = {};
 module['exports'] = uk;
 uk.title = "Ukrainian";
@@ -66883,7 +78020,7 @@ uk.internet = require("./internet");
 uk.name = require("./name");
 uk.phone_number = require("./phone_number");
 
-},{"./address":953,"./company":962,"./internet":969,"./name":973,"./phone_number":982}],967:[function(require,module,exports){
+},{"./address":1139,"./company":1148,"./internet":1155,"./name":1159,"./phone_number":1168}],1153:[function(require,module,exports){
 module["exports"] = [
   "cherkassy.ua",
   "cherkasy.ua",
@@ -66947,7 +78084,7 @@ module["exports"] = [
   "укр"
 ];
 
-},{}],968:[function(require,module,exports){
+},{}],1154:[function(require,module,exports){
 module["exports"] = [
   "ukr.net",
   "ex.ua",
@@ -66958,9 +78095,9 @@ module["exports"] = [
   "gmail.com"
 ];
 
-},{}],969:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./domain_suffix":967,"./free_email":968,"/Users/a/dev/faker.js/lib/locales/az/internet/index.js":43}],970:[function(require,module,exports){
+},{}],1155:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./domain_suffix":1153,"./free_email":1154,"/Users/kdzuin/Badoo/faker.js/lib/locales/az/internet/index.js":65}],1156:[function(require,module,exports){
 module["exports"] = [
   "Аврелія",
   "Аврора",
@@ -67157,7 +78294,7 @@ module["exports"] = [
   "Ярослава"
 ];
 
-},{}],971:[function(require,module,exports){
+},{}],1157:[function(require,module,exports){
 module["exports"] = [
   "Андрухович",
   "Бабух",
@@ -67391,7 +78528,7 @@ module["exports"] = [
   "Ящук"
 ];
 
-},{}],972:[function(require,module,exports){
+},{}],1158:[function(require,module,exports){
 module["exports"] = [
   "Адамівна",
   "Азарівна",
@@ -67511,7 +78648,7 @@ module["exports"] = [
   "Ярославівна"
 ];
 
-},{}],973:[function(require,module,exports){
+},{}],1159:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.male_first_name = require("./male_first_name");
@@ -67525,7 +78662,7 @@ name.suffix = require("./suffix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./female_first_name":970,"./female_last_name":971,"./female_middle_name":972,"./male_first_name":974,"./male_last_name":975,"./male_middle_name":976,"./name":977,"./prefix":978,"./suffix":979,"./title":980}],974:[function(require,module,exports){
+},{"./female_first_name":1156,"./female_last_name":1157,"./female_middle_name":1158,"./male_first_name":1160,"./male_last_name":1161,"./male_middle_name":1162,"./name":1163,"./prefix":1164,"./suffix":1165,"./title":1166}],1160:[function(require,module,exports){
 module["exports"] = [
   "Августин",
   "Аврелій",
@@ -67724,7 +78861,7 @@ module["exports"] = [
   "Ярослав"
 ];
 
-},{}],975:[function(require,module,exports){
+},{}],1161:[function(require,module,exports){
 module["exports"] = [
   "Андрухович",
   "Бабух",
@@ -67967,7 +79104,7 @@ module["exports"] = [
   "Ящук"
 ];
 
-},{}],976:[function(require,module,exports){
+},{}],1162:[function(require,module,exports){
 module["exports"] = [
   "Адамович",
   "Азарович",
@@ -68087,15 +79224,15 @@ module["exports"] = [
   "Ярославович"
 ];
 
-},{}],977:[function(require,module,exports){
-module.exports=require(831)
-},{"/Users/a/dev/faker.js/lib/locales/ru/name/name.js":831}],978:[function(require,module,exports){
+},{}],1163:[function(require,module,exports){
+module.exports=require(1018)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ru/name/name.js":1018}],1164:[function(require,module,exports){
 module["exports"] = [
   "Пан",
   "Пані"
 ];
 
-},{}],979:[function(require,module,exports){
+},{}],1165:[function(require,module,exports){
 module["exports"] = [
   "проф.",
   "доц.",
@@ -68117,7 +79254,7 @@ module["exports"] = [
   "канд. психол. наук"
 ];
 
-},{}],980:[function(require,module,exports){
+},{}],1166:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Головний",
@@ -68159,7 +79296,7 @@ module["exports"] = {
   ]
 };
 
-},{}],981:[function(require,module,exports){
+},{}],1167:[function(require,module,exports){
 module["exports"] = [
   "(044) ###-##-##",
   "(050) ###-##-##",
@@ -68177,14 +79314,14 @@ module["exports"] = [
   "(099) ###-##-##"
 ];
 
-},{}],982:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":981,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],983:[function(require,module,exports){
+},{}],1168:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":1167,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],1169:[function(require,module,exports){
 module["exports"] = [
   "#{city_root}"
 ];
 
-},{}],984:[function(require,module,exports){
+},{}],1170:[function(require,module,exports){
 module["exports"] = [
   "Bắc Giang",
   "Bắc Kạn",
@@ -68251,7 +79388,7 @@ module["exports"] = [
   "Vĩnh Long"
 ];
 
-},{}],985:[function(require,module,exports){
+},{}],1171:[function(require,module,exports){
 module["exports"] = [
   "Avon",
   "Bedfordshire",
@@ -68326,12 +79463,12 @@ module["exports"] = [
   "Worcestershire"
 ];
 
-},{}],986:[function(require,module,exports){
+},{}],1172:[function(require,module,exports){
 module["exports"] = [
   "Việt Nam"
 ];
 
-},{}],987:[function(require,module,exports){
+},{}],1173:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_root = require("./city_root");
@@ -68339,22 +79476,22 @@ address.city = require("./city");
 address.county = require("./county");
 address.default_country = require("./default_country");
 
-},{"./city":983,"./city_root":984,"./county":985,"./default_country":986}],988:[function(require,module,exports){
-module.exports=require(308)
-},{"/Users/a/dev/faker.js/lib/locales/en_GB/cell_phone/formats.js":308}],989:[function(require,module,exports){
-arguments[4][112][0].apply(exports,arguments)
-},{"./formats":988,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":112}],990:[function(require,module,exports){
+},{"./city":1169,"./city_root":1170,"./county":1171,"./default_country":1172}],1174:[function(require,module,exports){
+module.exports=require(342)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_GB/cell_phone/formats.js":342}],1175:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"./formats":1174,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/cell_phone/index.js":31}],1176:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.prefix = require("./prefix");
 company.name = require("./name");
 
-},{"./name":991,"./prefix":992}],991:[function(require,module,exports){
+},{"./name":1177,"./prefix":1178}],1177:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.last_name}"
 ];
 
-},{}],992:[function(require,module,exports){
+},{}],1178:[function(require,module,exports){
 module["exports"] = [
   "Công ty",
   "Cty TNHH",
@@ -68364,7 +79501,7 @@ module["exports"] = [
   "Chi nhánh"
 ];
 
-},{}],993:[function(require,module,exports){
+},{}],1179:[function(require,module,exports){
 var vi = {};
 module['exports'] = vi;
 vi.title = "Vietnamese";
@@ -68376,7 +79513,7 @@ vi.name = require("./name");
 vi.company = require("./company");
 vi.lorem = require("./lorem");
 
-},{"./address":987,"./cell_phone":989,"./company":990,"./internet":995,"./lorem":996,"./name":999,"./phone_number":1003}],994:[function(require,module,exports){
+},{"./address":1173,"./cell_phone":1175,"./company":1176,"./internet":1181,"./lorem":1182,"./name":1185,"./phone_number":1189}],1180:[function(require,module,exports){
 module["exports"] = [
   "com",
   "net",
@@ -68385,11 +79522,11 @@ module["exports"] = [
   "com.vn"
 ];
 
-},{}],995:[function(require,module,exports){
-arguments[4][171][0].apply(exports,arguments)
-},{"./domain_suffix":994,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":171}],996:[function(require,module,exports){
-arguments[4][121][0].apply(exports,arguments)
-},{"./words":997,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":121}],997:[function(require,module,exports){
+},{}],1181:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"./domain_suffix":1180,"/Users/kdzuin/Badoo/faker.js/lib/locales/de_CH/internet/index.js":192}],1182:[function(require,module,exports){
+arguments[4][105][0].apply(exports,arguments)
+},{"./words":1183,"/Users/kdzuin/Badoo/faker.js/lib/locales/cz/lorem/index.js":105}],1183:[function(require,module,exports){
 module["exports"] = [
   "đã",
   "đang",
@@ -68496,7 +79633,7 @@ module["exports"] = [
   "hương"
 ];
 
-},{}],998:[function(require,module,exports){
+},{}],1184:[function(require,module,exports){
 module["exports"] = [
   "Phạm",
   "Nguyễn",
@@ -68526,14 +79663,14 @@ module["exports"] = [
   "Hà"
 ];
 
-},{}],999:[function(require,module,exports){
+},{}],1185:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 name.name = require("./name");
 
-},{"./first_name":998,"./last_name":1000,"./name":1001}],1000:[function(require,module,exports){
+},{"./first_name":1184,"./last_name":1186,"./name":1187}],1186:[function(require,module,exports){
 module["exports"] = [
   "Nam",
   "Trung",
@@ -68610,18 +79747,18 @@ module["exports"] = [
   "Nhàn"
 ];
 
-},{}],1001:[function(require,module,exports){
+},{}],1187:[function(require,module,exports){
 module["exports"] = [
   "#{first_name} #{last_name}",
   "#{first_name} #{last_name} #{last_name}",
   "#{first_name} #{last_name} #{last_name} #{last_name}"
 ];
 
-},{}],1002:[function(require,module,exports){
-module.exports=require(313)
-},{"/Users/a/dev/faker.js/lib/locales/en_GB/phone_number/formats.js":313}],1003:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":1002,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],1004:[function(require,module,exports){
+},{}],1188:[function(require,module,exports){
+module.exports=require(347)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/en_GB/phone_number/formats.js":347}],1189:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":1188,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],1190:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "####",
@@ -68630,9 +79767,9 @@ module["exports"] = [
   "#"
 ];
 
-},{}],1005:[function(require,module,exports){
-module.exports=require(879)
-},{"/Users/a/dev/faker.js/lib/locales/sv/address/city.js":879}],1006:[function(require,module,exports){
+},{}],1191:[function(require,module,exports){
+module.exports=require(1065)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/sv/address/city.js":1065}],1192:[function(require,module,exports){
 module["exports"] = [
   "长",
   "上",
@@ -68657,7 +79794,7 @@ module["exports"] = [
   "包"
 ];
 
-},{}],1007:[function(require,module,exports){
+},{}],1193:[function(require,module,exports){
 module["exports"] = [
   "沙市",
   "京市",
@@ -68680,12 +79817,12 @@ module["exports"] = [
   "头市"
 ];
 
-},{}],1008:[function(require,module,exports){
+},{}],1194:[function(require,module,exports){
 module["exports"] = [
   "中国"
 ];
 
-},{}],1009:[function(require,module,exports){
+},{}],1195:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -68700,9 +79837,9 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":1004,"./city":1005,"./city_prefix":1006,"./city_suffix":1007,"./default_country":1008,"./postcode":1010,"./state":1011,"./state_abbr":1012,"./street_address":1013,"./street_name":1014,"./street_suffix":1015}],1010:[function(require,module,exports){
-module.exports=require(802)
-},{"/Users/a/dev/faker.js/lib/locales/ru/address/postcode.js":802}],1011:[function(require,module,exports){
+},{"./building_number":1190,"./city":1191,"./city_prefix":1192,"./city_suffix":1193,"./default_country":1194,"./postcode":1196,"./state":1197,"./state_abbr":1198,"./street_address":1199,"./street_name":1200,"./street_suffix":1201}],1196:[function(require,module,exports){
+module.exports=require(949)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ro/address/postcode.js":949}],1197:[function(require,module,exports){
 module["exports"] = [
   "北京市",
   "上海市",
@@ -68740,7 +79877,7 @@ module["exports"] = [
   "澳门"
 ];
 
-},{}],1012:[function(require,module,exports){
+},{}],1198:[function(require,module,exports){
 module["exports"] = [
   "京",
   "沪",
@@ -68778,17 +79915,17 @@ module["exports"] = [
   "澳"
 ];
 
-},{}],1013:[function(require,module,exports){
+},{}],1199:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}#{building_number}号"
 ];
 
-},{}],1014:[function(require,module,exports){
+},{}],1200:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name}#{street_suffix}"
 ];
 
-},{}],1015:[function(require,module,exports){
+},{}],1201:[function(require,module,exports){
 module["exports"] = [
   "巷",
   "街",
@@ -68800,7 +79937,7 @@ module["exports"] = [
   "栋"
 ];
 
-},{}],1016:[function(require,module,exports){
+},{}],1202:[function(require,module,exports){
 var zh_CN = {};
 module['exports'] = zh_CN;
 zh_CN.title = "Chinese";
@@ -68808,7 +79945,7 @@ zh_CN.address = require("./address");
 zh_CN.name = require("./name");
 zh_CN.phone_number = require("./phone_number");
 
-},{"./address":1009,"./name":1018,"./phone_number":1022}],1017:[function(require,module,exports){
+},{"./address":1195,"./name":1204,"./phone_number":1208}],1203:[function(require,module,exports){
 module["exports"] = [
   "王",
   "李",
@@ -68912,9 +80049,9 @@ module["exports"] = [
   "孔"
 ];
 
-},{}],1018:[function(require,module,exports){
-arguments[4][999][0].apply(exports,arguments)
-},{"./first_name":1017,"./last_name":1019,"./name":1020,"/Users/a/dev/faker.js/lib/locales/vi/name/index.js":999}],1019:[function(require,module,exports){
+},{}],1204:[function(require,module,exports){
+arguments[4][1185][0].apply(exports,arguments)
+},{"./first_name":1203,"./last_name":1205,"./name":1206,"/Users/kdzuin/Badoo/faker.js/lib/locales/vi/name/index.js":1185}],1205:[function(require,module,exports){
 module["exports"] = [
   "绍齐",
   "博文",
@@ -69052,25 +80189,25 @@ module["exports"] = [
   "彬"
 ];
 
-},{}],1020:[function(require,module,exports){
+},{}],1206:[function(require,module,exports){
 module["exports"] = [
   "#{first_name}#{last_name}"
 ];
 
-},{}],1021:[function(require,module,exports){
+},{}],1207:[function(require,module,exports){
 module["exports"] = [
   "###-########",
   "####-########",
   "###########"
 ];
 
-},{}],1022:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":1021,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],1023:[function(require,module,exports){
-module.exports=require(464)
-},{"/Users/a/dev/faker.js/lib/locales/fr/address/building_number.js":464}],1024:[function(require,module,exports){
-module.exports=require(879)
-},{"/Users/a/dev/faker.js/lib/locales/sv/address/city.js":879}],1025:[function(require,module,exports){
+},{}],1208:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":1207,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],1209:[function(require,module,exports){
+module.exports=require(538)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/fr/address/building_number.js":538}],1210:[function(require,module,exports){
+module.exports=require(1065)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/sv/address/city.js":1065}],1211:[function(require,module,exports){
 module["exports"] = [
   "臺北",
   "新北",
@@ -69094,28 +80231,28 @@ module["exports"] = [
   "連江"
 ];
 
-},{}],1026:[function(require,module,exports){
+},{}],1212:[function(require,module,exports){
 module["exports"] = [
   "縣",
   "市"
 ];
 
-},{}],1027:[function(require,module,exports){
+},{}],1213:[function(require,module,exports){
 module["exports"] = [
   "Taiwan (R.O.C.)"
 ];
 
-},{}],1028:[function(require,module,exports){
-arguments[4][1009][0].apply(exports,arguments)
-},{"./building_number":1023,"./city":1024,"./city_prefix":1025,"./city_suffix":1026,"./default_country":1027,"./postcode":1029,"./state":1030,"./state_abbr":1031,"./street_address":1032,"./street_name":1033,"./street_suffix":1034,"/Users/a/dev/faker.js/lib/locales/zh_CN/address/index.js":1009}],1029:[function(require,module,exports){
-module.exports=require(802)
-},{"/Users/a/dev/faker.js/lib/locales/ru/address/postcode.js":802}],1030:[function(require,module,exports){
+},{}],1214:[function(require,module,exports){
+arguments[4][1195][0].apply(exports,arguments)
+},{"./building_number":1209,"./city":1210,"./city_prefix":1211,"./city_suffix":1212,"./default_country":1213,"./postcode":1215,"./state":1216,"./state_abbr":1217,"./street_address":1218,"./street_name":1219,"./street_suffix":1220,"/Users/kdzuin/Badoo/faker.js/lib/locales/zh_CN/address/index.js":1195}],1215:[function(require,module,exports){
+module.exports=require(949)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/ro/address/postcode.js":949}],1216:[function(require,module,exports){
 module["exports"] = [
   "福建省",
   "台灣省"
 ];
 
-},{}],1031:[function(require,module,exports){
+},{}],1217:[function(require,module,exports){
 module["exports"] = [
   "北",
   "新北",
@@ -69140,14 +80277,14 @@ module["exports"] = [
   "馬"
 ];
 
-},{}],1032:[function(require,module,exports){
+},{}],1218:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}#{building_number}號"
 ];
 
-},{}],1033:[function(require,module,exports){
-module.exports=require(1014)
-},{"/Users/a/dev/faker.js/lib/locales/zh_CN/address/street_name.js":1014}],1034:[function(require,module,exports){
+},{}],1219:[function(require,module,exports){
+module.exports=require(1200)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/zh_CN/address/street_name.js":1200}],1220:[function(require,module,exports){
 module["exports"] = [
   "街",
   "路",
@@ -69157,7 +80294,7 @@ module["exports"] = [
   "西路"
 ];
 
-},{}],1035:[function(require,module,exports){
+},{}],1221:[function(require,module,exports){
 var zh_TW = {};
 module['exports'] = zh_TW;
 zh_TW.title = "Chinese (Taiwan)";
@@ -69165,7 +80302,7 @@ zh_TW.address = require("./address");
 zh_TW.name = require("./name");
 zh_TW.phone_number = require("./phone_number");
 
-},{"./address":1028,"./name":1037,"./phone_number":1041}],1036:[function(require,module,exports){
+},{"./address":1214,"./name":1223,"./phone_number":1227}],1222:[function(require,module,exports){
 module["exports"] = [
   "王",
   "李",
@@ -69269,9 +80406,9 @@ module["exports"] = [
   "孔"
 ];
 
-},{}],1037:[function(require,module,exports){
-arguments[4][999][0].apply(exports,arguments)
-},{"./first_name":1036,"./last_name":1038,"./name":1039,"/Users/a/dev/faker.js/lib/locales/vi/name/index.js":999}],1038:[function(require,module,exports){
+},{}],1223:[function(require,module,exports){
+arguments[4][1185][0].apply(exports,arguments)
+},{"./first_name":1222,"./last_name":1224,"./name":1225,"/Users/kdzuin/Badoo/faker.js/lib/locales/vi/name/index.js":1185}],1224:[function(require,module,exports){
 module["exports"] = [
   "紹齊",
   "博文",
@@ -69398,18 +80535,18 @@ module["exports"] = [
   "聰健"
 ];
 
-},{}],1039:[function(require,module,exports){
-module.exports=require(1020)
-},{"/Users/a/dev/faker.js/lib/locales/zh_CN/name/name.js":1020}],1040:[function(require,module,exports){
+},{}],1225:[function(require,module,exports){
+module.exports=require(1206)
+},{"/Users/kdzuin/Badoo/faker.js/lib/locales/zh_CN/name/name.js":1206}],1226:[function(require,module,exports){
 module["exports"] = [
   "0#-#######",
   "02-########",
   "09##-######"
 ];
 
-},{}],1041:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./formats":1040,"/Users/a/dev/faker.js/lib/locales/az/phone_number/index.js":53}],1042:[function(require,module,exports){
+},{}],1227:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./formats":1226,"/Users/kdzuin/Badoo/faker.js/lib/locales/ar/phone_number/index.js":37}],1228:[function(require,module,exports){
 
 /**
  *
@@ -69549,7 +80686,7 @@ var Lorem = function (faker) {
 
 module["exports"] = Lorem;
 
-},{}],1043:[function(require,module,exports){
+},{}],1229:[function(require,module,exports){
 /**
  *
  * @namespace faker.name
@@ -69568,12 +80705,18 @@ function Name (faker) {
       // some locale datasets ( like ru ) have first_name split by gender. since the name.first_name field does not exist in these datasets,
       // we must randomly pick a name from either gender array so faker.name.firstName will return the correct locale data ( and not fallback )
       if (typeof gender !== 'number') {
-        gender = faker.random.number(1);
+        if(typeof faker.definitions.name.first_name === "undefined") {
+          gender = faker.random.number(1);
+        }
+        else {
+          //Fall back to non-gendered names if they exist and gender wasn't specified
+          return faker.random.arrayElement(faker.definitions.name.first_name);
+        }
       }
       if (gender === 0) {
-        return faker.random.arrayElement(faker.locales[faker.locale].name.male_first_name)
+        return faker.random.arrayElement(faker.definitions.name.male_first_name)
       } else {
-        return faker.random.arrayElement(faker.locales[faker.locale].name.female_first_name);
+        return faker.random.arrayElement(faker.definitions.name.female_first_name);
       }
     }
     return faker.random.arrayElement(faker.definitions.name.first_name);
@@ -69648,6 +80791,16 @@ function Name (faker) {
       faker.name.jobArea() + " " +
       faker.name.jobType();
   };
+
+  /**
+   * gender
+   *
+   * @method gender
+   * @memberof faker.name
+   */
+  this.gender = function () {
+    return faker.random.arrayElement(faker.definitions.name.gender);
+  }
   
   /**
    * prefix
@@ -69728,7 +80881,7 @@ function Name (faker) {
 
 module['exports'] = Name;
 
-},{}],1044:[function(require,module,exports){
+},{}],1230:[function(require,module,exports){
 /**
  *
  * @namespace faker.phone
@@ -69741,6 +80894,7 @@ var Phone = function (faker) {
    *
    * @method faker.phone.phoneNumber
    * @param {string} format
+   * @memberOf faker.phone
    */
   self.phoneNumber = function (format) {
       format = format || faker.phone.phoneFormats();
@@ -69753,6 +80907,7 @@ var Phone = function (faker) {
    *
    * @method faker.phone.phoneFormatsArrayIndex
    * @param phoneFormatsArrayIndex
+   * @memberOf faker.phone
    */
   self.phoneNumberFormat = function (phoneFormatsArrayIndex) {
       phoneFormatsArrayIndex = phoneFormatsArrayIndex || 0;
@@ -69773,7 +80928,8 @@ var Phone = function (faker) {
 };
 
 module['exports'] = Phone;
-},{}],1045:[function(require,module,exports){
+
+},{}],1231:[function(require,module,exports){
 var mersenne = require('../vendor/mersenne');
 
 /**
@@ -69794,7 +80950,7 @@ function Random (faker, seed) {
    * returns a single random number based on a max number or range
    *
    * @method faker.random.number
-   * @param {mixed} options
+   * @param {mixed} options {min, max, precision}
    */
   this.number = function (options) {
 
@@ -69823,13 +80979,38 @@ function Random (faker, seed) {
       max += options.precision;
     }
 
-    var randomNumber = options.precision * Math.floor(
+    var randomNumber = Math.floor(
       mersenne.rand(max / options.precision, options.min / options.precision));
+    // Workaround problem in Float point arithmetics for e.g. 6681493 / 0.01
+    randomNumber = randomNumber / (1 / options.precision);
 
     return randomNumber;
 
   }
 
+  /**
+   * returns a single random floating-point number based on a max number or range
+   *
+   * @method faker.random.float
+   * @param {mixed} options
+   */
+  this.float = function (options) {
+      if (typeof options === "number") {
+        options = {
+          precision: options
+        };
+      }
+      options = options || {};
+      var opts = {};
+      for (var p in options) {
+        opts[p] = options[p];
+      }
+      if (typeof opts.precision === 'undefined') {
+        opts.precision = 0.01;
+      }
+      return faker.random.number(opts);
+  }
+  
   /**
    * takes an array and returns a random element of the array
    *
@@ -69840,6 +81021,34 @@ function Random (faker, seed) {
       array = array || ["a", "b", "c"];
       var r = faker.random.number({ max: array.length - 1 });
       return array[r];
+  }
+
+  /**
+   * takes an array and returns a subset with random elements of the array
+   *
+   * @method faker.random.arrayElements
+   * @param {array} array
+   * @param {number} count number of elements to pick
+   */
+  this.arrayElements = function (array, count) {
+      array = array || ["a", "b", "c"];
+
+      if (typeof count !== 'number') {
+        count = faker.random.number({ min: 1, max: array.length });
+      } else if (count > array.length) {
+        count = array.length;
+      } else if (count < 0) {
+        count = 0;
+      }
+
+      var arrayCopy = array.slice();
+      var countToRemove = arrayCopy.length - count;
+      for (var i = 0; i < countToRemove; i++) {
+        var indexToRemove = faker.random.number({ max: arrayCopy.length - 1 });
+        arrayCopy.splice(indexToRemove, 1);
+      }
+
+      return arrayCopy;
   }
 
   /**
@@ -69863,10 +81072,9 @@ function Random (faker, seed) {
    * @method faker.random.uuid
    */
   this.uuid = function () {
-      var self = this;
       var RFC4122_TEMPLATE = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
       var replacePlaceholders = function (placeholder) {
-          var random = self.number({ min: 0, max: 15 });
+          var random = faker.random.number({ min: 0, max: 15 });
           var value = placeholder == 'x' ? random : (random &0x3 | 0x8);
           return value.toString(16);
       };
@@ -69965,6 +81173,37 @@ function Random (faker, seed) {
     return faker.random.arrayElement(Object.keys(faker.locales));
   };
 
+    /**
+   * alpha. returns lower/upper alpha characters based count and upcase options
+   *
+   * @method faker.random.alpha
+   * @param {mixed} options // defaults to { count: 1, upcase: false }
+   */
+  this.alpha = function alpha(options) {
+    if (typeof options === "undefined") {
+      options = {
+        count: 1
+      }
+    } else if (typeof options === "number") {
+      options = {
+        count: options,
+      }
+    } else if (typeof options.count === "undefined") {
+      options.count = 1
+    }
+
+    if (typeof options.upcase === "undefined") {
+      options.upcase = false;
+    }
+
+    var wholeString = "";
+    for(var i = 0; i < options.count; i++) {
+      wholeString += faker.random.arrayElement(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]);
+    }
+
+    return options.upcase ? wholeString.toUpperCase() : wholeString;
+  };
+
   /**
    * alphaNumeric
    *
@@ -69984,13 +81223,32 @@ function Random (faker, seed) {
     return wholeString;
   };
 
+  /**
+   * hexaDecimal
+   *
+   * @method faker.random.hexaDecimal
+   * @param {number} count defaults to 1
+   */
+  this.hexaDecimal = function hexaDecimal(count) {
+    if (typeof count === "undefined") {
+      count = 1;
+    }
+
+    var wholeString = "";
+    for(var i = 0; i < count; i++) {
+      wholeString += faker.random.arrayElement(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "A", "B", "C", "D", "E", "F"]);
+    }
+
+    return "0x"+wholeString;
+  };
+
   return this;
 
 }
 
 module['exports'] = Random;
 
-},{"../vendor/mersenne":1047}],1046:[function(require,module,exports){
+},{"../vendor/mersenne":1235}],1232:[function(require,module,exports){
 // generates fake data for many computer systems properties
 
 /**
@@ -70120,21 +81378,22 @@ function System (faker) {
   };
 
   /**
-   * not yet implemented
+   * returns directory path
    *
    * @method faker.system.directoryPath
    */
   this.directoryPath = function () {
-    // TODO
+      var paths = faker.definitions.system.directoryPaths
+      return faker.random.arrayElement(paths);
   };
 
   /**
-   * not yet implemented
+   * returns file path
    *
    * @method faker.system.filePath
    */
   this.filePath = function () {
-    // TODO
+      return faker.fake("{{system.directoryPath}}/{{system.fileName}}");
   };
 
   /**
@@ -70152,7 +81411,162 @@ function System (faker) {
 
 module['exports'] = System;
 
-},{}],1047:[function(require,module,exports){
+},{}],1233:[function(require,module,exports){
+var uniqueExec = require('../vendor/unique');
+/**
+ *
+ * @namespace faker.unique
+ */
+function Unique (faker) {
+
+  // initialize unique module class variables
+
+  // maximum time unique.exec will attempt to run before aborting
+  var maxTime = 10;
+
+  // maximum retries unique.exec will recurse before abortings ( max loop depth )
+  var maxRetries = 10;
+
+  // time the script started
+  // var startTime = 0;
+
+  /**
+   * unique
+   *
+   * @method unique
+   */
+  this.unique = function unique (method, args, opts) {
+    opts = opts || {};
+    opts.startTime = new Date().getTime();
+    if (typeof opts.maxTime !== 'number') {
+      opts.maxTime = maxTime;
+    }
+    if (typeof opts.maxRetries !== 'number') {
+      opts.maxRetries = maxRetries;
+    }
+    opts.currentIterations = 0;
+    return uniqueExec.exec(method, args, opts);
+  }
+}
+
+module['exports'] = Unique;
+},{"../vendor/unique":1236}],1234:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.vehicle
+ */
+var Vehicle = function (faker) {
+  var self = this;
+  var fake = faker.fake;
+
+  /**
+   * vehicle
+   *
+   * @method faker.vehicle.vehicle
+   */
+  self.vehicle = function () {
+    return fake('{{vehicle.manufacturer}} {{vehicle.model}}');
+  };
+
+  self.vehicle.schema = {
+    "description": "Generates a random vehicle.",
+    "sampleResults": ["BMW Explorer", "Ford Camry", "Lamborghini Ranchero"]
+  };
+
+  /**
+   * manufacturer
+   *
+   * @method faker.vehicle.manufacturer
+   */
+  self.manufacturer = function () {
+    return faker.random.arrayElement(faker.definitions.vehicle.manufacturer);
+  };
+
+  self.manufacturer.schema = {
+    "description": "Generates a manufacturer name.",
+    "sampleResults": ["Ford", "Jeep", "Tesla"]
+  };
+
+
+  /**
+   * model
+   *
+   * @method faker.vehicle.model
+   */
+  self.model = function () {
+    return faker.random.arrayElement(faker.definitions.vehicle.model);
+  };
+
+  self.model.schema = {
+    "description": "Generates a vehicle model.",
+    "sampleResults": ["Explorer", "Camry", "Ranchero"]
+  };
+
+  /**
+   * type
+   *
+   * @method faker.vehicle.type
+   */
+  self.type = function () {
+    return faker.random.arrayElement(faker.definitions.vehicle.type);
+  };
+
+  self.type.schema = {
+    "description": "Generates a vehicle type.",
+    "sampleResults": ["Coupe", "Convertable", "Sedan", "SUV"]
+  };
+
+  /**
+   * fuel
+   *
+   * @method faker.vehicle.fuel
+   */
+  self.fuel = function () {
+    return faker.random.arrayElement(faker.definitions.vehicle.fuel);
+  };
+
+  self.fuel.schema = {
+    "description": "Generates a fuel type.",
+    "sampleResults": ["Electric", "Gasoline", "Diesel"]
+  };
+
+  /**
+   * vin
+   *
+   * @method faker.vehicle.vin
+   */
+  self.vin = function () {
+    return (
+      faker.random.alphaNumeric(10) +
+      faker.random.alpha({ count: 1, upcase: true }) +
+      faker.random.alphaNumeric(1) +
+      faker.random.number({ min: 10000, max: 100000}) // return five digit #
+    ).toUpperCase();
+  };
+
+  self.vin.schema = {
+    "description": "Generates a valid VIN number.",
+    "sampleResults": ["YV1MH682762184654", "3C7WRMBJ2EG208836"]
+  };
+
+  /**
+   * color
+   *
+   * @method faker.vehicle.color
+   */
+  self.color = function () {
+    return fake('{{commerce.color}}');
+  };
+
+  self.color.schema = {
+    "description": "Generates a color",
+    "sampleResults": ["red", "white", "black"]
+  };
+};
+
+module["exports"] = Vehicle;
+
+},{}],1235:[function(require,module,exports){
 // this program is a JavaScript version of Mersenne Twister, with concealment and encapsulation in class,
 // an almost straight conversion from the original program, mt19937ar.c,
 // translated by y. okada on July 17, 2006.
@@ -70437,10 +81851,98 @@ exports.seed_array = function(A) {
         {
         throw new Error("seed_array(A) must take array of numbers; is " + typeof(A));
         }
-    gen.init_by_array(A);
+    gen.init_by_array(A, A.length);
 }
+},{}],1236:[function(require,module,exports){
+// the `unique` module
+var unique = {};
 
-},{}],1048:[function(require,module,exports){
+// global results store
+// currently uniqueness is global to entire faker instance
+// this means that faker should currently *never* return duplicate values across all API methods when using `Faker.unique`
+// it's possible in the future that some users may want to scope found per function call instead of faker instance
+var found = {};
+
+// global exclude list of results
+// defaults to nothing excluded
+var exclude = [];
+
+// current iteration or retries of unique.exec ( current loop depth )
+var currentIterations = 0;
+
+// uniqueness compare function
+// default behavior is to check value as key against object hash
+var defaultCompare = function(obj, key) {
+  if (typeof obj[key] === 'undefined') {
+    return -1;
+  }
+  return 0;
+};
+
+// common error handler for messages
+unique.errorMessage = function (now, code, opts) {
+  console.error('error', code);
+  console.log('found', Object.keys(found).length, 'unique entries before throwing error. \nretried:', currentIterations, '\ntotal time:', now - opts.startTime, 'ms');
+  throw new Error(code + ' for uniqueness check \n\nMay not be able to generate any more unique values with current settings. \nTry adjusting maxTime or maxRetries parameters for faker.unique()')
+};
+
+unique.exec = function (method, args, opts) {
+  //console.log(currentIterations)
+
+  var now = new Date().getTime();
+
+  opts = opts || {};
+  opts.maxTime = opts.maxTime || 3;
+  opts.maxRetries = opts.maxRetries || 50;
+  opts.exclude = opts.exclude || exclude;
+  opts.compare = opts.compare || defaultCompare;
+
+  if (typeof opts.currentIterations !== 'number') {
+    opts.currentIterations = 0;
+  }
+
+  if (typeof opts.startTime === 'undefined') {
+    opts.startTime = new Date().getTime();
+  }
+
+  var startTime = opts.startTime;
+
+  // support single exclude argument as string
+  if (typeof opts.exclude === 'string') {
+    opts.exclude = [opts.exclude];
+  }
+
+  if (opts.currentIterations > 0) {
+    // console.log('iterating', currentIterations)
+  }
+
+  // console.log(now - startTime)
+  if (now - startTime >= opts.maxTime) {
+    return unique.errorMessage(now, 'Exceeded maxTime:' + opts.maxTime, opts);
+  }
+
+  if (opts.currentIterations >= opts.maxRetries) {
+    return unique.errorMessage(now, 'Exceeded maxRetries:' + opts.maxRetries, opts);
+  }
+
+  // execute the provided method to find a potential satifised value
+  var result = method.apply(this, args);
+
+  // if the result has not been previously found, add it to the found array and return the value as it's unique
+  if (opts.compare(found, result) === -1 && opts.exclude.indexOf(result) === -1) {
+    found[result] = result;
+    opts.currentIterations = 0;
+    return result;
+  } else {
+    // console.log('conflict', result);
+    opts.currentIterations++;
+    return unique.exec(method, args, opts);
+  }
+};
+
+module.exports = unique;
+
+},{}],1237:[function(require,module,exports){
 /*
 
 Copyright (c) 2012-2014 Jeffrey Mealo
@@ -70468,6 +81970,7 @@ The license for that script is as follows:
 
 <pusic93@gmail.com> wrote this file. As long as you retain this notice you can do whatever you want with this stuff.
 If we meet some day, and you think this stuff is worth it, you can buy me a beer in return. Luka Pusic
+
 */
 
 function rnd(a, b) {
@@ -70476,13 +81979,11 @@ function rnd(a, b) {
     b = b || 100;
 
     if (typeof b === 'number' && typeof a === 'number') {
-        //rnd(int min, int max) returns integer between min, max
-        return (function (min, max) {
-            if (min > max) {
-                throw new RangeError('expected min <= max; got min = ' + min + ', max = ' + max);
-            }
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }(a, b));
+
+        // 9/2018 - Added faker random to ensure mersenne and seed
+        var faker = require('../');
+        return faker.random.number({ min: a, max: b});
+
     }
 
     if (Object.prototype.toString.call(a) === "[object Array]") {
@@ -70651,5 +82152,5 @@ exports.generate = function generate() {
     return browser[random[0]](random[1]);
 };
 
-},{}]},{},[1])(1)
+},{"../":1}]},{},[1])(1)
 });
