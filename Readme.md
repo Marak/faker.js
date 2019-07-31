@@ -45,6 +45,9 @@ curl http://faker.hook.io?property=name.findName&locale=de
 
 ## API
 
+### Documentation / Examples
+
+https://fakerjsdocs.netlify.com
 
 ### Faker.fake()
 
