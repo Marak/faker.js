@@ -361,4 +361,12 @@ describe('finance.js', function () {
             assert.ok(bic.match(expr));
         });
     });
+
+    describe("transactionDescription()", function() {
+			it("returns a random transaction description", function() {
+				var transactionDescription = faker.finance.transactionDescription();
+
+				assert.ok(transactionDescription);
+			})
+    })
 });
