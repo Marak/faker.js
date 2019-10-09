@@ -190,6 +190,8 @@
   * paragraphs
   * text
   * lines
+* music
+  * genre
 * name
   * firstName
   * lastName
