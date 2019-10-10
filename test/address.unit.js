@@ -225,6 +225,12 @@ describe("address.js", function () {
             assert.ok(faker.address.state.called);
             faker.address.state.restore();
         });
+
+        it("returns abbreviation when useAbbr is true", function () {
+            var state = faker.address.state(true);
+            assert.equal(typeof state, 'string');
+            assert.equal(state.length <= 2, true);
+        })
     });
 
     describe("zipCode()", function () {
