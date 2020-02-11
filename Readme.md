@@ -357,6 +357,8 @@ var randomCard = faker.helpers.createCard(); // random contact card containing m
 
 ## Building faker.js
 
+Note: Recent versions of no do not work because this project uses [old `gulp`](https://stackoverflow.com/questions/55921442/how-to-fix-referenceerror-primordials-is-not-defined-in-node). Node 8 works.
+
 faker uses [gulp](http://gulpjs.com/) to automate its build process. Running the following build command will generate new browser builds, documentation, and code examples for the project.
 
 ```
