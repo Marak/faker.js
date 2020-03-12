@@ -1,10 +1,10 @@
 # faker.js - generate massive amounts of fake data in the browser and node.js
 
 #Team Members:
-   John Suresh
-   Preetham
-   Ravi Teja
-   Vamshi Krishna
+   John Suresh,
+   Preetham,
+   Ravi Teja,
+   Vamshi Krishna.
 
 #Categories:
    Movies-->genre,actor,actress,director
