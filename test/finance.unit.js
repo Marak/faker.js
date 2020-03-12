@@ -331,6 +331,14 @@ describe('finance.js', function () {
 
             assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
         });
+
+        it("returns a random yet formally correct IBAN number for specific country", function () {
+            var iban = faker.finance.iban(false, 'DE');
+            var bban = iban.substring(4) + iban.substring(0, 4);
+
+            assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
+            assert.equal(iban.substring(0, 2), 'DE', 'iban should contain country code')
+        });
     });
 
     describe("bic()", function () {
