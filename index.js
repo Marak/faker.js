@@ -4,3 +4,4 @@ var faker = new Faker({ locales: require('./lib/locales') });
 module['exports'] = faker;
 console.log(faker.movie.director());
 console.log(faker.movie.actor());
+console.log(faker.movie.genre());
