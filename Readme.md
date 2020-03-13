@@ -18,7 +18,7 @@
 [http://faker.hook.io](http://faker.hook.io/)
  - Supports all Faker API Methods
  - Full-Featured Microservice
-ss - Hosted by [hook.io](http://hook.io)
+ - Hosted by [hook.io](http://hook.io)
 
 ```bash
 curl http://faker.hook.io?property=name.findName&locale=de
