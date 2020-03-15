@@ -30,18 +30,18 @@ curl http://faker.hook.io?property=name.findName&locale=de
 
     <script src = "faker.js" type = "text/javascript"></script>
     <script>
-      var randomName = faker.name.findName(); // Caitlyn Kerluke
-      var randomEmail = faker.internet.email(); // Rusty@arne.info
-      var randomCard = faker.helpers.createCard(); // random contact card containing many properties
+      let randomName = faker.name.findName(); // Caitlyn Kerluke
+      let randomEmail = faker.internet.email(); // Rusty@arne.info
+      let randomCard = faker.helpers.createCard(); // random contact card containing many properties
     </script>
 
 ### Node.js
 
-    var faker = require('faker');
+    const faker = require('faker');
 
-    var randomName = faker.name.findName(); // Rowan Nikolaus
-    var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
-    var randomCard = faker.helpers.createCard(); // random contact card containing many properties
+    let randomName = faker.name.findName(); // Rowan Nikolaus
+    let randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
+    let randomCard = faker.helpers.createCard(); // random contact card containing many properties
 
 ## API
 
@@ -298,7 +298,7 @@ In a production environment, you may only want to include the locale data for a 
 
 ```js
 // loads only de locale
-var faker = require('faker/locale/de');
+const faker = require('faker/locale/de');
 ```
 
 ## Setting a randomness seed
@@ -308,12 +308,12 @@ If you want consistent results, you can set your own seed:
 ```js
 faker.seed(123);
 
-var firstRandom = faker.random.number();
+let firstRandom = faker.random.number();
 
 // Setting the seed again resets the sequence.
 faker.seed(123);
 
-var secondRandom = faker.random.number();
+let secondRandom = faker.random.number();
 
 console.log(firstRandom === secondRandom);
 ```
@@ -350,9 +350,9 @@ meteor add practicalmeteor:faker
 #### Meteor Usage, both client and server
 
 ```js
-var randomName = faker.name.findName(); // Rowan Nikolaus
-var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
-var randomCard = faker.helpers.createCard(); // random contact card containing many properties
+let randomName = faker.name.findName(); // Rowan Nikolaus
+let randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
+let randomCard = faker.helpers.createCard(); // random contact card containing many properties
 ```
 
 ## Building faker.js
