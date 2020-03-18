@@ -88,6 +88,7 @@ describe("internet.js", function () {
 
             faker.name.firstName.restore();
         });
+
         describe("when the firstName used contains a apostrophe", function () {
           sinon.stub(faker.name, 'firstName').returns('d\'angelo');
           var domain_word = faker.internet.domainWord();
@@ -97,6 +98,16 @@ describe("internet.js", function () {
           });
 
           faker.name.firstName.restore();
+        });
+
+        it('should remove special characters and spaces from domain', function() {
+            sinon.stub(faker.name, 'firstName').returns('ana júlia');
+
+            var domain_word = faker.internet.domainWord();
+
+            assert.strictEqual(domain_word, 'ana-jlia');
+
+            faker.name.firstName.restore();
         });
     });
 
