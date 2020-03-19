@@ -28,6 +28,17 @@ describe("fake.js", function () {
             assert.ok(arr.indexOf(random) > -1);
         });
 
+        it("allows the user to pass multiple parameters to a function", function () {
+            sinon.spy(faker.date, 'between');
+
+            faker.fake('{{date.between("2015-01-01", "2015-01-05")}}');
+
+            assert.ok(faker.date.between.calledOnce);
+            assert.ok(faker.date.between.withArgs('2015-01-01', '2015-01-05'));
+
+            faker.date.between.restore();
+        });
+
         it("does not allow undefined parameters", function () {
             assert.throws(function () {
               faker.fake()
