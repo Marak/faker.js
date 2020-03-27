@@ -105,7 +105,7 @@ describe("internet.js", function () {
 
             var domain_word = faker.internet.domainWord();
 
-            assert.strictEqual(domain_word, 'ana-jlia');
+            assert.strictEqual(domain_word, 'ana-julia');
 
             faker.name.firstName.restore();
         });
