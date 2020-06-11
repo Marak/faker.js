@@ -18782,7 +18782,7 @@ function Random (faker, seed) {
 
     // randomly pick from the many faker methods that can generate words
     var randomWordMethod = faker.random.arrayElement(wordMethods);
-    return faker.fake('{{' + randomWordMethod + '}}').split(' ').join('');
+    return faker.fake('{{' + randomWordMethod + '}}');
 
   }
 
