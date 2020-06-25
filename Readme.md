@@ -44,12 +44,13 @@ curl http://faker.hook.io?property=name.findName&locale=de
     var randomCard = faker.helpers.createCard(); // random contact card containing many properties
 ### React
   
-  import faker from 'faker';
-  
-  {faker.name.findName()}  // Hari Om Yadav
-  {faker.internet.email()} // hariomm2504@gmail.com
-  {faker.helpers.createCard()} // random contact card containing many properties
-  
+
+    import faker from 'faker';
+    
+    
+    {faker.name.findName()} // Hari Om Yadav
+    {faker.internet.email()} // hariomm2504@gmail.com
+    {faker.helpers.createCard()} // random contact card containing many properties
 
 ## API
 
