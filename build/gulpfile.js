@@ -2,7 +2,7 @@
 
   gulpfile.js - gulp script for building Faker package for browser / stand-alone package
   run this file using the gulp command
-  
+
   If this is your first time trying to build faker, you will need to install gulp:
 
     cd faker.js/
@@ -38,7 +38,7 @@ gulp.task('browser-package', function() {
 
   */
 
-  var browserified = transform(function(filename) { 
+  var browserified = transform(function(filename) {
     // use browserify to create UMD stand-alone browser package
     var b = browserify(filename, {
       standalone: 'faker'
@@ -83,7 +83,7 @@ gulp.task('documentation', function(cb) {
 
   var API = '', LOCALES = '';
   var faker = require('../index');
-  
+
   // generate locale list
   for (var locale in faker.locales) {
     LOCALES += ' * ' + locale + '\n';
@@ -127,8 +127,8 @@ Object.keys(locales).forEach(function(locale, i) {
    if (i > 0) {
      // return;
    }
-   tasks.push(locale + 'Task');
-   gulp.task(locale + 'Task', function() {
+   tasks.push(locale + '_Task');
+   gulp.task(locale + '_Task', function() {
 
     var browserified = transform(function(filename) {
       // use browserify to create UMD stand-alone browser package
@@ -167,6 +167,5 @@ gulp.task('nodeLocalRequires', function (cb){
   }
   cb();
 });
-
 
 gulp.task('default', tasks);
