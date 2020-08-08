@@ -2,6 +2,26 @@ if (typeof module !== 'undefined') {
     var assert = require('assert');
     var faker = require('../index');
 }
+function IsNumeric(input)
+{
+    return (input - 0) == input && ('' + input).trim().length > 0;
+}
+
+function getAnIbanByCountry(countryCode) {
+    var iban = faker.finance.iban();
+    var maxTry = 100000;
+    while (maxTry && iban.substring(0, 2) != countryCode) {
+        faker.seed();
+        iban = faker.finance.iban();
+        maxTry--;
+    }
+
+    if (maxTry === 0) {
+        console.log('aucun TR dans les 10000 seed, vraiment pas de bol');
+    }
+
+    return iban;
+}
 
 describe('finance_issue.js', function () {
 
@@ -20,16 +40,15 @@ describe('finance_issue.js', function () {
 
         it("IBAN for Georgia is correct", function () {
 
-          var iban = getAnIbanByCountry('GE');
-          var ibanFormated = iban.match(/.{1,4}/g).join(" ");
-          var bban = iban.substring(4) + iban.substring(0, 4);
+            var iban = getAnIbanByCountry('GE');
+            var ibanFormated = iban.match(/.{1,4}/g).join(" ");
+            var bban = iban.substring(4) + iban.substring(0, 4);
 
+            assert.ok(false === IsNumeric(iban.substring(4, 5)), iban.substring(4, 6) + ' must contains only characters in GE IBAN ' + ibanFormated);
+            assert.ok(false === IsNumeric(iban.substring(5, 6)), iban.substring(4, 6) + ' must contains only characters in GE IBAN ' + ibanFormated);
 
-            assert.ok(false === IsNumeric(iban.substring(4,5)), iban.substring(4,6)+' must contains only characters in GE IBAN '+ibanFormated);
-            assert.ok(false === IsNumeric(iban.substring(5,6)), iban.substring(4,6)+' must contains only characters in GE IBAN '+ibanFormated);
-
-            assert.ok(IsNumeric(iban.substring(2,4)));
-            assert.ok(IsNumeric(iban.substring(6,24)));
+            assert.ok(IsNumeric(iban.substring(2, 4)));
+            assert.ok(IsNumeric(iban.substring(6, 24)));
 
             assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
         });
@@ -44,27 +63,27 @@ describe('finance_issue.js', function () {
     // Code pays
     // PK
 
-      var ibanLib = require('../lib/iban');
+        var ibanLib = require('../lib/iban');
 
-      it("IBAN for Pakistan is correct", function () {
+        it("IBAN for Pakistan is correct", function () {
 
-          var iban = getAnIbanByCountry('PK');
-          var ibanFormated = iban.match(/.{1,4}/g).join(" ");
-          var bban = iban.substring(4) + iban.substring(0, 4);
+            var iban = getAnIbanByCountry('PK');
+            var ibanFormated = iban.match(/.{1,4}/g).join(" ");
+            var bban = iban.substring(4) + iban.substring(0, 4);
 
-          assert.ok(false === IsNumeric(iban.substring(4,5)), iban.substring(4,8)+' must contains only characters in PK IBAN '+ibanFormated);
-          assert.ok(false === IsNumeric(iban.substring(5,6)), iban.substring(4,8)+' must contains only characters in PK IBAN '+ibanFormated);
-          assert.ok(false === IsNumeric(iban.substring(6,7)), iban.substring(4,8)+' must contains only characters in PK IBAN '+ibanFormated);
-          assert.ok(false === IsNumeric(iban.substring(7,8)), iban.substring(4,8)+' must contains only characters in PK IBAN '+ibanFormated);
+            assert.ok(false === IsNumeric(iban.substring(4, 5)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
+            assert.ok(false === IsNumeric(iban.substring(5, 6)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
+            assert.ok(false === IsNumeric(iban.substring(6, 7)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
+            assert.ok(false === IsNumeric(iban.substring(7, 8)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
 
-          assert.ok(IsNumeric(iban.substring(2,4)));
-          assert.ok(IsNumeric(iban.substring(8,24)));
+            assert.ok(IsNumeric(iban.substring(2, 4)));
+            assert.ok(IsNumeric(iban.substring(8, 24)));
 
-          assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
-      });
-  });
+            assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
+        });
+    });
 
-  describe("issue_946 IBAN Turkish", function () {
+    describe("issue_946 IBAN Turkish", function () {
 
 
   // https://transferwise.com/fr/iban/turkey
@@ -85,39 +104,18 @@ describe('finance_issue.js', function () {
   //   Chiffre d'indicatif national	0
   //   Numéro de compte bancaire	0519786457841326
 
-      var ibanLib = require('../lib/iban');
+        var ibanLib = require('../lib/iban');
 
-      it("IBAN for Turkish is correct", function () {
+        it("IBAN for Turkish is correct", function () {
 
-          var iban = getAnIbanByCountry('TR');
-          var ibanFormated = iban.match(/.{1,4}/g).join(" ");
-          var bban = iban.substring(4) + iban.substring(0, 4);
+            var iban = getAnIbanByCountry('TR');
+            var ibanFormated = iban.match(/.{1,4}/g).join(" ");
+            var bban = iban.substring(4) + iban.substring(0, 4);
 
-          assert.ok(IsNumeric(iban.substring(2,26)),'No character after TR '+ibanFormated);
+            assert.ok(IsNumeric(iban.substring(2, 26)), 'No character after TR ' + ibanFormated);
 
-          assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
-      });
-  });
+            assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
+        });
+    });
 
 });
-
-function IsNumeric(input)
-{
-    return (input - 0) == input && (''+input).trim().length > 0;
-}
-
-function getAnIbanByCountry(countryCode) {
-    var iban = faker.finance.iban();
-    var maxTry = 100000;
-    while (maxTry && iban.substring(0,2) != countryCode ) {
-      faker.seed();
-      var iban = faker.finance.iban();
-      maxTry--;
-    }
-
-    if (maxTry==0) {
-      console.log('aucun TR dans les 10000 seed, vraiment pas de bol');
-    }
-
-  return iban;
-}
