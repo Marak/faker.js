@@ -153,6 +153,13 @@ var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
 var randomCard = faker.helpers.createCard(); // random contact card containing many properties
 ```
 
+### Free Hosted API's With Faker Data to build your app
+
+https://www.jsonapi.co/
+
+API's built to help frontend and mobile developer to focus only on creating beautiful apps and rest all will be handled by [jsonapi.co](https://www.jsonapi.co/)
+Uses faker.js to populate all sort of data.
+
 ## Building faker.js
 
 faker uses [gulp](http://gulpjs.com/) to automate it's build process. Running the following build command will generate new browser builds, documentation, and code examples for the project.
