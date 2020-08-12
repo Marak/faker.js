@@ -29,7 +29,7 @@ function Address (faker) {
         format = faker.random.arrayElement(localeFormat);
       }
     }
-    return Helpers.replaceSymbols(format);
+    return CheckGeneratedZipCode(Helpers.replaceSymbols(format),format);
   }
 
   /**
@@ -225,6 +225,22 @@ function Address (faker) {
       return (faker.random.number(360 * 10000) / 10000.0 - 180.0).toFixed(4);
   }
   
+  /**
+    * check generated zip code
+    * 
+    */
+  CheckGeneratedZipCode = function(zipCode, format){
+    switch(faker.locale.toUpperCase()){
+      case "NL":{                 
+        while(zipCode.charAt(0)=="0" || zipCode.indexOf("SA")  !== -1 || zipCode.indexOf("SD")  !== -1 || zipCode.indexOf("SS")  !== -1 ){
+          zipCode = Helpers.replaceSymbols(format);
+        }
+      }
+    }
+
+    return zipCode;
+  }
+
   return this;
 }
 
