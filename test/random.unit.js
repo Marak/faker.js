@@ -228,6 +228,16 @@ describe("random.js", function () {
     });
   });
 
+  describe('object', function() {
+    it('returns a two elements object with random keys and values', function() {
+      var object = faker.random.object();
+      var keys = Object.keys(object);
+
+      // Check length
+      assert.ok(keys.length == 2);
+    });
+  });
+
   describe('UUID', function() {
     it('should generate a valid UUID', function() {
       var UUID = faker.random.uuid();
