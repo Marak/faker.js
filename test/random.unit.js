@@ -229,12 +229,20 @@ describe("random.js", function () {
   });
 
   describe('object', function() {
-    it('returns a two elements object with random keys and values', function() {
+    it('returns an object of two elements with random keys and values', function() {
+      var defaultLength = 2;
       var object = faker.random.object();
       var keys = Object.keys(object);
 
-      // Check length
       assert.ok(keys.length == 2);
+    });
+
+    it('returns an object of four elements with random keys and values', function() {
+      var length = 2;
+      var object = faker.random.object(length);
+      var keys = Object.keys(object);
+
+      assert.ok(keys.length == length);
     });
   });
 
