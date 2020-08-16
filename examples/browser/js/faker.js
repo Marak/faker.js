@@ -69942,7 +69942,9 @@ function Random (faker, seed) {
       count = faker.random.number({min:1, max: 3});
     }
     for (var i = 0; i<count; i++) {
-      words.push(faker.random.word());
+      // if returns more than one word, get only first one
+      let newWord = faker.random.word();
+      words.push((newWord.split(" ").length > 1) ? newWord.split(" ")[0] : newWord);
     }
     return words.join(' ');
   }
