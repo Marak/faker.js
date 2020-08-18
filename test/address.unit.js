@@ -520,4 +520,14 @@ describe("address.js", function () {
         });
     });
 
+    describe("timeZone()", function () {
+        it("returns random timeZone", function () {
+            sinon.spy(faker.address, 'timeZone');
+            var timeZone = faker.address.timeZone();
+            assert.ok(timeZone);
+            assert.ok(faker.address.timeZone.called);
+            faker.address.timeZone.restore();
+        });
+    });
+
 });
