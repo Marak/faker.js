@@ -117,7 +117,7 @@ gulp.task('documentation', function(cb) {
 
 });
 
-var tasks = ['documentation', 'jsdoc', 'nodeLocalRequires', 'browser-package', 'gh-pages'];
+var tasks = ['documentation', 'jsdoc', 'nodeLocalRequires', 'browser-package' /*, 'gh-pages' */];
 
 var locales = require('../lib/locales');
 var localTasks = Object.keys(locales);
