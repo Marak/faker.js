@@ -10,10 +10,11 @@
     "url": "http://github.com/Marak/Faker.js.git"
   },
   "scripts": {
+    "browser": "./node_modules/.bin/gulp browser",
+    "jsdoc": "./node_modules/.bin/gulp jsdoc",
+    "readme": "./node_modules/.bin/gulp readme",
     "lint": "node_modules/.bin/jshint ./lib --config ./.jshintrc",
     "test": "node_modules/.bin/mocha test/*.*.js",
-    "build": "cd build && ../node_modules/.bin/gulp && cd ../",
-    "doc": "jsdoc -c conf.json -t ./node_modules/ink-docstrap/template -R README.md lib",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "nyc": {

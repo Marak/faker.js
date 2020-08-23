@@ -74,7 +74,7 @@ faker.locale = "de";
 
 ### Individual Localization Packages
 
-As of vesion `v3.0.0` faker.js supports incremental loading of locales. 
+faker.js supports incremental loading of locales.
 
 By default, requiring `faker` will include *all* locale data.
 
@@ -111,16 +111,28 @@ You can view a code coverage report generated in coverage/lcov-report/index.html
 
 ## Building faker.js
 
-faker uses [gulp](http://gulpjs.com/) to automate it's build process. Running the following build command will generate new browser builds, documentation, and code examples for the project.
+faker uses [gulp](http://gulpjs.com/) to automate it's build process. Each build operation is a separate task which can be run independently. 
+
+### Browser Bundle
 
 ```
-npm run-script build
+npm run browser
 ```
 
-## Building JSDocs
+### Building JSDocs
+
+[JSDOC](https://jsdoc.app/) v3 HTML API documentation
 
 ```
-npm run-script doc
+npm run jsdoc
+```
+
+### Building ReadMe
+
+The `ReadMe.md` file for `faker.js` is automatically generated and should not be modified directly. All updateds to `ReadMe.md` should be perfomed in `./build/src/docs.md` and then the build script should be run.
+
+```
+npm run readme
 ```
 
 ## Version Release Schedule
