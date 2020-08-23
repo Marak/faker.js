@@ -6865,6 +6865,9 @@ textarea:focus {
   -webkit-box-shadow: none;
   box-shadow: none;
 }
+.form-control-feedback {
+  color: #464545;
+}
 .has-warning .help-block,
 .has-warning .control-label,
 .has-warning .radio,

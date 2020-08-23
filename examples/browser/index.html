@@ -18,11 +18,11 @@
             // draws buttons / inputs for all faker methods
             function drawButtons () {
               $('#buttons').html('');
-              
+
               var str = '';
-              
+
               var moduleList = '<tr><td colspan="2"><ul>';
-              
+
               var modules = Object.keys(faker);
               modules = modules.sort();
               modules.forEach(function(module){
