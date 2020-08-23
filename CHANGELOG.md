@@ -3,6 +3,50 @@
 See commit history on Github for change history
 http://github.com/marak/faker.js
 
+## v4.0.0
+
+### Dist
+- Update to latest gulp and mocha
+
+### Docs
+- `seed()` is on `faker`, not `random`
+- Add section for setting seed
+- Add Patreon campaign
+- Fix demo URL in Readme
+
+### API
+- Add dataUri method
+- Add additional https option for imageUrl
+- Add exports for `az` locality
+- Add `lorem.slug` method
+- Expose seed option to Faker class
+- Don't allow `/` in file names or paths
+- Typo in require statement
+- Add database method
+- Move password generator to core
+- Add `internet.ipv6` method
+- alphaNumeric takes now count as a argument
+- Add IBAN and BIC generator functions
+
+### Fix
+- Fix aomount and price argument dec for case = 0
+- Default shuffle value
+- Fix dec for amount in finance
+- Don't allow path seperators in generated filenames in system
+- Add lorem.slug to functional test
+- Don't throw in helpers.shuffle on empty array
+- Adds precision value to faker.random.number call
+- Fix typo in doc string
+- misspelling of 'Liaison' from faker.name.jobType()
+- Remove duplicate Congo from country.js
+- Clean up faker.commerce.department method
+- Correct spelling
+
+### Locale
+- Azerbaijani localization has been added
+- Realistic Dutch city naming components
+- Add `CZ` Czech
+
 ## v3.1.0
 
 ( partial change log see: https://github.com/Marak/faker.js/commits/master for full details )

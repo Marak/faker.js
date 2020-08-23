@@ -65,6 +65,42 @@ describe("date.js", function () {
             assert.ok(date <= new Date());
         });
 
+        it("returns a date N days from the recent past, starting from refDate", function () {
+
+            var days = 30;
+            var refDate = new Date(2120, 11, 9, 10, 0, 0, 0); // set the date beyond the usual calculation (to make sure this is working correctly)
+
+            var date = faker.date.recent(days, refDate);
+
+            var lowerBound = new Date(refDate.getTime() - (days * 24 * 60 * 60 * 1000));
+
+            assert.ok(lowerBound <= date, "`recent()` date should not be further back than `n` days ago");
+            assert.ok(date <= refDate, "`recent()` date should not be ahead of the starting date reference");
+        });
+
+    });
+
+    describe("soon()", function () {
+        it("returns a date N days into the future", function () {
+
+            var date = faker.date.soon(30);
+
+            assert.ok(date >= new Date());
+        });
+
+        it("returns a date N days from the recent future, starting from refDate", function () {
+
+            var days = 30;
+            var refDate = new Date(1880, 11, 9, 10, 0, 0, 0); // set the date beyond the usual calculation (to make sure this is working correctly)
+
+            var date = faker.date.soon(days, refDate);
+
+            var upperBound = new Date(refDate.getTime() + (days * 24 * 60 * 60 * 1000));
+
+            assert.ok(date <= upperBound, "`soon()` date should not be further ahead than `n` days ago");
+            assert.ok(refDate <= date, "`soon()` date should not be behind the starting date reference");
+        });
+
     });
 
     describe("between()", function () {

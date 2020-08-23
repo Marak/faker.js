@@ -18,11 +18,11 @@
             // draws buttons / inputs for all faker methods
             function drawButtons () {
               $('#buttons').html('');
-              
+
               var str = '';
-              
+
               var moduleList = '<tr><td colspan="2"><ul>';
-              
+
               var modules = Object.keys(faker);
               modules = modules.sort();
               modules.forEach(function(module){
@@ -101,17 +101,15 @@
               $('.locale').append('<option value="' + item.name+ '">' + item.title + '</option>');
             });
 
-
             $('.locale').val("en");
 
             $('.locale').change(function(e){
-              var locale = $(this).attr('value');
+              var locale = $(this).val();
               faker.locale = locale;
               drawButtons();
               generateName();
             });
 
-            
             function generateName () {
 
               // make name contextual to username and email
@@ -121,6 +119,7 @@
               var dob = faker.date.past(50, new Date("Sat Sep 20 1992 21:35:02 GMT+0200 (CEST)"));
               dob = dob.getFullYear() + "-" + (dob.getMonth()+1) + "-" + dob.getDate();  // First month is "1"
               $('#inputName').attr("value", faker.name.findName(firstName, lastName));
+              // $('#inputGender').attr("value", faker.name.gender());
               $('#inputDob').attr("value", dob);
               $('#inputStreetAddress').attr("value", faker.address.streetAddress());
               $('#inputCityStateZip').attr("value", faker.address.city() + ", " + faker.address.stateAbbr() + " " + faker.address.zipCode());
@@ -189,7 +188,6 @@
             <button id="generateName" type="button" class="btn btn-primary">Generate New</button>
           </div>
         </div>
-        
         <div class="form-group">
           <label for="inputName" class="col-lg-2 control-label">Name:</label>
           <div class="col-lg-10">
@@ -259,6 +257,14 @@
             <img class="" id="imageAvatar"/>
           </div>
         </div>
+        <!--
+        <div class="form-group">
+          <label for="inputGender" class="col-lg-2 control-label">Gender:</label>
+          <div class="col-lg-10">
+            <input type="text" class="form-control" id="inputGender" placeholder="Gender">
+          </div>
+        </div>
+        -->
 
       </fieldset>
     </form>

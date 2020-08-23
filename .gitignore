@@ -7,13 +7,16 @@ REVISION
 .project
 .tasks-cache
 .svn
+.nyc_output/
 *DONOTVERSION*
 /nbproject
 /.idea
 lib-cov
 node_modules/
+reports/
 /npm-debug.log
 /coverage
+/.npm
 
 # meteor specific
 .build*
