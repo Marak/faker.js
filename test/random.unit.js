@@ -360,9 +360,15 @@ describe("random.js", function () {
       assert.ok(count > 0);
     });
 
-    it('returns the times the callback run', function () {
-      var count = times(function () {});
-      assert.ok(count > 0);
+    it('returns an array of the callback results', function () {
+      var count = 0;
+
+      var result = times({ min: 4, max: 4 }, function () {
+        count++;
+        return count;
+      });
+
+      assert.deepEqual(result, [1, 2, 3, 4]);
     });
   });
 });
