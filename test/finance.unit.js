@@ -162,7 +162,7 @@ describe('finance.js', function () {
         });
 
         it("should use the default decimal location when not passing arguments", function () {
-
+            faker.finance.amount().toString();
             var amount = faker.finance.amount().toString();
 
             var decimal = '.';
