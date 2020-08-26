@@ -33,7 +33,7 @@
 			<li class="dropdown">
 				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="faker.html">faker</a></li><li><a href="faker.address.html">faker.address</a></li><li><a href="faker.commerce.html">faker.commerce</a></li><li><a href="faker.company.html">faker.company</a></li><li><a href="faker.database.html">faker.database</a></li><li><a href="faker.date.html">faker.date</a></li><li><a href="faker.finance.html">faker.finance</a></li><li><a href="faker.git.html">faker.git</a></li><li><a href="faker.hacker.html">faker.hacker</a></li><li><a href="faker.helpers.html">faker.helpers</a></li><li><a href="faker.image.html">faker.image</a></li><li><a href="faker.image.lorempixel.html">faker.image.lorempixel</a></li><li><a href="faker.image.unsplash.html">faker.image.unsplash</a></li><li><a href="faker.internet.html">faker.internet</a></li><li><a href="faker.lorem.html">faker.lorem</a></li><li><a href="faker.name.html">faker.name</a></li><li><a href="faker.phone.html">faker.phone</a></li><li><a href="faker.random.html">faker.random</a></li><li><a href="faker.system.html">faker.system</a></li><li><a href="faker.time.html">faker.time</a></li><li><a href="faker.unique.html">faker.unique</a></li><li><a href="faker.vehicle.html">faker.vehicle</a></li>
+					<li><a href="faker.html">faker</a></li><li><a href="faker.address.html">faker.address</a></li><li><a href="faker.commerce.html">faker.commerce</a></li><li><a href="faker.company.html">faker.company</a></li><li><a href="faker.database.html">faker.database</a></li><li><a href="faker.date.html">faker.date</a></li><li><a href="faker.finance.html">faker.finance</a></li><li><a href="faker.git.html">faker.git</a></li><li><a href="faker.hacker.html">faker.hacker</a></li><li><a href="faker.helpers.html">faker.helpers</a></li><li><a href="faker.image.html">faker.image</a></li><li><a href="faker.image.lorempicsum.html">faker.image.lorempicsum</a></li><li><a href="faker.image.lorempixel.html">faker.image.lorempixel</a></li><li><a href="faker.image.unsplash.html">faker.image.unsplash</a></li><li><a href="faker.internet.html">faker.internet</a></li><li><a href="faker.lorem.html">faker.lorem</a></li><li><a href="faker.name.html">faker.name</a></li><li><a href="faker.phone.html">faker.phone</a></li><li><a href="faker.random.html">faker.random</a></li><li><a href="faker.system.html">faker.system</a></li><li><a href="faker.time.html">faker.time</a></li><li><a href="faker.unique.html">faker.unique</a></li><li><a href="faker.vehicle.html">faker.vehicle</a></li>
 				</ul>
 			</li>
 			
@@ -145,6 +145,7 @@
 <li>cardinalDirection</li>
 <li>ordinalDirection</li>
 <li>nearbyGPSCoordinate</li>
+<li>timeZone</li>
 </ul>
 </li>
 <li>commerce
@@ -212,6 +213,7 @@
 <li>ethereumAddress</li>
 <li>iban</li>
 <li>bic</li>
+<li>transactionDescription</li>
 </ul>
 </li>
 <li>git
@@ -271,6 +273,7 @@
 <li>dataUri</li>
 <li>lorempixel</li>
 <li>unsplash</li>
+<li>lorempicsum</li>
 </ul>
 </li>
 <li>internet
@@ -411,6 +414,7 @@ faker.locale = &quot;de&quot;;
 <li>es</li>
 <li>es_MX</li>
 <li>fa</li>
+<li>fi</li>
 <li>fr</li>
 <li>fr_CA</li>
 <li>fr_CH</li>
@@ -437,7 +441,7 @@ faker.locale = &quot;de&quot;;
 <li>zh_TW</li>
 </ul>
 <h3>Individual Localization Packages</h3>
-<p>As of vesion <code>v3.0.0</code> faker.js supports incremental loading of locales.</p>
+<p>faker.js supports incremental loading of locales.</p>
 <p>By default, requiring <code>faker</code> will include <em>all</em> locale data.</p>
 <p>In a production environment, you may only want to include the locale data for a specific set of locales.</p>
 <pre class="prettyprint source lang-js"><code>// loads only de locale
@@ -462,11 +466,17 @@ make test
 </code></pre>
 <p>You can view a code coverage report generated in coverage/lcov-report/index.html.</p>
 <h2>Building faker.js</h2>
-<p>faker uses <a href="http://gulpjs.com/">gulp</a> to automate it's build process. Running the following build command will generate new browser builds, documentation, and code examples for the project.</p>
-<pre class="prettyprint source"><code>npm run-script build
+<p>faker uses <a href="http://gulpjs.com/">gulp</a> to automate it's build process. Each build operation is a separate task which can be run independently.</p>
+<h3>Browser Bundle</h3>
+<pre class="prettyprint source"><code>npm run browser
 </code></pre>
-<h2>Building JSDocs</h2>
-<pre class="prettyprint source"><code>npm run-script doc
+<h3>Building JSDocs</h3>
+<p><a href="https://jsdoc.app/">JSDOC</a> v3 HTML API documentation</p>
+<pre class="prettyprint source"><code>npm run jsdoc
+</code></pre>
+<h3>Building ReadMe</h3>
+<p>The <code>ReadMe.md</code> file for <code>faker.js</code> is automatically generated and should not be modified directly. All updateds to <code>ReadMe.md</code> should be perfomed in <code>./build/src/docs.md</code> and then the build script should be run.</p>
+<pre class="prettyprint source"><code>npm run readme
 </code></pre>
 <h2>Version Release Schedule</h2>
 <p>faker.js is a popular project used by many organizations and individuals in production settings. Major and Minor version releases are generally on a monthly schedule. Bugs fixes are addressed by severity and fixed as soon as possible.</p>
@@ -607,7 +617,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.5</a>
 	
-		on 2020-08-22T21:07:02-04:00
+		on 2020-08-26T18:35:42-04:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

@@ -62,6 +62,7 @@
   * cardinalDirection
   * ordinalDirection
   * nearbyGPSCoordinate
+  * timeZone
 * commerce
   * color
   * department
@@ -114,6 +115,7 @@
   * ethereumAddress
   * iban
   * bic
+  * transactionDescription
 * git
   * branch
   * commitEntry
@@ -161,6 +163,7 @@
   * dataUri
   * lorempixel
   * unsplash
+  * lorempicsum
 * internet
   * avatar
   * email
