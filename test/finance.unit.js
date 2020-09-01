@@ -351,6 +351,17 @@ describe('finance.js', function () {
 
             assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
         });
+        it("returns a specific and formally correct IBAN number", function () {
+            var iban = faker.finance.iban(false, "DE");
+            var bban = iban.substring(4) + iban.substring(0, 4);
+            var countryCode = iban.substring(0, 2);
+
+            assert.equal(countryCode, "DE");
+            assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
+        });
+        it("throws an error if the passed country code is not supported", function () {
+            assert.throws(function() { faker.finance.iban(false, 'AA');}, /Country code AA not supported/);
+        });
     });
 
     describe("bic()", function () {
