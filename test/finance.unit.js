@@ -164,7 +164,7 @@ describe('finance.js', function () {
         /*
         Remark: This needs to be fixed now see: https://github.com/Marak/faker.js/issues/984
         it("should use the default decimal location when not passing arguments", function () {
-
+            faker.finance.amount().toString();
             var amount = faker.finance.amount().toString();
 
             var decimal = '.';

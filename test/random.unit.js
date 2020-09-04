@@ -321,4 +321,54 @@ describe("random.js", function () {
     });
   })
 
+  describe('times', function() {
+    var times = faker.random.times;
+
+    it('runs the given callback random times', function() {
+      var count = 0;
+
+      times(function () { count++; });
+
+      assert.ok(count > 0);
+    });
+
+    it('takes the max count as first argument', function () {
+      var count = 0;
+
+      times(2, function () { count++; });
+
+      assert.ok(count <= 2);
+    });
+
+    it('takes options object as first argument', function () {
+      var count = 0;
+
+      times({ min: 5, max: 7 }, function () { count++; });
+
+      assert.ok(count >= 5);
+      assert.ok(count <= 7);
+    });
+
+    it('passes the current index to the callback', function () {
+      var count = 0;
+
+      times(function (index) {
+        assert.ok(count === index);
+        count++;
+      });
+
+      assert.ok(count > 0);
+    });
+
+    it('returns an array of the callback results', function () {
+      var count = 0;
+
+      var result = times({ min: 4, max: 4 }, function () {
+        count++;
+        return count;
+      });
+
+      assert.deepEqual(result, [1, 2, 3, 4]);
+    });
+  });
 });
