@@ -311,6 +311,7 @@ faker.locale = "de";
  * sk
  * sv
  * tr
+ * th - Thailand name only
  * uk
  * vi
  * zh_CN
