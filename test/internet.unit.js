@@ -14,6 +14,15 @@ describe("internet.js", function () {
             assert.equal(res, 'Aiden.Harann55');
             faker.internet.userName.restore();
         });
+
+        it("returns an email with japanese characters", function () {
+            sinon.stub(faker.internet, 'userName').returns('思源_唐3');
+            var email = faker.internet.email("思源_唐3");
+            var res = email.split("@");
+            res = res[0];
+            assert.equal(res, '思源_唐3');
+            faker.internet.userName.restore();
+        });
     });
 
     describe("exampleEmail", function () {
