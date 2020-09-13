@@ -2,15 +2,11 @@ if (typeof module !== 'undefined') {
     var assert = require('assert');
     var sinon = require('sinon');
     var faker = require('../index');
-    var seeder = require('./support/seeder');
 }
 
 faker.seed(1234);
 
 describe('finance.js', function () {
-    before(function () {
-        seeder();
-    });
 
     describe('account( length )', function () {
 
