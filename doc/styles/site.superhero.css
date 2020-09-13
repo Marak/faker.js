@@ -6836,6 +6836,10 @@ label,
 .has-warning .form-control-feedback {
   color: #f0ad4e;
 }
+.has-warning .form-control,
+.has-warning .form-control:focus {
+  border: 4px solid #f0ad4e;
+}
 .has-warning .input-group-addon {
   border: none;
 }
@@ -6852,6 +6856,10 @@ label,
 .has-error .form-control-feedback {
   color: #d9534f;
 }
+.has-error .form-control,
+.has-error .form-control:focus {
+  border: 4px solid #d9534f;
+}
 .has-error .input-group-addon {
   border: none;
 }
@@ -6867,6 +6875,10 @@ label,
 .has-success.checkbox-inline label,
 .has-success .form-control-feedback {
   color: #5cb85c;
+}
+.has-success .form-control,
+.has-success .form-control:focus {
+  border: 4px solid #5cb85c;
 }
 .has-success .input-group-addon {
   border: none;

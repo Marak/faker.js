@@ -4943,7 +4943,7 @@ a.badge:focus {
   padding-bottom: 30px;
   margin-bottom: 30px;
   color: inherit;
-  background-color: #f9f9f9;
+  background-color: #f5f5f5;
 }
 .jumbotron h1,
 .jumbotron .h1 {
@@ -4955,7 +4955,7 @@ a.badge:focus {
   font-weight: 200;
 }
 .jumbotron > hr {
-  border-top-color: #e0e0e0;
+  border-top-color: #dcdcdc;
 }
 .container .jumbotron,
 .container-fluid .jumbotron {
@@ -5794,7 +5794,7 @@ button.list-group-item-danger.active:focus {
   min-height: 20px;
   padding: 19px;
   margin-bottom: 20px;
-  background-color: #f9f9f9;
+  background-color: #f5f5f5;
   border: 1px solid transparent;
   border-radius: 3px;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
@@ -6149,7 +6149,7 @@ button.close {
   margin-left: -11px;
   border-bottom-width: 0;
   border-top-color: rgba(0, 0, 0, 0);
-  border-top-color: rgba(0, 0, 0, 0.075);
+  border-top-color: rgba(0, 0, 0, 0.12);
   bottom: -11px;
 }
 .popover.top > .arrow:after {
@@ -6165,7 +6165,7 @@ button.close {
   margin-top: -11px;
   border-left-width: 0;
   border-right-color: rgba(0, 0, 0, 0);
-  border-right-color: rgba(0, 0, 0, 0.075);
+  border-right-color: rgba(0, 0, 0, 0.12);
 }
 .popover.right > .arrow:after {
   content: " ";
@@ -6179,7 +6179,7 @@ button.close {
   margin-left: -11px;
   border-top-width: 0;
   border-bottom-color: rgba(0, 0, 0, 0);
-  border-bottom-color: rgba(0, 0, 0, 0.075);
+  border-bottom-color: rgba(0, 0, 0, 0.12);
   top: -11px;
 }
 .popover.bottom > .arrow:after {
@@ -6195,7 +6195,7 @@ button.close {
   margin-top: -11px;
   border-right-width: 0;
   border-left-color: rgba(0, 0, 0, 0);
-  border-left-color: rgba(0, 0, 0, 0.075);
+  border-left-color: rgba(0, 0, 0, 0.12);
 }
 .popover.left > .arrow:after {
   content: " ";
@@ -6757,7 +6757,7 @@ button.close {
   box-shadow: inset 0 -2px 0 #fff;
 }
 .btn-default {
-  background-size: 200%;
+  background-size: 200% 200%;
   background-position: 50%;
 }
 .btn-default:focus {
@@ -6772,12 +6772,12 @@ button.close {
   background-image: -webkit-radial-gradient(circle, #e0e0e0 10%, #fff 11%);
   background-image: radial-gradient(circle, #e0e0e0 10%, #fff 11%);
   background-repeat: no-repeat;
-  background-size: 1000%;
+  background-size: 1000% 1000%;
   -webkit-box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
 .btn-primary {
-  background-size: 200%;
+  background-size: 200% 200%;
   background-position: 50%;
 }
 .btn-primary:focus {
@@ -6792,12 +6792,12 @@ button.close {
   background-image: -webkit-radial-gradient(circle, #0b76cc 10%, #2196F3 11%);
   background-image: radial-gradient(circle, #0b76cc 10%, #2196F3 11%);
   background-repeat: no-repeat;
-  background-size: 1000%;
+  background-size: 1000% 1000%;
   -webkit-box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
 .btn-success {
-  background-size: 200%;
+  background-size: 200% 200%;
   background-position: 50%;
 }
 .btn-success:focus {
@@ -6812,12 +6812,12 @@ button.close {
   background-image: -webkit-radial-gradient(circle, #39843c 10%, #4CAF50 11%);
   background-image: radial-gradient(circle, #39843c 10%, #4CAF50 11%);
   background-repeat: no-repeat;
-  background-size: 1000%;
+  background-size: 1000% 1000%;
   -webkit-box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
 .btn-info {
-  background-size: 200%;
+  background-size: 200% 200%;
   background-position: 50%;
 }
 .btn-info:focus {
@@ -6832,12 +6832,12 @@ button.close {
   background-image: -webkit-radial-gradient(circle, #701c7e 10%, #9C27B0 11%);
   background-image: radial-gradient(circle, #701c7e 10%, #9C27B0 11%);
   background-repeat: no-repeat;
-  background-size: 1000%;
+  background-size: 1000% 1000%;
   -webkit-box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
 .btn-warning {
-  background-size: 200%;
+  background-size: 200% 200%;
   background-position: 50%;
 }
 .btn-warning:focus {
@@ -6852,12 +6852,12 @@ button.close {
   background-image: -webkit-radial-gradient(circle, #c27400 10%, #ff9800 11%);
   background-image: radial-gradient(circle, #c27400 10%, #ff9800 11%);
   background-repeat: no-repeat;
-  background-size: 1000%;
+  background-size: 1000% 1000%;
   -webkit-box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
 .btn-danger {
-  background-size: 200%;
+  background-size: 200% 200%;
   background-position: 50%;
 }
 .btn-danger:focus {
@@ -6872,12 +6872,12 @@ button.close {
   background-image: -webkit-radial-gradient(circle, #b0141a 10%, #e51c23 11%);
   background-image: radial-gradient(circle, #b0141a 10%, #e51c23 11%);
   background-repeat: no-repeat;
-  background-size: 1000%;
+  background-size: 1000% 1000%;
   -webkit-box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
 .btn-link {
-  background-size: 200%;
+  background-size: 200% 200%;
   background-position: 50%;
 }
 .btn-link:focus {
@@ -6892,7 +6892,7 @@ button.close {
   background-image: -webkit-radial-gradient(circle, #e0e0e0 10%, #fff 11%);
   background-image: radial-gradient(circle, #e0e0e0 10%, #fff 11%);
   background-repeat: no-repeat;
-  background-size: 1000%;
+  background-size: 1000% 1000%;
   -webkit-box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
@@ -7369,7 +7369,7 @@ input[type="checkbox"]:disabled:checked:after,
 .alert-danger {
   background-color: #e51c23;
 }
-.alert a:not(.close),
+.alert a:not(.close):not(.btn),
 .alert .alert-link {
   color: #fff;
   font-weight: bold;

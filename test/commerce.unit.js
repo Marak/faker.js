@@ -129,4 +129,16 @@ describe("commerce.js", function() {
 
   });
 
+  describe("productDescription()", function() {
+		it("returns a random product description", function() {
+            sinon.spy(faker.commerce, 'productDescription');
+            var description = faker.commerce.productDescription();
+
+            assert.ok(typeof description === 'string');
+            assert.ok(faker.commerce.productDescription.calledOnce);
+
+            faker.commerce.productDescription.restore();
+		});
+	});
+
 });

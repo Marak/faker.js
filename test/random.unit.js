@@ -3,6 +3,7 @@ if (typeof module !== 'undefined') {
     var sinon = require('sinon');
     var _ = require('lodash');
     var faker = require('../index');
+    var mersenne = require('../vendor/mersenne');
 }
 
 
@@ -78,11 +79,24 @@ describe("random.js", function () {
       assert.equal(opts.max, max);
     });
 
-    it('should return deterministic results when seeded', function() {
+    it('should return deterministic results when seeded with integer', function() {
       faker.seed(100);
       var name = faker.name.findName();
       assert.equal(name, 'Eva Jenkins');
     })
+
+    it('should return deterministic results when seeded with array - one element', function() {
+      faker.seed([10]);
+      var name = faker.name.findName();
+      assert.equal(name, 'Duane Kub');
+    })
+
+    it('should return deterministic results when seeded with array - multiple elements', function() {
+      faker.seed([10, 100, 1000]);
+      var name = faker.name.findName();
+      assert.equal(name, 'Alma Shanahan');
+    })
+
   });
 
   describe("float", function() {
@@ -241,6 +255,26 @@ describe("random.js", function () {
     });
   });
 
+  describe('alpha', function() {
+    var alpha = faker.random.alpha;
+
+    it('should return single letter when no count provided', function() {
+      assert.ok(alpha().length === 1);
+    })
+
+    it('should return lowercase letter when no upcase option provided', function() {
+      assert.ok(alpha().match(/[a-z]/));
+    })
+
+    it('should return uppercase when upcase option is true', function() {
+      assert.ok(alpha({ upcase: true }).match(/[A-Z]/));
+    })
+
+    it('should generate many random letters', function() {
+      assert.ok(alpha(5).length === 5);
+    })
+  })
+
   describe('alphaNumeric', function() {
     var alphaNumeric = faker.random.alphaNumeric;
 
@@ -266,4 +300,25 @@ describe("random.js", function () {
       assert.ok(hex.match(/^(0x)[0-9a-f]+$/i));
     })
   })
+
+  describe("mersenne twister", function() {
+    it("returns a random number without given min / max arguments", function() {
+      var max = 10;
+      var randomNumber = mersenne.rand();
+      assert.ok(typeof randomNumber === 'number');
+    });
+
+    it("throws an error when attempting to seed() a non-integer", function() {
+      assert.throws(function () {
+        mersenne.seed('abc');
+      }, Error);
+    });
+
+    it("throws an error when attempting to seed() a non-integer", function() {
+      assert.throws(function () {
+        mersenne.seed_array('abc');
+      }, Error);
+    });
+  })
+
 });

@@ -39,18 +39,12 @@ function rnd(a, b) {
         var faker = require('../');
         return faker.random.number({ min: a, max: b});
 
-        //rnd(int min, int max) returns integer between min, max
-        return (function (min, max) {
-            if (min > max) {
-                throw new RangeError('expected min <= max; got min = ' + min + ', max = ' + max);
-            }
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }(a, b));
     }
 
     if (Object.prototype.toString.call(a) === "[object Array]") {
         //returns a random element from array (a), even weighting
-        return a[Math.floor(Math.random() * a.length)];
+        var faker = require('../');
+        return faker.random.arrayElement(a);
     }
 
     if (a && typeof a === 'object') {

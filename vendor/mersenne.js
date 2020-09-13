@@ -282,5 +282,5 @@ exports.seed_array = function(A) {
         {
         throw new Error("seed_array(A) must take array of numbers; is " + typeof(A));
         }
-    gen.init_by_array(A);
+    gen.init_by_array(A, A.length);
 }
