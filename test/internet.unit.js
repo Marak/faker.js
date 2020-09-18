@@ -154,6 +154,14 @@ describe("internet.js", function () {
         });
     });
 
+    describe("port()", function () {
+        it("returns a random port number", function () {
+            var port = faker.internet.port();
+            assert.ok(Number.isInteger(port));
+            assert.ok(0 <= port && port <= 65535);
+        });
+    });
+
     describe("userAgent()", function () {
         it("returns a valid user-agent", function () {
             var ua = faker.internet.userAgent();
