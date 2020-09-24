@@ -8,3 +8,15 @@ examples/
 meteor/
 test/
 logo.png
+.DS_Store
+reports/
+.github/
+.nyc_output/
+*.yml
+.versions
+*.png
+*.lock
+.jshint*
+gulpfile.js
+CONTRIBUTING.md
+CODE_OF_MERIT.MD
