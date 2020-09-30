@@ -1,5 +1,6 @@
 {
   "name": "@waypointhomes/faker",
+  "private": true,
   "description": "Generate massive amounts of fake contextual data",
   "version": "4.1.1",
   "contributors": [
