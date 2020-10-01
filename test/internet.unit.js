@@ -134,6 +134,14 @@ describe("internet.js", function () {
         });
     });
 
+    describe('httpMethod()', function () {
+        it('returns a valid http method', function () {
+            var httpMethods = ['GET','POST', 'PUT', 'DELETE', 'PATCH'];
+            var method = faker.internet.httpMethod();
+            assert.ok(httpMethods.includes(method));
+        });
+    });
+
     describe('url()', function () {
         it('returns a valid url', function () {
             sinon.stub(faker.internet,'protocol').returns('http');
