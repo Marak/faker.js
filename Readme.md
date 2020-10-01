@@ -175,6 +175,7 @@
   * exampleEmail
   * userName
   * protocol
+  * httpMethod
   * url
   * domainName
   * domainSuffix
