@@ -33,7 +33,7 @@
 			<li class="dropdown">
 				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="faker.html">faker</a></li><li><a href="faker.address.html">faker.address</a></li><li><a href="faker.commerce.html">faker.commerce</a></li><li><a href="faker.company.html">faker.company</a></li><li><a href="faker.database.html">faker.database</a></li><li><a href="faker.date.html">faker.date</a></li><li><a href="faker.finance.html">faker.finance</a></li><li><a href="faker.git.html">faker.git</a></li><li><a href="faker.hacker.html">faker.hacker</a></li><li><a href="faker.helpers.html">faker.helpers</a></li><li><a href="faker.image.html">faker.image</a></li><li><a href="faker.image.lorempicsum.html">faker.image.lorempicsum</a></li><li><a href="faker.image.lorempixel.html">faker.image.lorempixel</a></li><li><a href="faker.image.unsplash.html">faker.image.unsplash</a></li><li><a href="faker.internet.html">faker.internet</a></li><li><a href="faker.lorem.html">faker.lorem</a></li><li><a href="faker.music.html">faker.music</a></li><li><a href="faker.name.html">faker.name</a></li><li><a href="faker.phone.html">faker.phone</a></li><li><a href="faker.random.html">faker.random</a></li><li><a href="faker.system.html">faker.system</a></li><li><a href="faker.time.html">faker.time</a></li><li><a href="faker.unique.html">faker.unique</a></li><li><a href="faker.vehicle.html">faker.vehicle</a></li>
+					<li><a href="faker.html">faker</a></li><li><a href="faker.address.html">faker.address</a></li><li><a href="faker.commerce.html">faker.commerce</a></li><li><a href="faker.company.html">faker.company</a></li><li><a href="faker.database.html">faker.database</a></li><li><a href="faker.date.html">faker.date</a></li><li><a href="faker.finance.html">faker.finance</a></li><li><a href="faker.git.html">faker.git</a></li><li><a href="faker.hacker.html">faker.hacker</a></li><li><a href="faker.helpers.html">faker.helpers</a></li><li><a href="faker.image.html">faker.image</a></li><li><a href="faker.image.lorempicsum.html">faker.image.lorempicsum</a></li><li><a href="faker.image.lorempixel.html">faker.image.lorempixel</a></li><li><a href="faker.image.unsplash.html">faker.image.unsplash</a></li><li><a href="faker.internet.html">faker.internet</a></li><li><a href="faker.lorem.html">faker.lorem</a></li><li><a href="faker.name.html">faker.name</a></li><li><a href="faker.phone.html">faker.phone</a></li><li><a href="faker.random.html">faker.random</a></li><li><a href="faker.system.html">faker.system</a></li><li><a href="faker.time.html">faker.time</a></li><li><a href="faker.unique.html">faker.unique</a></li><li><a href="faker.vehicle.html">faker.vehicle</a></li>
 				</ul>
 			</li>
 			
@@ -283,7 +283,6 @@
 <li>exampleEmail</li>
 <li>userName</li>
 <li>protocol</li>
-<li>httpMethod</li>
 <li>url</li>
 <li>domainName</li>
 <li>domainSuffix</li>
@@ -309,16 +308,10 @@
 <li>lines</li>
 </ul>
 </li>
-<li>music
-<ul>
-<li>genre</li>
-</ul>
-</li>
 <li>name
 <ul>
 <li>firstName</li>
 <li>lastName</li>
-<li>middleName</li>
 <li>findName</li>
 <li>jobTitle</li>
 <li>gender</li>
@@ -468,26 +461,26 @@ var secondRandom = faker.random.number();
 console.log(firstRandom === secondRandom);
 </code></pre>
 <h2>Tests</h2>
-<pre class="prettyprint source lang-shell"><code>npm install .
+<pre><code>npm install .
 make test
 </code></pre>
 <p>You can view a code coverage report generated in coverage/lcov-report/index.html.</p>
 <h2>Building faker.js</h2>
-<p>faker uses <a href="http://gulpjs.com/">gulp</a> to automate its build process. Each build operation is a separate task which can be run independently.</p>
+<p>faker uses <a href="http://gulpjs.com/">gulp</a> to automate it's build process. Each build operation is a separate task which can be run independently.</p>
 <h3>Browser Bundle</h3>
-<pre class="prettyprint source lang-shell"><code>npm run browser
+<pre class="prettyprint source"><code>npm run browser
 </code></pre>
 <h3>Building JSDocs</h3>
 <p><a href="https://jsdoc.app/">JSDOC</a> v3 HTML API documentation</p>
-<pre class="prettyprint source lang-shell"><code>npm run jsdoc
+<pre class="prettyprint source"><code>npm run jsdoc
 </code></pre>
 <h3>Building ReadMe</h3>
-<p>The <code>ReadMe.md</code> file for <code>faker.js</code> is automatically generated and should not be modified directly. All updates to <code>ReadMe.md</code> should be performed in <code>./build/src/docs.md</code> and then the build script should be run.</p>
-<pre class="prettyprint source lang-shell"><code>npm run readme
+<p>The <code>ReadMe.md</code> file for <code>faker.js</code> is automatically generated and should not be modified directly. All updateds to <code>ReadMe.md</code> should be perfomed in <code>./build/src/docs.md</code> and then the build script should be run.</p>
+<pre class="prettyprint source"><code>npm run readme
 </code></pre>
 <h2>Version Release Schedule</h2>
 <p>faker.js is a popular project used by many organizations and individuals in production settings. Major and Minor version releases are generally on a monthly schedule. Bugs fixes are addressed by severity and fixed as soon as possible.</p>
-<p>If you require the absolute latest version of <code>faker.js</code> the <code>master</code> branch @ <a href="http:%5C/%5C/github.com/marak/faker.js/">http://github.com/marak/faker.js/</a> should always be up to date and working.</p>
+<p>If you require the absolute latest version of <code>faker.js</code> the <code>master</code> branch @ http://github.com/marak/faker.js/ should always be up to date and working.</p>
 <h2>Maintainer</h2>
 <h4>Marak Squires</h4>
 <p>faker.js - Copyright (c) 2020
@@ -496,8 +489,8 @@ www.marak.com
 http://github.com/marak/faker.js/</p>
 <p>faker.js was inspired by and has used data definitions from:</p>
 <ul>
-<li><a href="https:%5C/%5C/github.com/stympy/faker/">https://github.com/stympy/faker/</a> - Copyright (c) 2007-2010 Benjamin Curtis</li>
-<li><a href="http:%5C/%5C/search.cpan.org/~jasonk/Data-Faker-0.07/">http://search.cpan.org/~jasonk/Data-Faker-0.07/</a> - Copyright 2004-2005 by Jason Kohles</li>
+<li>https://github.com/stympy/faker/ - Copyright (c) 2007-2010 Benjamin Curtis</li>
+<li>http://search.cpan.org/~jasonk/Data-Faker-0.07/ - Copyright 2004-2005 by Jason Kohles</li>
 </ul>
 <p>Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -622,9 +615,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 
 
 <span class="jsdoc-message">
-	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a>
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.5</a>
 	
-		on 2020-10-01T16:42:01+03:00
+		on 2020-08-26T18:35:42-04:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
