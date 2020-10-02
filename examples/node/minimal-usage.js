@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var faker = require('../../index');
-faker.locale = "en";
+faker.locale = "fi";
 
 //console.log(faker.lorem.sentences())
 

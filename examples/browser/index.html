@@ -18,11 +18,11 @@
             // draws buttons / inputs for all faker methods
             function drawButtons () {
               $('#buttons').html('');
-              
+
               var str = '';
-              
+
               var moduleList = '<tr><td colspan="2"><ul>';
-              
+
               var modules = Object.keys(faker);
               modules = modules.sort();
               modules.forEach(function(module){
@@ -101,17 +101,15 @@
               $('.locale').append('<option value="' + item.name+ '">' + item.title + '</option>');
             });
 
-
             $('.locale').val("en");
 
             $('.locale').change(function(e){
-              var locale = $(this).attr('value');
+              var locale = $(this).val();
               faker.locale = locale;
               drawButtons();
               generateName();
             });
 
-            
             function generateName () {
 
               // make name contextual to username and email

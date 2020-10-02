@@ -159,6 +159,14 @@ describe("internet.js", function () {
             var ua = faker.internet.userAgent();
             assert.ok(ua);
         });
+
+        it('is deterministic', function () {
+            faker.seed(1);
+            var ua1 = faker.internet.userAgent();
+            faker.seed(1);
+            var ua2 = faker.internet.userAgent();
+            assert.equal(ua1, ua2);
+        });
     });
 
     describe("color()", function () {

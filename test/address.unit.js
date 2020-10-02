@@ -208,6 +208,7 @@ describe("address.js", function () {
     });
 
     describe("countryCode()", function () {
+
         it("returns random countryCode", function () {
             sinon.spy(faker.address, 'countryCode');
             var countryCode = faker.address.countryCode();
@@ -215,6 +216,16 @@ describe("address.js", function () {
             assert.ok(faker.address.countryCode.called);
             faker.address.countryCode.restore();
         });
+
+        it("returns random alpha-3 countryCode", function () {
+            sinon.spy(faker.address, 'countryCode');
+            var countryCode = faker.address.countryCode("alpha-3");
+            assert.ok(countryCode);
+            assert.ok(faker.address.countryCode.called);
+            assert.equal(countryCode.length, 3);
+            faker.address.countryCode.restore();
+        });
+        
     });
 
     describe("state()", function () {
@@ -506,6 +517,16 @@ describe("address.js", function () {
             assert.ok(typeof coordinate[0] === 'string');
             assert.ok(typeof coordinate[1] === 'string');
 
+        });
+    });
+
+    describe("timeZone()", function () {
+        it("returns random timeZone", function () {
+            sinon.spy(faker.address, 'timeZone');
+            var timeZone = faker.address.timeZone();
+            assert.ok(timeZone);
+            assert.ok(faker.address.timeZone.called);
+            faker.address.timeZone.restore();
         });
     });
 

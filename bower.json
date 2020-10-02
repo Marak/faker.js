@@ -3,8 +3,7 @@
   "main": "./build/build/faker.js",
   "homepage": "https://github.com/Marak/faker.js",
   "authors": [
-    "Marak Squires <marak.squires@gmail.com>",
-    "Matthew Bergman <matt@novafabrica.com>"
+    "Marak Squires <marak.squires@gmail.com>"
   ],
   "description": "Generate massive amounts of fake contextual data",
   "keywords": [

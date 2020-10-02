@@ -5,6 +5,11 @@ if (typeof module !== 'undefined') {
 
 }
 
+function assertInArray(value, array) {
+    var idx = array.indexOf(value);
+    assert.notEqual(idx, -1);
+}
+
 describe("name.js", function () {
     describe("firstName()", function () {
         it("returns a random name", function () {
@@ -14,6 +19,24 @@ describe("name.js", function () {
             assert.equal(first_name, 'foo');
 
             faker.name.firstName.restore();
+        });
+        
+        it("returns a gender-specific name when passed a number", function () {
+            for (var q = 0; q < 30; q++) {
+                var gender = Math.floor(Math.random() * 2);
+                var name = faker.name.firstName(gender);
+                if (gender === 0) assertInArray(name, faker.definitions.name.male_first_name);
+                else assertInArray(name, faker.definitions.name.female_first_name);
+            }
+        });
+        
+        it("returns a gender-specific name when passed a string", function () {
+            for (var q = 0; q < 30; q++) {
+                var gender = Math.floor(Math.random() * 2);
+                var genderString = (gender === 0 ? 'male' : 'female');
+                var name = faker.name.firstName(genderString);
+                assertInArray(name, faker.definitions.name[genderString + '_first_name']);
+            }
         });
     });
 
@@ -28,6 +51,51 @@ describe("name.js", function () {
             faker.name.lastName.restore();
         });
     });
+
+    describe("middleName()", function () {
+
+        it("returns a random middle name", function () {
+            sinon.stub(faker.name, 'middleName').returns('foo');
+
+            var middle_name = faker.name.middleName();
+
+            assert.equal(middle_name, 'foo');
+
+            faker.name.middleName.restore();
+        });
+
+        describe('when using a locale with gender specific middle names', function () {
+            beforeEach(function(){
+                this.oldLocale = faker.locale;
+                faker.locale = 'TEST';
+
+                faker.locales['TEST'] = {
+                    name: {
+                        male_middle_name: ['Genaddiesvich'],
+                        female_middle_name: ['Genaddievna']
+                    }
+                };
+            });
+
+            afterEach(function () {
+                faker.locale = this.oldLocale;
+                delete faker.locale['TEST'];
+            })
+
+            it("returns male prefix", function () {
+                var middle_name = faker.name.middleName(0);
+
+                assert.equal(middle_name, 'Genaddiesvich')
+            });
+
+            it("returns female prefix", function () {
+                var middle_name = faker.name.middleName(1);
+
+                assert.equal(middle_name, 'Genaddievna');
+            });
+        });
+    });
+
 
     describe("findName()", function () {
         it("usually returns a first name and last name", function () {
