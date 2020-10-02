@@ -150,7 +150,7 @@ describe('finance.js', function () {
 
     });
 
-    describe.only('amount(min, max, dec, symbol)', function () {
+    describe('amount(min, max, dec, symbol)', function () {
 
         it("should use the default amounts when not passing arguments", function () {
             var amount = faker.finance.amount();
@@ -223,16 +223,22 @@ describe('finance.js', function () {
             assert.strictEqual(typeOfAmount , "string", "the amount type should be number");
         });
 
-        it("should return unformatted if autoformat i false", function() {
+        [false, undefined].forEach(function (autoFormat){
+            it(`should return unformatted if autoformat is ${autoFormat}`, function() {
 
+                const number = 6000;
+                const amount = faker.finance.amount(number, number, 0, undefined, autoFormat);
+
+                assert.strictEqual(amount, number.toString());
+            });
         });
 
-        it("should return with a comma separator", function() {
+        it("should return the number formatted on the current locale", function() {
 
-            const symbol = "$", number = 6000, decimalPlaces = 2;
-            const expected = symbol + number.toLocaleString(undefined, {minimumFractionDigits: decimalPlaces});
+            const number = 6000, decimalPlaces = 2;
+            const expected = number.toLocaleString(undefined, {minimumFractionDigits: decimalPlaces});
 
-            const amount = faker.finance.amount(number, number, decimalPlaces, symbol, true);
+            const amount = faker.finance.amount(number, number, decimalPlaces, undefined, true);
 
             assert.strictEqual(amount, expected);
         });
