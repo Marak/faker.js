@@ -13,7 +13,7 @@ describe("locale", function () {
         it("setLocale() changes faker.locale", function () {
           for(var locale in faker.locales) {
             faker.setLocale(locale)
-            assert.equal(faker.locale, locale);
+            assert.strictEqual(faker.locale, locale);
           }
         });
     });

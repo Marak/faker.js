@@ -10,7 +10,7 @@ describe("music.js", function () {
             sinon.stub(faker.music, 'genre').returns('Rock');
             var genre = faker.music.genre();
 
-            assert.equal(genre, 'Rock');
+            assert.strictEqual(genre, 'Rock');
             faker.music.genre.restore();
         });
     });
