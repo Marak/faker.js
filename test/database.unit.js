@@ -11,7 +11,7 @@ describe("database.js", function () {
             var column = faker.database.column();
             var expected = 'title';
 
-            assert.strictEqual(column, expected, "The column name should be equals " + expected + ". Actual is " + column);
+            assert.strictEqual(column, expected, "The column name should be equals " + expected + ". Current is " + column);
             faker.database.column.restore();
         });
     });
@@ -22,7 +22,7 @@ describe("database.js", function () {
             var collation = faker.database.collation();
             var expected = 'utf8_bin';
 
-            assert.strictEqual(collation, expected, "The collation should be equals " + expected + ". Actual is " + collation);
+            assert.strictEqual(collation, expected, "The collation should be equals " + expected + ". Current is " + collation);
             faker.database.collation.restore();
         });
     });
@@ -33,7 +33,7 @@ describe("database.js", function () {
             var engine = faker.database.engine();
             var expected = 'InnoDB';
 
-            assert.strictEqual(engine, expected, "The db engine should be equals " + expected + ". Actual is " + engine);
+            assert.strictEqual(engine, expected, "The db engine should be equals " + expected + ". Current is " + engine);
             faker.database.engine.restore();
         });
     });
@@ -44,7 +44,7 @@ describe("database.js", function () {
             var type = faker.database.type();
             var expected = 'int';
 
-            assert.strictEqual(type, expected, "The column type should be equals " + expected + ". Actual is " + type);
+            assert.strictEqual(type, expected, "The column type should be equals " + expected + ". Current is " + type);
             faker.database.type.restore();
         });
     });

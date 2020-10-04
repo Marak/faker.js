@@ -404,7 +404,7 @@ describe("address.js", function () {
             sinon.stub(faker.address, 'direction').returns('N');
             var direction = faker.address.direction(false);
             var expected = 'N';
-            assert.strictEqual(direction, expected, "The abbreviation of direction when useAbbr is false should be equals " + expected+ ". Actual is " + direction);
+            assert.strictEqual(direction, expected, "The abbreviation of direction when useAbbr is false should be equals " + expected+ ". Current is " + direction);
             faker.address.direction.restore();
         })
 
@@ -413,15 +413,15 @@ describe("address.js", function () {
             var expectedType = 'string';
             var lengthDirection = direction.length
             var prefixErrorMessage = "The abbreviation of direction when useAbbr is true should"
-            assert.strictEqual(typeof direction, expectedType, prefixErrorMessage + " be typeof string. Actual is" + typeof direction);
-            assert.strictEqual(lengthDirection <= 2, true, prefixErrorMessage + " have a length less or equals 2. Actual is " + lengthDirection);
+            assert.strictEqual(typeof direction, expectedType, prefixErrorMessage + " be typeof string. Current is" + typeof direction);
+            assert.strictEqual(lengthDirection <= 2, true, prefixErrorMessage + " have a length less or equals 2. Current is " + lengthDirection);
         })
 
         it("returns abbreviation when useAbbr is true", function () {
             sinon.stub(faker.address, 'direction').returns('N');
             var direction = faker.address.direction(true);
             var expected = 'N';
-            assert.strictEqual(direction, expected, "The abbreviation of direction when useAbbr is true should be equals " + expected + ". Actual is " + direction);
+            assert.strictEqual(direction, expected, "The abbreviation of direction when useAbbr is true should be equals " + expected + ". Current is " + direction);
             faker.address.direction.restore();
         })
 
@@ -433,7 +433,7 @@ describe("address.js", function () {
             var ordinalDirection = faker.address.ordinalDirection();
             var expected = 'West';
 
-            assert.strictEqual(ordinalDirection, expected, "The ransom ordinal direction should be equals " + expected + ". Actual is " + ordinalDirection);
+            assert.strictEqual(ordinalDirection, expected, "The ransom ordinal direction should be equals " + expected + ". Current is " + ordinalDirection);
             faker.address.ordinalDirection.restore();
         })
 
@@ -442,7 +442,7 @@ describe("address.js", function () {
             var ordinalDirection = faker.address.ordinalDirection(true);
             var expected = 'W';
 
-            assert.strictEqual(ordinalDirection, expected, "The ordinal direction when useAbbr is true should be equals " + expected + ". Actual is " + ordinalDirection);
+            assert.strictEqual(ordinalDirection, expected, "The ordinal direction when useAbbr is true should be equals " + expected + ". Current is " + ordinalDirection);
             faker.address.ordinalDirection.restore();
         })
 
@@ -452,8 +452,8 @@ describe("address.js", function () {
             var ordinalDirectionLength = ordinalDirection.length;
             var prefixErrorMessage = "The ordinal direction when useAbbr is true should"
 
-            assert.strictEqual(typeof ordinalDirection, expectedType, prefixErrorMessage + " be had typeof equals " + expectedType + ".Actual is " + typeof ordinalDirection);
-            assert.strictEqual(ordinalDirectionLength <= 2, true, prefixErrorMessage + " have a length less or equals 2. Actual is " + ordinalDirectionLength);
+            assert.strictEqual(typeof ordinalDirection, expectedType, prefixErrorMessage + " be had typeof equals " + expectedType + ".Current is " + typeof ordinalDirection);
+            assert.strictEqual(ordinalDirectionLength <= 2, true, prefixErrorMessage + " have a length less or equals 2. Current is " + ordinalDirectionLength);
         })
 
 
@@ -465,7 +465,7 @@ describe("address.js", function () {
             var cardinalDirection = faker.address.cardinalDirection();
             var expected = 'Northwest';
 
-            assert.strictEqual(cardinalDirection, expected, "The random cardinal direction should be equals " + expected + ". Actual is " + cardinalDirection);
+            assert.strictEqual(cardinalDirection, expected, "The random cardinal direction should be equals " + expected + ". Current is " + cardinalDirection);
             faker.address.cardinalDirection.restore();
         })
 
@@ -474,7 +474,7 @@ describe("address.js", function () {
             var cardinalDirection = faker.address.cardinalDirection(true);
             var expected = 'NW';
 
-            assert.strictEqual(cardinalDirection, expected, "The cardinal direction when useAbbr is true should be equals " + expected + ". Actual is " + cardinalDirection);
+            assert.strictEqual(cardinalDirection, expected, "The cardinal direction when useAbbr is true should be equals " + expected + ". Current is " + cardinalDirection);
             faker.address.cardinalDirection.restore();
         })
 
@@ -484,8 +484,8 @@ describe("address.js", function () {
             var cardinalDirectionLength = cardinalDirection.length;
             var prefixErrorMessage = "The cardinal direction when useAbbr is true should"
 
-            assert.strictEqual(typeof cardinalDirection, expectedType, prefixErrorMessage + " be had typeof equals " + expectedType + ".Actual is " + typeof ordinalDirection);
-            assert.strictEqual(cardinalDirectionLength <= 2, true, prefixErrorMessage + " have a length less or equals 2. Actual is " + cardinalDirectionLength);
+            assert.strictEqual(typeof cardinalDirection, expectedType, prefixErrorMessage + " be had typeof equals " + expectedType + ".Current is " + typeof ordinalDirection);
+            assert.strictEqual(cardinalDirectionLength <= 2, true, prefixErrorMessage + " have a length less or equals 2. Current is " + cardinalDirectionLength);
         })
 
     })
