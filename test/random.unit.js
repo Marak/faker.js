@@ -85,6 +85,12 @@ describe("random.js", function () {
       assert.equal(name, 'Eva Jenkins');
     })
 
+    it('should return deterministic results when seeded with 0', function() {
+      faker.seed(0);
+      var name = faker.name.findName();
+      assert.strictEqual(name, 'Lola Sporer');
+    })
+
     it('should return deterministic results when seeded with array - one element', function() {
       faker.seed([10]);
       var name = faker.name.findName();
