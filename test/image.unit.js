@@ -43,7 +43,7 @@ describe("image.js", function () {
         });
         describe("avatar()", function () {
             it("return a random avatar from UIFaces", function () {
-                assert.strictEqual(-1, faker.image.lorempicsum.avatar().indexOf('s3.amazonaws.com/uifaces/faces'));
+                assert.notStrictEqual(-1, faker.image.lorempicsum.avatar().indexOf('s3.amazonaws.com/uifaces/faces'));
             })
         });
 
