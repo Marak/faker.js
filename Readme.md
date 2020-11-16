@@ -237,6 +237,8 @@
 * time
   * recent
 * unique
+  * clear
+  * exec
 * vehicle
   * vehicle
   * manufacturer
