@@ -61,4 +61,14 @@ describe("vehicle.js", function () {
           faker.vehicle.color.restore();
       });
   });
+
+    describe("vrm()", function () {
+        it("returns a random vrm", function () {
+            sinon.stub(faker.vehicle, 'vrm').returns('MF59EEW');
+            var vrm = faker.vehicle.vrm();
+
+            assert.equal(vrm, 'MF59EEW');
+            faker.vehicle.vrm.restore();
+        });
+    });
 });
