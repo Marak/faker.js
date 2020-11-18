@@ -251,8 +251,6 @@
   * fuel
   * vin
   * color
-  * vrm
-
 
 ### Faker.fake()
 
