@@ -28,6 +28,8 @@ If we meet some day, and you think this stuff is worth it, you can buy me a beer
 
 */
 
+exports.generate = function generate(faker) {
+
 function rnd(a, b) {
     //calling rnd() with no arguments is identical to rnd(0, 100)
     a = a || 0;
@@ -36,14 +38,12 @@ function rnd(a, b) {
     if (typeof b === 'number' && typeof a === 'number') {
 
         // 9/2018 - Added faker random to ensure mersenne and seed
-        var faker = require('../');
         return faker.random.number({ min: a, max: b});
 
     }
 
     if (Object.prototype.toString.call(a) === "[object Array]") {
         //returns a random element from array (a), even weighting
-        var faker = require('../');
         return faker.random.arrayElement(a);
     }
 
@@ -203,7 +203,6 @@ var browser = {
     }
 };
 
-exports.generate = function generate() {
     var random = randomBrowserAndOS();
     return browser[random[0]](random[1]);
 };
