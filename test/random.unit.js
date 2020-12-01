@@ -266,32 +266,54 @@ describe("random.js", function () {
 
     it('should return single letter when no count provided', function() {
       assert.ok(alpha().length === 1);
-    })
+    });
 
     it('should return lowercase letter when no upcase option provided', function() {
       assert.ok(alpha().match(/[a-z]/));
-    })
+    });
 
     it('should return uppercase when upcase option is true', function() {
       assert.ok(alpha({ upcase: true }).match(/[A-Z]/));
-    })
+    });
 
     it('should generate many random letters', function() {
       assert.ok(alpha(5).length === 5);
-    })
-  })
+    });
+
+    it('should be able to ban some characters', function() {
+      var alphaText = alpha(5,{bannedChars:['a', 'p']});
+      assert.ok(alphaText.length === 5);
+      assert.ok(alphaText.match(/[b-oq-z]/));
+    });
+    it('should be able handle mistake in banned characters array', function() {
+      var alphaText = alpha(5,{bannedChars:['a', 'a', 'p']});
+      assert.ok(alphaText.length === 5);
+      assert.ok(alphaText.match(/[b-oq-z]/));
+    });
+  });
 
   describe('alphaNumeric', function() {
     var alphaNumeric = faker.random.alphaNumeric;
 
     it('should generate single character when no additional argument was provided', function() {
       assert.ok(alphaNumeric().length === 1);
-    })
+    });
 
     it('should generate many random characters', function() {
       assert.ok(alphaNumeric(5).length === 5);
-    })
-  })
+    });
+
+    it('should be able to ban some characters', function() {
+      var alphaText = alphaNumeric(5,{bannedChars:['a','p']});
+      assert.ok(alphaText.length === 5);
+      assert.ok(alphaText.match(/[b-oq-z]/));
+    });
+    it('should be able handle mistake in banned characters array', function() {
+      var alphaText = alphaNumeric(5,{bannedChars:['a','p','a']});
+      assert.ok(alphaText.length === 5);
+      assert.ok(alphaText.match(/[b-oq-z]/));
+    });
+  });
 
   describe('hexaDecimal', function() {
     var hexaDecimal = faker.random.hexaDecimal;

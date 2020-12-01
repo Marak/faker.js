@@ -48,7 +48,7 @@ describe("vehicle.js", function () {
   describe("vin()", function () {
       it("returns valid vin number", function () {
         var vin = faker.vehicle.vin();
-        assert.ok(vin.match(/^[A-Z0-9]{10}[A-Z]{1}[A-Z0-9]{1}\d{5}$/));
+        assert.ok(vin.match(/^([A-HJ-NPR-Z0-9]{10}[A-HJ-NPR-Z0-9]{1}[A-HJ-NPR-Z0-9]{1}\d{5})$/));
       });
   });
 
