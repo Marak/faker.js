@@ -1,5 +1,6 @@
 # faker.js - generate massive amounts of fake data in the browser and node.js
 
+
 ![Faker.js](https://raw.githubusercontent.com/Marak/faker.js/master/logo.png)
 
 [![Build Status](https://travis-ci.org/Marak/faker.js.svg?branch=master)](https://travis-ci.org/Marak/faker.js) [![Coverage Status](https://coveralls.io/repos/github/Marak/faker.js/badge.svg?branch=master)](https://coveralls.io/github/Marak/faker.js?branch=master)
@@ -490,3 +491,5 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 <a href="https://opencollective.com/fakerjs/sponsor/27/website" target="_blank"><img src="https://opencollective.com/fakerjs/sponsor/27/avatar.svg"></a>
 <a href="https://opencollective.com/fakerjs/sponsor/28/website" target="_blank"><img src="https://opencollective.com/fakerjs/sponsor/28/avatar.svg"></a>
 <a href="https://opencollective.com/fakerjs/sponsor/29/website" target="_blank"><img src="https://opencollective.com/fakerjs/sponsor/29/avatar.svg"></a>
+
+# the method faker.image.avatar(); returned image urls access are being forbidden. Like free access to the images has been denied.As a result image is not accessible and no image will be shown when these methods are called
