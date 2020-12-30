@@ -297,7 +297,22 @@ describe("random.js", function () {
 
     it('should generate a random hex string', function() {
       var hex = hexaDecimal(5);
-      assert.ok(hex.match(/^(0x)[0-9a-f]+$/i));
+      assert.ok(hex.match(/^(0x)[0-9a-f]{5}$/i));
+    })
+
+    it('should generate a random hex string with no prefix', function() {
+      var hex = hexaDecimal(5, "");
+      assert.ok(hex.match(/^[0-9a-f]{5}$/i));
+    })
+
+    it('should generate a random hex string with a custom prefix', function() {
+      var hex = hexaDecimal(5, "hex");
+      assert.ok(hex.match(/^(hex)[0-9a-f]{5}$/i));
+    })
+
+    it('should generate a random hex string with lowercase letters and numbers only', function() {
+      var hex = hexaDecimal(500, "");
+      assert.ok(hex.match(/^[0-9a-f]{500}$/i));
     })
   })
 
