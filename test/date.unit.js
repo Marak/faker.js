@@ -115,6 +115,15 @@ describe("date.js", function () {
         });
     });
 
+    describe("random()", function () {
+        it("returns a random date", function () {
+
+            var date = faker.date.random();
+
+            assert.ok(date instanceof Date);
+        });
+    });
+
     describe("month()", function () {
         it("returns random value from date.month.wide array by default", function () {
             var month = faker.date.month();
