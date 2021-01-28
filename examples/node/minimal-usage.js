@@ -4,7 +4,7 @@ var faker = require('../../index');
 faker.locale = "fi";
 
 //console.log(faker.lorem.sentences())
-
+console.log(faker.instruments.musical());
 console.log(faker.name.findName())
 return;
 //console.log(faker.address)
