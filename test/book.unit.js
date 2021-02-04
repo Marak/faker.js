@@ -7,11 +7,11 @@ if (typeof module !== 'undefined') {
 describe("book.js", function() {
     describe("genre()", function() {
         it("returns a genre", function() {
-            sinon.stub(faker.music, 'genre').returns('Short Story');
-            var genre = faker.music.genre();
+            sinon.stub(faker.book, 'genre').returns('Short Story');
+            var genre = faker.book.genre();
 
             assert.equal(genre, 'Short Story');
-            faker.music.genre.restore();
+            faker.book.genre.restore();
         });
     });
 });
