@@ -280,6 +280,7 @@ Setting a new locale is simple:
 faker.locale = "de";
 ```
 
+ * af_ZA
  * az
  * ar
  * cz
@@ -324,6 +325,7 @@ faker.locale = "de";
  * vi
  * zh_CN
  * zh_TW
+ * zu_ZA
 
 
 ### Individual Localization Packages
