@@ -153,6 +153,12 @@ describe("internet.js", function () {
             assert.ok(url);
             assert.strictEqual(url,'http://bar.net');
         });
+        it('returns a url with protocol and domainName specified ', function () {
+            var url = faker.internet.url('https', 'foo.com');
+
+            assert.ok(url);
+            assert.strictEqual(url,'https://foo.com');
+        });
     });
 
     describe("ip()", function () {
