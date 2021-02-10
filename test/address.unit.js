@@ -115,6 +115,11 @@ describe("address.js", function () {
 
 
     describe("streetAddress()", function () {
+
+        var errorExpectDigits = function(expected){
+            return "The street number should be had " + expected + " digits"
+        }
+
         beforeEach(function () {
             sinon.spy(faker.address, 'streetName');
             sinon.spy(faker.address, 'secondaryAddress');
@@ -128,9 +133,10 @@ describe("address.js", function () {
         it("occasionally returns a 5-digit street number", function () {
             sinon.stub(faker.random, 'number').returns(0);
             var address = faker.address.streetAddress();
+            var expected = 5
             var parts = address.split(' ');
 
-            assert.equal(parts[0].length, 5);
+            assert.strictEqual(parts[0].length, expected, errorExpectDigits(expected));
             assert.ok(faker.address.streetName.called);
 
             faker.random.number.restore();
@@ -140,8 +146,9 @@ describe("address.js", function () {
             sinon.stub(faker.random, 'number').returns(1);
             var address = faker.address.streetAddress();
             var parts = address.split(' ');
+            var expected = 4
 
-            assert.equal(parts[0].length, 4);
+            assert.strictEqual(parts[0].length, expected, errorExpectDigits(expected));
             assert.ok(faker.address.streetName.called);
 
             faker.random.number.restore();
@@ -151,8 +158,9 @@ describe("address.js", function () {
             sinon.stub(faker.random, 'number').returns(2);
             var address = faker.address.streetAddress();
             var parts = address.split(' ');
+            var expected = 3
 
-            assert.equal(parts[0].length, 3);
+            assert.strictEqual(parts[0].length, expected, errorExpectDigits(expected));
             assert.ok(faker.address.streetName.called);
             assert.ok(!faker.address.secondaryAddress.called);
 
@@ -161,9 +169,8 @@ describe("address.js", function () {
 
         context("when useFulladdress is true", function () {
             it("adds a secondary address to the result", function () {
-                var address = faker.address.streetAddress(true);
-                var parts = address.split(' ');
-
+                faker.address.streetAddress(true);
+        
                 assert.ok(faker.address.secondaryAddress.called);
             });
         });
@@ -222,7 +229,7 @@ describe("address.js", function () {
             var countryCode = faker.address.countryCode("alpha-3");
             assert.ok(countryCode);
             assert.ok(faker.address.countryCode.called);
-            assert.equal(countryCode.length, 3);
+            assert.strictEqual(countryCode.length, 3, "The countryCode should be had 3 characters");
             faker.address.countryCode.restore();
         });
         
@@ -282,7 +289,7 @@ describe("address.js", function () {
         it("returns undefined if state is invalid", function () {
             var state = "XX";
             sinon.spy(faker.address, 'zipCode');
-            var zipCode = faker.address.zipCodeByState(state);
+            faker.address.zipCodeByState(state);
             assert.ok(faker.address.zipCode.called);
             faker.address.zipCode.restore();
         });
@@ -291,7 +298,7 @@ describe("address.js", function () {
             faker.locale = "zh_CN";
             var state = "IL";
             sinon.spy(faker.address, 'zipCode');
-            var zipCode = faker.address.zipCodeByState(state);
+            faker.address.zipCodeByState(state);
             assert.ok(faker.address.zipCode.called);
             faker.address.zipCode.restore();
         });
@@ -316,7 +323,7 @@ describe("address.js", function () {
                 sinon.spy(faker.random, 'number');
                 var latitude = faker.address.latitude(-5, 5);
                 assert.ok(typeof latitude === 'string');
-                assert.equal(latitude.split('.')[1].length, 4);
+                assert.strictEqual(latitude.split('.')[1].length, 4, "The precision of latitude should be had of 4 digits");
                 var latitude_float = parseFloat(latitude);
                 assert.ok(latitude_float >= -5);
                 assert.ok(latitude_float <= 5);
@@ -330,7 +337,7 @@ describe("address.js", function () {
                 sinon.spy(faker.random, 'number');
                 var latitude = faker.address.latitude(undefined, undefined, 7);
                 assert.ok(typeof latitude === 'string');
-                assert.equal(latitude.split('.')[1].length, 7);
+                assert.strictEqual(latitude.split('.')[1].length, 7, "The precision of latitude should be had of 7 digits");
                 var latitude_float = parseFloat(latitude);
                 assert.ok(latitude_float >= -180);
                 assert.ok(latitude_float <= 180);
@@ -359,7 +366,7 @@ describe("address.js", function () {
                 sinon.spy(faker.random, 'number');
                 var longitude = faker.address.longitude(100, -30);
                 assert.ok(typeof longitude === 'string');
-                assert.equal(longitude.split('.')[1].length, 4);
+                assert.strictEqual(longitude.split('.')[1].length, 4, "The precision of longitude should be had of 4 digits");
                 var longitude_float = parseFloat(longitude);
                 assert.ok(longitude_float >= -30);
                 assert.ok(longitude_float <= 100);
@@ -373,7 +380,7 @@ describe("address.js", function () {
                 sinon.spy(faker.random, 'number');
                 var longitude = faker.address.longitude(undefined, undefined, 7);
                 assert.ok(typeof longitude === 'string');
-                assert.equal(longitude.split('.')[1].length, 7);
+                assert.strictEqual(longitude.split('.')[1].length, 7, "The precision of longitude should be had of 7 digits");
                 var longitude_float = parseFloat(longitude);
                 assert.ok(longitude_float >= -180);
                 assert.ok(longitude_float <= 180);
@@ -387,28 +394,34 @@ describe("address.js", function () {
         it("returns random direction", function () {
             sinon.stub(faker.address, 'direction').returns('North');
             var direction = faker.address.direction();
+            var expected = 'North';
 
-            assert.equal(direction, 'North');
+            assert.strictEqual(direction, expected, "The random direction should be equals " + expected);
             faker.address.direction.restore();
         })
 
         it("returns abbreviation when useAbbr is false", function () {
             sinon.stub(faker.address, 'direction').returns('N');
             var direction = faker.address.direction(false);
-            assert.equal(direction, 'N');
+            var expected = 'N';
+            assert.strictEqual(direction, expected, "The abbreviation of direction when useAbbr is false should be equals " + expected+ ". Current is " + direction);
             faker.address.direction.restore();
         })
 
         it("returns abbreviation when useAbbr is true", function () {
             var direction = faker.address.direction(true);
-            assert.equal(typeof direction, 'string');
-            assert.equal(direction.length <= 2, true);
+            var expectedType = 'string';
+            var lengthDirection = direction.length
+            var prefixErrorMessage = "The abbreviation of direction when useAbbr is true should"
+            assert.strictEqual(typeof direction, expectedType, prefixErrorMessage + " be typeof string. Current is" + typeof direction);
+            assert.strictEqual(lengthDirection <= 2, true, prefixErrorMessage + " have a length less or equals 2. Current is " + lengthDirection);
         })
 
         it("returns abbreviation when useAbbr is true", function () {
             sinon.stub(faker.address, 'direction').returns('N');
             var direction = faker.address.direction(true);
-            assert.equal(direction, 'N');
+            var expected = 'N';
+            assert.strictEqual(direction, expected, "The abbreviation of direction when useAbbr is true should be equals " + expected + ". Current is " + direction);
             faker.address.direction.restore();
         })
 
@@ -418,23 +431,29 @@ describe("address.js", function () {
         it("returns random ordinal direction", function () {
             sinon.stub(faker.address, 'ordinalDirection').returns('West');
             var ordinalDirection = faker.address.ordinalDirection();
+            var expected = 'West';
 
-            assert.equal(ordinalDirection, 'West');
+            assert.strictEqual(ordinalDirection, expected, "The ransom ordinal direction should be equals " + expected + ". Current is " + ordinalDirection);
             faker.address.ordinalDirection.restore();
         })
 
         it("returns abbreviation when useAbbr is true", function () {
             sinon.stub(faker.address, 'ordinalDirection').returns('W');
             var ordinalDirection = faker.address.ordinalDirection(true);
+            var expected = 'W';
 
-            assert.equal(ordinalDirection, 'W');
+            assert.strictEqual(ordinalDirection, expected, "The ordinal direction when useAbbr is true should be equals " + expected + ". Current is " + ordinalDirection);
             faker.address.ordinalDirection.restore();
         })
 
         it("returns abbreviation when useAbbr is true", function () {
             var ordinalDirection = faker.address.ordinalDirection(true);
-            assert.equal(typeof ordinalDirection, 'string');
-            assert.equal(ordinalDirection.length <= 2, true);
+            var expectedType = 'string';
+            var ordinalDirectionLength = ordinalDirection.length;
+            var prefixErrorMessage = "The ordinal direction when useAbbr is true should"
+
+            assert.strictEqual(typeof ordinalDirection, expectedType, prefixErrorMessage + " be had typeof equals " + expectedType + ".Current is " + typeof ordinalDirection);
+            assert.strictEqual(ordinalDirectionLength <= 2, true, prefixErrorMessage + " have a length less or equals 2. Current is " + ordinalDirectionLength);
         })
 
 
@@ -444,23 +463,29 @@ describe("address.js", function () {
         it("returns random cardinal direction", function () {
             sinon.stub(faker.address, 'cardinalDirection').returns('Northwest');
             var cardinalDirection = faker.address.cardinalDirection();
+            var expected = 'Northwest';
 
-            assert.equal(cardinalDirection, 'Northwest');
+            assert.strictEqual(cardinalDirection, expected, "The random cardinal direction should be equals " + expected + ". Current is " + cardinalDirection);
             faker.address.cardinalDirection.restore();
         })
 
         it("returns abbreviation when useAbbr is true", function () {
             sinon.stub(faker.address, 'cardinalDirection').returns('NW');
             var cardinalDirection = faker.address.cardinalDirection(true);
+            var expected = 'NW';
 
-            assert.equal(cardinalDirection, 'NW');
+            assert.strictEqual(cardinalDirection, expected, "The cardinal direction when useAbbr is true should be equals " + expected + ". Current is " + cardinalDirection);
             faker.address.cardinalDirection.restore();
         })
 
         it("returns abbreviation when useAbbr is true", function () {
             var cardinalDirection = faker.address.cardinalDirection(true);
-            assert.equal(typeof cardinalDirection, 'string');
-            assert.equal(cardinalDirection.length <= 2, true);
+            var expectedType = 'string';
+            var cardinalDirectionLength = cardinalDirection.length;
+            var prefixErrorMessage = "The cardinal direction when useAbbr is true should"
+
+            assert.strictEqual(typeof cardinalDirection, expectedType, prefixErrorMessage + " be had typeof equals " + expectedType + ".Current is " + typeof ordinalDirection);
+            assert.strictEqual(cardinalDirectionLength <= 2, true, prefixErrorMessage + " have a length less or equals 2. Current is " + cardinalDirectionLength);
         })
 
     })
