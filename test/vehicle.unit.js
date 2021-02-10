@@ -10,7 +10,7 @@ describe("vehicle.js", function () {
           sinon.stub(faker.vehicle, 'vehicle').returns('Ford Explorer');
           var vehicle = faker.vehicle.vehicle();
 
-          assert.equal(vehicle, 'Ford Explorer');
+          assert.strictEqual(vehicle, 'Ford Explorer');
           faker.vehicle.vehicle.restore();
       });
   });
@@ -20,7 +20,7 @@ describe("vehicle.js", function () {
           sinon.stub(faker.vehicle, 'manufacturer').returns('Porsche');
           var manufacturer = faker.vehicle.manufacturer();
 
-          assert.equal(manufacturer, 'Porsche');
+          assert.strictEqual(manufacturer, 'Porsche');
           faker.vehicle.manufacturer.restore();
       });
   });
@@ -30,7 +30,7 @@ describe("vehicle.js", function () {
       sinon.stub(faker.vehicle, 'type').returns('Minivan');
           var type = faker.vehicle.type();
 
-          assert.equal(type, 'Minivan');
+          assert.strictEqual(type, 'Minivan');
           faker.vehicle.type.restore();
       });
   });
@@ -40,7 +40,7 @@ describe("vehicle.js", function () {
           sinon.stub(faker.vehicle, 'fuel').returns('Hybrid');
           var fuel = faker.vehicle.fuel();
 
-          assert.equal(fuel, 'Hybrid');
+          assert.strictEqual(fuel, 'Hybrid');
           faker.vehicle.fuel.restore();
       });
   });
@@ -57,8 +57,18 @@ describe("vehicle.js", function () {
           sinon.stub(faker.vehicle, 'color').returns('black');
           var color = faker.vehicle.color();
 
-          assert.equal(color, 'black');
+          assert.strictEqual(color, 'black');
           faker.vehicle.color.restore();
       });
   });
+
+    describe("vrm()", function () {
+        it("returns a random vrm", function () {
+            sinon.stub(faker.vehicle, 'vrm').returns('MF59EEW');
+            var vrm = faker.vehicle.vrm();
+
+            assert.equal(vrm, 'MF59EEW');
+            faker.vehicle.vrm.restore();
+        });
+    });
 });

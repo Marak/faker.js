@@ -52,8 +52,8 @@ describe("random.js", function () {
       assert.ok(_.includes(results, 0.5));
       assert.ok(_.includes(results, 1.0));
 
-      assert.equal(results[0], 0);
-      assert.equal(_.last(results), 1.5);
+      assert.strictEqual(results[0], 0);
+      assert.strictEqual(_.last(results), 1.5);
 
     });
 
@@ -61,7 +61,7 @@ describe("random.js", function () {
       var options = { min: 0.5, max: 0.99, precision: 0.01 };
       for(var i = 0; i < 100; i++) {
         var number = faker.random.number(options);
-        assert.equal(number, Number(number.toFixed(2)));
+        assert.strictEqual(number, Number(number.toFixed(2)));
       }
     });
 
@@ -75,26 +75,32 @@ describe("random.js", function () {
 
       faker.random.number(opts);
 
-      assert.equal(opts.min, min);
-      assert.equal(opts.max, max);
+      assert.strictEqual(opts.min, min);
+      assert.strictEqual(opts.max, max);
     });
 
     it('should return deterministic results when seeded with integer', function() {
       faker.seed(100);
       var name = faker.name.findName();
-      assert.equal(name, 'Eva Jenkins');
+      assert.strictEqual(name, 'Eva Jenkins');
+    })
+
+    it('should return deterministic results when seeded with 0', function() {
+      faker.seed(0);
+      var name = faker.name.findName();
+      assert.strictEqual(name, 'Lola Sporer');
     })
 
     it('should return deterministic results when seeded with array - one element', function() {
       faker.seed([10]);
       var name = faker.name.findName();
-      assert.equal(name, 'Duane Kub');
+      assert.strictEqual(name, 'Duane Kub');
     })
 
     it('should return deterministic results when seeded with array - multiple elements', function() {
       faker.seed([10, 100, 1000]);
       var name = faker.name.findName();
-      assert.equal(name, 'Alma Shanahan');
+      assert.strictEqual(name, 'Alma Shanahan');
     })
 
   });
@@ -103,12 +109,12 @@ describe("random.js", function () {
 
     it("returns a random float with a default precision value (0.01)", function() {
       var number = faker.random.float();
-      assert.equal(number, Number(number.toFixed(2)));
+      assert.strictEqual(number, Number(number.toFixed(2)));
     });
 
     it("returns a random float given a precision value", function() {
       var number = faker.random.float(0.001);
-      assert.equal(number, Number(number.toFixed(3)));
+      assert.strictEqual(number, Number(number.toFixed(3)));
     });
 
     it("returns a random number given a maximum value as Object", function() {
@@ -148,8 +154,8 @@ describe("random.js", function () {
       assert.ok(_.includes(results, 0.5));
       assert.ok(_.includes(results, 1.0));
 
-      assert.equal(results[0], 0);
-      assert.equal(_.last(results), 1.5);
+      assert.strictEqual(results[0], 0);
+      assert.strictEqual(_.last(results), 1.5);
 
     });
 
@@ -157,7 +163,7 @@ describe("random.js", function () {
       var options = { min: 0.5, max: 0.99, precision: 0.01 };
       for(var i = 0; i < 100; i++) {
         var number = faker.random.float(options);
-        assert.equal(number, Number(number.toFixed(2)));
+        assert.strictEqual(number, Number(number.toFixed(2)));
       }
     });
 
@@ -171,8 +177,8 @@ describe("random.js", function () {
 
       faker.random.float(opts);
 
-      assert.equal(opts.min, min);
-      assert.equal(opts.max, max);
+      assert.strictEqual(opts.min, min);
+      assert.strictEqual(opts.max, max);
     });
   });
 
