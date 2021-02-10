@@ -94,6 +94,7 @@
   * past
   * future
   * between
+  * betweens
   * recent
   * soon
   * month
@@ -171,12 +172,14 @@
   * exampleEmail
   * userName
   * protocol
+  * httpMethod
   * url
   * domainName
   * domainSuffix
   * domainWord
   * ip
   * ipv6
+  * port
   * userAgent
   * color
   * mac
@@ -246,6 +249,8 @@
   * fuel
   * vin
   * color
+  * vrm
+
 
 ### Faker.fake()
 
@@ -297,6 +302,8 @@ faker.locale = "de";
  * fr_CA
  * fr_CH
  * ge
+ * hy
+ * hr
  * id_ID
  * it
  * ja
