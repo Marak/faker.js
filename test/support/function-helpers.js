@@ -8,6 +8,7 @@ var functionHelpers = {};
 
 module.exports = functionHelpers;
 
+
 var IGNORED_MODULES = ['locales', 'locale', 'localeFallback', 'definitions', 'fake', 'helpers'];
 var IGNORED_METHODS = {
   unique: ["exec", "clear"],
@@ -19,19 +20,19 @@ function isTestableModule(mod) {
 }
 
 function isMethodOf(mod) {
-    return function (meth) {
-        return typeof faker[mod][meth] === "function";
+    return function(meth) {
+        return typeof faker[mod][meth] === 'function';
     };
 }
 
 function isTestableMethod(mod) {
-    return function (meth) {
+    return function(meth) {
         return !(mod in IGNORED_METHODS && IGNORED_METHODS[mod].indexOf(meth) >= 0);
     };
 }
 
 function both(pred1, pred2) {
-    return function (value) {
+    return function(value) {
         return pred1(value) && pred2(value);
     };
 }
@@ -41,9 +42,8 @@ function both(pred1, pred2) {
 functionHelpers.modulesList = function modulesList () {
   var modules = Object.keys(faker)
       .filter(isTestableModule)
-      .reduce(function (result, mod) {
-        result[mod] = Object.keys(faker[mod]).filter(
-          both(isMethodOf(mod), isTestableMethod(mod))
+      .reduce(function(result, mod) {
+        result[mod] = Object.keys(faker[mod]).filter(both(isMethodOf(mod), isTestableMethod(mod))
         );
         return result;
       }, {});
