@@ -62,7 +62,7 @@ describe("unique.js", function () {
             var result = faker.unique.exec(faker.internet.protocol, [], {
                 exclude: ['https']
             });
-            assert.equal(result, 'http');
+            assert.strictEqual(result, 'http');
         });
 
         it("is able to clear the found items at functional scope", function () {
@@ -75,7 +75,7 @@ describe("unique.js", function () {
               exclude: ['https'],
               scope: 'fakerInternetProtocol'
           });
-          assert.equal(result, 'http');
+          assert.strictEqual(result, 'http');
         });
     });
 });
