@@ -104,6 +104,8 @@
   * month
   * weekday
 * fake
+* Book
+  * genre
 * finance
   * account
   * accountName
