@@ -2,10 +2,6 @@ if (typeof module !== 'undefined') {
     var assert = require('assert');
     var faker = require('../index');
 }
-function IsNumeric(input)
-{
-    return (input - 0) == input && ('' + input).trim().length > 0;
-}
 
 function getAnIbanByCountry(countryCode) {
     var iban = faker.finance.iban();
@@ -44,11 +40,11 @@ describe('finance_issue.js', function () {
             var ibanFormated = iban.match(/.{1,4}/g).join(" ");
             var bban = iban.substring(4) + iban.substring(0, 4);
 
-            assert.ok(false === IsNumeric(iban.substring(4, 5)), iban.substring(4, 6) + ' must contains only characters in GE IBAN ' + ibanFormated);
-            assert.ok(false === IsNumeric(iban.substring(5, 6)), iban.substring(4, 6) + ' must contains only characters in GE IBAN ' + ibanFormated);
+            assert.ok(false === Number.isFinite(iban.substring(4, 5)), iban.substring(4, 6) + ' must contains only characters in GE IBAN ' + ibanFormated);
+            assert.ok(false === Number.isFinite(iban.substring(5, 6)), iban.substring(4, 6) + ' must contains only characters in GE IBAN ' + ibanFormated);
 
-            assert.ok(IsNumeric(iban.substring(2, 4)));
-            assert.ok(IsNumeric(iban.substring(6, 24)));
+            assert.ok(Number.isFinite(iban.substring(2, 4)));
+            assert.ok(Number.isFinite(iban.substring(6, 24)));
 
             assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
         });
@@ -71,13 +67,13 @@ describe('finance_issue.js', function () {
             var ibanFormated = iban.match(/.{1,4}/g).join(" ");
             var bban = iban.substring(4) + iban.substring(0, 4);
 
-            assert.ok(false === IsNumeric(iban.substring(4, 5)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
-            assert.ok(false === IsNumeric(iban.substring(5, 6)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
-            assert.ok(false === IsNumeric(iban.substring(6, 7)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
-            assert.ok(false === IsNumeric(iban.substring(7, 8)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
+            assert.ok(false === Number.isFinite(iban.substring(4, 5)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
+            assert.ok(false === Number.isFinite(iban.substring(5, 6)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
+            assert.ok(false === Number.isFinite(iban.substring(6, 7)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
+            assert.ok(false === Number.isFinite(iban.substring(7, 8)), iban.substring(4, 8) + ' must contains only characters in PK IBAN ' + ibanFormated);
 
-            assert.ok(IsNumeric(iban.substring(2, 4)));
-            assert.ok(IsNumeric(iban.substring(8, 24)));
+            assert.ok(Number.isFinite(iban.substring(2, 4)));
+            assert.ok(Number.isFinite(iban.substring(8, 24)));
 
             assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
         });
@@ -112,7 +108,7 @@ describe('finance_issue.js', function () {
             var ibanFormated = iban.match(/.{1,4}/g).join(" ");
             var bban = iban.substring(4) + iban.substring(0, 4);
 
-            assert.ok(IsNumeric(iban.substring(2, 26)), 'No character after TR ' + ibanFormated);
+            assert.ok(Number.isFinite(iban.substring(2, 26)), 'No character after TR ' + ibanFormated);
 
             assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
         });
