@@ -17,6 +17,7 @@
 ## Usage
 
 ### Browser
+
 ```html
     <script src = "faker.js" type = "text/javascript"></script>
     <script>
@@ -25,7 +26,9 @@
       var randomCard = faker.helpers.createCard(); // random contact card containing many properties
     </script>
 ```
+
 ### Node.js
+
 ```js
     var faker = require('faker');
 
@@ -33,6 +36,7 @@
     var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
     var randomCard = faker.helpers.createCard(); // random contact card containing many properties
 ```
+
 ## API
 
 ### JSDoc API Browser
@@ -199,6 +203,7 @@
 * name
   * firstName
   * lastName
+  * middleName
   * findName
   * jobTitle
   * gender
@@ -358,8 +363,10 @@ console.log(firstRandom === secondRandom);
 
 ## Tests
 
-    npm install .
-    make test
+```shell
+npm install .
+make test
+```
 
 You can view a code coverage report generated in coverage/lcov-report/index.html.
 
@@ -369,7 +376,7 @@ faker uses [gulp](http://gulpjs.com/) to automate it's build process. Each build
 
 ### Browser Bundle
 
-```
+```shell
 npm run browser
 ```
 
@@ -377,15 +384,15 @@ npm run browser
 
 [JSDOC](https://jsdoc.app/) v3 HTML API documentation
 
-```
+```shell
 npm run jsdoc
 ```
 
 ### Building ReadMe
 
-The `ReadMe.md` file for `faker.js` is automatically generated and should not be modified directly. All updateds to `ReadMe.md` should be perfomed in `./build/src/docs.md` and then the build script should be run.
+The `ReadMe.md` file for `faker.js` is automatically generated and should not be modified directly. All updates to `ReadMe.md` should be performed in `./build/src/docs.md` and then the build script should be run.
 
-```
+```shell
 npm run readme
 ```
 
@@ -393,7 +400,7 @@ npm run readme
 
 faker.js is a popular project used by many organizations and individuals in production settings. Major and Minor version releases are generally on a monthly schedule. Bugs fixes are addressed by severity and fixed as soon as possible.
 
-If you require the absolute latest version of `faker.js` the `master` branch @ http://github.com/marak/faker.js/ should always be up to date and working.
+If you require the absolute latest version of `faker.js` the `master` branch @ <http://github.com/marak/faker.js/> should always be up to date and working.
 
 ## Maintainer
 
@@ -406,8 +413,8 @@ http://github.com/marak/faker.js/
 
 faker.js was inspired by and has used data definitions from:
 
- * https://github.com/stympy/faker/ - Copyright (c) 2007-2010 Benjamin Curtis
- * http://search.cpan.org/~jasonk/Data-Faker-0.07/ - Copyright 2004-2005 by Jason Kohles
+ * <https://github.com/stympy/faker/> - Copyright (c) 2007-2010 Benjamin Curtis
+ * <http://search.cpan.org/~jasonk/Data-Faker-0.07/> - Copyright 2004-2005 by Jason Kohles
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
