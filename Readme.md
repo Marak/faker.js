@@ -263,10 +263,12 @@ faker.js contains a super useful generator method `Faker.fake` for combining fak
 
 **Example:**
 
+
 ``` js
 console.log(faker.fake("{{name.lastName}}, {{name.firstName}} {{name.suffix}}"));
 // outputs: "Marks, Dean Sr."
 ```
+
 
 This will interpolate the format string with the value of methods `name.lastName()`, `name.firstName()`, and `name.suffix()`
 
@@ -372,7 +374,7 @@ You can view a code coverage report generated in coverage/lcov-report/index.html
 
 ## Building faker.js
 
-faker uses [gulp](http://gulpjs.com/) to automate it's build process. Each build operation is a separate task which can be run independently. 
+faker uses [gulp](http://gulpjs.com/) to automate its build process. Each build operation is a separate task which can be run independently.
 
 ### Browser Bundle
 
