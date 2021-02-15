@@ -8,7 +8,7 @@ describe("unique.js", function () {
   describe("unique()", function () {
     it("is able to call a function with no arguments and return a result", function () {
       var result = faker.unique(faker.internet.email);
-      assert.equal(typeof result, "string");
+      assert.strictEqual(typeof result, 'string');
     });
 
     it("is able to call a function with arguments and return a result", function () {
@@ -22,10 +22,8 @@ describe("unique.js", function () {
     });
 
     it("is able to exclude results as array", function () {
-      var result = faker.unique(faker.internet.protocol, [], {
-        exclude: ["https"]
-      });
-      assert.equal(result, "http");
+      var result = faker.unique(faker.internet.protocol, [], { exclude: ["https"] });
+      assert.strictEqual(result, 'http');
     });
 
     it("is able to limit unique call by maxTime in ms", function () {
@@ -34,10 +32,10 @@ describe("unique.js", function () {
         result = faker.unique(faker.internet.protocol, [], {
           maxTime: 1,
           maxRetries: 9999,
-          exclude: ["https", "http"]
+          exclude: ['https', 'http']
         });
       } catch (err) {
-        assert.equal(err.message.substr(0, 16), "Exceeded maxTime");
+        assert.strictEqual(err.message.substr(0, 16), "Exceeded maxTime");
       }
     });
 
@@ -47,10 +45,10 @@ describe("unique.js", function () {
         result = faker.unique(faker.internet.protocol, [], {
           maxTime: 5000,
           maxRetries: 5,
-          exclude: ["https", "http"]
+          exclude: ['https', 'http']
         });
       } catch (err) {
-        assert.equal(err.message.substr(0, 19), "Exceeded maxRetries");
+        assert.strictEqual(err.message.substr(0, 19), 'Exceeded maxRetries');
       }
     });
 
@@ -65,7 +63,7 @@ describe("unique.js", function () {
         exclude: ["https"],
         cleanWhenFound: 1
       });
-      assert.equal(result, "http");
+      assert.strictEqual(result, 'http');
     });
   });
 });

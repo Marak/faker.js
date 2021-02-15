@@ -11,7 +11,16 @@ describe("internet.js", function () {
             var email = faker.internet.email("Aiden.Harann55");
             var res = email.split("@");
             res = res[0];
-            assert.equal(res, 'Aiden.Harann55');
+            assert.strictEqual(res, 'Aiden.Harann55');
+            faker.internet.userName.restore();
+        });
+
+        it("returns an email with japanese characters", function () {
+            sinon.stub(faker.internet, 'userName').returns('思源_唐3');
+            var email = faker.internet.email("思源_唐3");
+            var res = email.split("@");
+            res = res[0];
+            assert.equal(res, '思源_唐3');
             faker.internet.userName.restore();
         });
     });
@@ -22,7 +31,7 @@ describe("internet.js", function () {
           var email = faker.internet.email("Aiden.Harann55");
           var res = email.split("@");
           res = res[0];
-          assert.equal(res, 'Aiden.Harann55');
+          assert.strictEqual(res, 'Aiden.Harann55');
           faker.internet.userName.restore();
       });
 
@@ -71,7 +80,7 @@ describe("internet.js", function () {
 
             var domain_name = faker.internet.domainName();
 
-            assert.equal(domain_name, 'bar.net');
+            assert.strictEqual(domain_name, 'bar.net');
 
             faker.internet.domainWord.restore();
             faker.internet.domainSuffix.restore();
@@ -125,6 +134,14 @@ describe("internet.js", function () {
         });
     });
 
+    describe('httpMethod()', function () {
+        it('returns a valid http method', function () {
+            var httpMethods = ['GET','POST', 'PUT', 'DELETE', 'PATCH'];
+            var method = faker.internet.httpMethod();
+            assert.ok(httpMethods.includes(method));
+        });
+    });
+
     describe('url()', function () {
         it('returns a valid url', function () {
             sinon.stub(faker.internet,'protocol').returns('http');
@@ -142,7 +159,7 @@ describe("internet.js", function () {
         it("returns a random IP address with four parts", function () {
             var ip = faker.internet.ip();
             var parts = ip.split('.');
-            assert.equal(parts.length, 4);
+            assert.strictEqual(parts.length, 4);
         });
     });
 
@@ -150,7 +167,15 @@ describe("internet.js", function () {
         it("returns a random IPv6 address with eight parts", function () {
             var ip = faker.internet.ipv6();
             var parts = ip.split(':');
-            assert.equal(parts.length, 8);
+            assert.strictEqual(parts.length, 8);
+        });
+    });
+
+    describe("port()", function () {
+        it("returns a random port number", function () {
+            var port = faker.internet.port();
+            assert.ok(Number.isInteger(port));
+            assert.ok(0 <= port && port <= 65535);
         });
     });
 
@@ -165,7 +190,7 @@ describe("internet.js", function () {
             var ua1 = faker.internet.userAgent();
             faker.seed(1);
             var ua2 = faker.internet.userAgent();
-            assert.equal(ua1, ua2);
+            assert.strictEqual(ua1, ua2);
         });
     });
 

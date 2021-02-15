@@ -47,39 +47,39 @@ describe("helpers.js", function () {
         it("mutates the input array in place", function () {
             var input = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
             var shuffled = faker.helpers.shuffle(input);
-            assert.deepEqual(shuffled, input);
+            assert.deepStrictEqual(shuffled, input);
         });
 
         it("all items shuffled as expected when seeded", function () {
             var input = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
             faker.seed(100);
             var shuffled = faker.helpers.shuffle(input);
-            assert.deepEqual(shuffled, ["b", "e", "a", "d", "j", "i", "h", "c", "g", "f"]);
+            assert.deepStrictEqual(shuffled, ["b", "e", "a", "d", "j", "i", "h", "c", "g", "f"]);
         });
     });
 
     describe("slugify()", function () {
         it("removes unwanted characters from URI string", function () {
-            assert.equal(faker.helpers.slugify("Aiden.Harªann"), "Aiden.Harann");
-            assert.equal(faker.helpers.slugify("d'angelo.net"), "dangelo.net");
+            assert.strictEqual(faker.helpers.slugify("Aiden.Harªann"), "Aiden.Harann");
+            assert.strictEqual(faker.helpers.slugify("d'angelo.net"), "dangelo.net");
         });
     });
 
     describe("mustache()", function () {
         it("returns empty string with no arguments", function () {
-            assert.equal(faker.helpers.mustache(), "");
+            assert.strictEqual(faker.helpers.mustache(), "");
         });
     });
 
     describe("repeatString()", function () {
         it("returns empty string with no arguments", function () {
-            assert.equal(faker.helpers.repeatString(), "");
+            assert.strictEqual(faker.helpers.repeatString(), "");
         });
     });
 
     describe("replaceSymbols()", function () {
         it("returns empty string with no arguments", function () {
-            assert.equal(faker.helpers.replaceSymbols(), "");
+            assert.strictEqual(faker.helpers.replaceSymbols(), "");
         });
     });
 
