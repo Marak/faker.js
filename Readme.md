@@ -68,6 +68,21 @@
   * ordinalDirection
   * nearbyGPSCoordinate
   * timeZone
+* animal
+  * dog
+  * cat
+  * snake
+  * bear
+  * lion
+  * cetacean
+  * horse
+  * bird
+  * cow
+  * fish
+  * crocodilia
+  * insect
+  * rabbit
+  * type
 * commerce
   * color
   * department
@@ -200,6 +215,8 @@
   * lines
 * music
   * genre
+  * artist
+  * song
 * name
   * firstName
   * lastName

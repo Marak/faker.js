@@ -14,4 +14,24 @@ describe("music.js", function () {
             faker.music.genre.restore();
         });
     });
+    
+    describe("artist()", function () {
+        it("returns a artist", function () {
+            sinon.stub(faker.music, 'artist').returns('Queen');
+            var artist = faker.music.artist();
+
+            assert.strictEqual(artist, 'Queen');
+            faker.music.artist.restore();
+        });
+    });
+    
+    describe("song()", function () {
+        it("returns a song", function () {
+            sinon.stub(faker.music, 'song').returns('Angie');
+            var song = faker.music.song();
+
+            assert.strictEqual(song, 'Angie');
+            faker.music.song.restore();
+        });
+    });
 });
