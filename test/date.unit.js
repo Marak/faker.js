@@ -65,6 +65,19 @@ describe("date.js", function () {
             assert.ok(date <= new Date());
         });
 
+        it("returns a date N days from the recent past, starting from refDate", function () {
+
+            var days = 30;
+            var refDate = new Date(2120, 11, 9, 10, 0, 0, 0); // set the date beyond the usual calculation (to make sure this is working correctly)
+
+            var date = faker.date.recent(days, refDate);
+
+            var lowerBound = new Date(refDate.getTime() - (days * 24 * 60 * 60 * 1000));
+
+            assert.ok(lowerBound <= date, "`recent()` date should not be further back than `n` days ago");
+            assert.ok(date <= refDate, "`recent()` date should not be ahead of the starting date reference");
+        });
+
     });
 
     describe("soon()", function () {
@@ -73,6 +86,19 @@ describe("date.js", function () {
             var date = faker.date.soon(30);
 
             assert.ok(date >= new Date());
+        });
+
+        it("returns a date N days from the recent future, starting from refDate", function () {
+
+            var days = 30;
+            var refDate = new Date(1880, 11, 9, 10, 0, 0, 0); // set the date beyond the usual calculation (to make sure this is working correctly)
+
+            var date = faker.date.soon(days, refDate);
+
+            var upperBound = new Date(refDate.getTime() + (days * 24 * 60 * 60 * 1000));
+
+            assert.ok(date <= upperBound, "`soon()` date should not be further ahead than `n` days ago");
+            assert.ok(refDate <= date, "`soon()` date should not be behind the starting date reference");
         });
 
     });
@@ -86,6 +112,19 @@ describe("date.js", function () {
             var date = faker.date.between(from, to);
 
             assert.ok(date > from && date < to);
+        });
+    });
+
+    describe("betweens()", function () {
+        it("returns an array of 3 dates ( by default ) of sorted randoms dates between the dates given", function () {
+
+            var from = new Date(1990, 5, 7, 9, 11, 0, 0);
+            var to = new Date(2000, 6, 8, 10, 12, 0, 0);
+
+            var dates = faker.date.betweens(from, to );
+            
+            assert.ok(dates[0] > from && dates[0] < to);
+            assert.ok(dates[1] > dates[0] && dates[2] > dates[1]);
         });
     });
 

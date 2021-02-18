@@ -43,18 +43,64 @@ describe("helpers.js", function () {
             var shuffled = faker.helpers.shuffle([]);
             assert.ok(shuffled.length === 0);
         });
+
+        it("mutates the input array in place", function () {
+            var input = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
+            var shuffled = faker.helpers.shuffle(input);
+            assert.deepStrictEqual(shuffled, input);
+        });
+
+        it("all items shuffled as expected when seeded", function () {
+            var input = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
+            faker.seed(100);
+            var shuffled = faker.helpers.shuffle(input);
+            assert.deepStrictEqual(shuffled, ["b", "e", "a", "d", "j", "i", "h", "c", "g", "f"]);
+        });
     });
 
     describe("slugify()", function () {
         it("removes unwanted characters from URI string", function () {
-            assert.equal(faker.helpers.slugify("Aiden.Harªann"), "Aiden.Harann");
-            assert.equal(faker.helpers.slugify("d'angelo.net"), "dangelo.net");
+            assert.strictEqual(faker.helpers.slugify("Aiden.Harªann"), "Aiden.Harann");
+            assert.strictEqual(faker.helpers.slugify("d'angelo.net"), "dangelo.net");
         });
     });
+
+    describe("mustache()", function () {
+        it("returns empty string with no arguments", function () {
+            assert.strictEqual(faker.helpers.mustache(), "");
+        });
+    });
+
+    describe("repeatString()", function () {
+        it("returns empty string with no arguments", function () {
+            assert.strictEqual(faker.helpers.repeatString(), "");
+        });
+    });
+
+    describe("replaceSymbols()", function () {
+        it("returns empty string with no arguments", function () {
+            assert.strictEqual(faker.helpers.replaceSymbols(), "");
+        });
+    });
+
+    /*
+    describe("replaceCreditCardSymbols()", function () {
+        it("returns empty string with no arguments", function () {
+            assert.equal(faker.helpers.replaceCreditCardSymbols(), "");
+        });
+    });
+    */
 
     describe("createCard()", function () {
         it("returns an object", function () {
             var card = faker.helpers.createCard();
+            assert.ok(typeof card === 'object');
+        });
+    });
+
+    describe("contextualCard()", function () {
+        it("returns an object", function () {
+            var card = faker.helpers.contextualCard();
             assert.ok(typeof card === 'object');
         });
     });

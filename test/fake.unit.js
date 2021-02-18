@@ -27,5 +27,25 @@ describe("fake.js", function () {
             var random = faker.fake('{{helpers.randomize(["one", "two", "three"])}}');
             assert.ok(arr.indexOf(random) > -1);
         });
+
+        it("does not allow undefined parameters", function () {
+            assert.throws(function () {
+              faker.fake()
+            }, Error);
+        });
+
+        it("does not allow invalid module name", function () {
+            assert.throws(function () {
+              faker.fake('{{foo.bar}}')
+            }, Error);
+        });
+
+        it("does not allow invalid method name", function () {
+            assert.throws(function () {
+              faker.fake('{{address.foo}}')
+            }, Error);
+        });
+
+
     });
 });

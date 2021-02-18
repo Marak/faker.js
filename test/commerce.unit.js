@@ -77,8 +77,8 @@ describe("commerce.js", function() {
         var price = faker.commerce.price();
 
         assert.ok(price);
-        assert.equal((price > 0), true, "the amount should be greater than 0");
-        assert.equal((price < 1001), true, "the amount should be less than 1000");
+        assert.strictEqual((price > 0), true, "the amount should be greater than 0");
+        assert.strictEqual((price < 1001), true, "the amount should be less than 1000");
     });
 
     it("should use the default decimal location when not passing arguments", function() {
@@ -88,7 +88,7 @@ describe("commerce.js", function() {
         var expected = price.length - 3;
         var actual = price.indexOf(decimal);
 
-        assert.equal(actual, expected, "The expected location of the decimal is " + expected + " but it was " + actual + " amount " + price);
+        assert.strictEqual(actual, expected, "The expected location of the decimal is " + expected + " but it was " + actual + " amount " + price);
     });
 
     it("should not include a currency symbol by default", function () {
@@ -100,7 +100,7 @@ describe("commerce.js", function() {
         var expected = true;
         var actual = regexp.test(amount);
 
-        assert.equal(actual, expected, 'The expected match should not include a currency symbol');
+        assert.strictEqual(actual, expected, 'The expected match should not include a currency symbol');
     });
 
     it("it should handle negative amounts, but return 0", function () {
@@ -108,7 +108,7 @@ describe("commerce.js", function() {
         var amount = faker.commerce.price(-200, -1);
 
         assert.ok(amount);
-        assert.equal((amount == 0.00), true, "the amount should equal 0");
+        assert.strictEqual((amount == 0.00), true, "the amount should equal 0");
     });
 
     it("it should handle argument dec", function () {
@@ -128,5 +128,17 @@ describe("commerce.js", function() {
     });
 
   });
+
+  describe("productDescription()", function() {
+		it("returns a random product description", function() {
+            sinon.spy(faker.commerce, 'productDescription');
+            var description = faker.commerce.productDescription();
+
+            assert.ok(typeof description === 'string');
+            assert.ok(faker.commerce.productDescription.calledOnce);
+
+            faker.commerce.productDescription.restore();
+		});
+	});
 
 });

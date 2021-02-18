@@ -1,5 +1,5 @@
-faker.js - Copyright (c) 2010-2015
-Matthew Bergman & Marak Squires
+faker.js - Copyright (c) 2020
+Marak Squires
 http://github.com/marak/faker.js/
 
 faker.js was inspired by and has used data definitions from:

@@ -1,6 +1,11 @@
 {
   "opts": {
-    "destination": "../doc/"
+    "destination": "./doc/"
+  },
+
+  "source": {
+    "include": ["./lib", "./lib/image_providers"],
+    "exclude": ["./lib/locales"]
   },
 
   "plugins": [
