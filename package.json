@@ -53,7 +53,7 @@
     "gulp-uglify": "^3.0.2",
     "ink-docstrap": "1.1.4",
     "jsdoc": "^3.4.0",
-    "jshint": "0.9.0",
+    "jshint": "^2.12.0",
     "lodash": "^4.6.1",
     "mocha": "^8.1.1",
     "node-minify": "*",
