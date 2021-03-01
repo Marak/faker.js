@@ -32,11 +32,11 @@ describe("helpers.js", function () {
 
     describe("shuffle()", function () {
         it("the output is the same length as the input", function () {
-            sinon.spy(faker.random, 'number');
+            sinon.spy(faker.datatype, 'number');
             var shuffled = faker.helpers.shuffle(["a", "b"]);
             assert.ok(shuffled.length === 2);
-            assert.ok(faker.random.number.calledWith(1));
-            faker.random.number.restore();
+            assert.ok(faker.datatype.number.calledWith(1));
+            faker.datatype.number.restore();
         });
 
         it("empty array returns empty array", function () {

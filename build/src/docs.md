@@ -99,12 +99,12 @@ If you want consistent results, you can set your own seed:
 ```js
 faker.seed(123);
 
-var firstRandom = faker.random.number();
+var firstRandom = faker.datatype.number();
 
 // Setting the seed again resets the sequence.
 faker.seed(123);
 
-var secondRandom = faker.random.number();
+var secondRandom = faker.datatype.number();
 
 console.log(firstRandom === secondRandom);
 ```

@@ -85,7 +85,7 @@ describe('finance.js', function () {
 
         it("should set a specified length", function () {
 
-            var expected = faker.random.number(20);
+            var expected = faker.datatype.number(20);
 
             expected = (expected == 0 || !expected || typeof expected == 'undefined') ? 4 : expected;
 
@@ -138,7 +138,7 @@ describe('finance.js', function () {
 
         it("should work when random variables are passed into the arguments", function () {
 
-            var length = faker.random.number(20);
+            var length = faker.datatype.number(20);
             var ellipsis = (length % 2 === 0) ? true : false;
             var parens = !ellipsis;
 

@@ -14,7 +14,7 @@ describe("address.js", function () {
         });
 
         afterEach(function () {
-            faker.random.number.restore();
+            faker.datatype.number.restore();
             faker.address.cityPrefix.restore();
             faker.name.firstName.restore();
             faker.name.lastName.restore();
@@ -22,7 +22,7 @@ describe("address.js", function () {
         });
 
         it("occasionally returns prefix + first name + suffix", function () {
-            sinon.stub(faker.random, 'number').returns(0);
+            sinon.stub(faker.datatype, 'number').returns(0);
 
             var city = faker.address.city();
             assert.ok(city);
@@ -33,7 +33,7 @@ describe("address.js", function () {
         });
 
         it("occasionally returns prefix + first name", function () {
-            sinon.stub(faker.random, 'number').returns(1);
+            sinon.stub(faker.datatype, 'number').returns(1);
 
             var city = faker.address.city();
             assert.ok(city);
@@ -43,7 +43,7 @@ describe("address.js", function () {
         });
 
         it("occasionally returns first name + suffix", function () {
-            sinon.stub(faker.random, 'number').returns(2);
+            sinon.stub(faker.datatype, 'number').returns(2);
 
             var city = faker.address.city();
             assert.ok(city);
@@ -52,7 +52,7 @@ describe("address.js", function () {
         });
 
         it("occasionally returns last name + suffix", function () {
-            sinon.stub(faker.random, 'number').returns(3);
+            sinon.stub(faker.datatype, 'number').returns(3);
 
             var city = faker.address.city();
             assert.ok(city);
@@ -79,7 +79,7 @@ describe("address.js", function () {
         });
 
         it("occasionally returns last name + suffix", function () {
-            sinon.stub(faker.random, 'number').returns(0);
+            sinon.stub(faker.datatype, 'number').returns(0);
 
             var street_name = faker.address.streetName();
             assert.ok(street_name);
@@ -87,11 +87,11 @@ describe("address.js", function () {
             assert.ok(faker.name.lastName.calledOnce);
             assert.ok(faker.address.streetSuffix.calledOnce);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
         });
 
         it("occasionally returns first name + suffix", function () {
-            sinon.stub(faker.random, 'number').returns(1);
+            sinon.stub(faker.datatype, 'number').returns(1);
 
             var street_name = faker.address.streetName();
             assert.ok(street_name);
@@ -100,7 +100,7 @@ describe("address.js", function () {
             assert.ok(!faker.name.lastName.called);
             assert.ok(faker.address.streetSuffix.calledOnce);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
         });
 
         it("trims trailing whitespace from the name", function() {
@@ -131,7 +131,7 @@ describe("address.js", function () {
         });
 
         it("occasionally returns a 5-digit street number", function () {
-            sinon.stub(faker.random, 'number').returns(0);
+            sinon.stub(faker.datatype, 'number').returns(0);
             var address = faker.address.streetAddress();
             var expected = 5
             var parts = address.split(' ');
@@ -139,11 +139,11 @@ describe("address.js", function () {
             assert.strictEqual(parts[0].length, expected, errorExpectDigits(expected));
             assert.ok(faker.address.streetName.called);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
         });
 
         it("occasionally returns a 4-digit street number", function () {
-            sinon.stub(faker.random, 'number').returns(1);
+            sinon.stub(faker.datatype, 'number').returns(1);
             var address = faker.address.streetAddress();
             var parts = address.split(' ');
             var expected = 4
@@ -151,11 +151,11 @@ describe("address.js", function () {
             assert.strictEqual(parts[0].length, expected, errorExpectDigits(expected));
             assert.ok(faker.address.streetName.called);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
         });
 
         it("occasionally returns a 3-digit street number", function () {
-            sinon.stub(faker.random, 'number').returns(2);
+            sinon.stub(faker.datatype, 'number').returns(2);
             var address = faker.address.streetAddress();
             var parts = address.split(' ');
             var expected = 3
@@ -164,7 +164,7 @@ describe("address.js", function () {
             assert.ok(faker.address.streetName.called);
             assert.ok(!faker.address.secondaryAddress.called);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
         });
 
         context("when useFulladdress is true", function () {
@@ -307,42 +307,42 @@ describe("address.js", function () {
     describe("latitude()", function () {
         it("returns random latitude", function () {
             for (var i = 0; i < 100; i++) {
-                sinon.spy(faker.random, 'number');
+                sinon.spy(faker.datatype, 'number');
                 var latitude = faker.address.latitude();
                 assert.ok(typeof latitude === 'string');
                 var latitude_float = parseFloat(latitude);
                 assert.ok(latitude_float >= -90.0);
                 assert.ok(latitude_float <= 90.0);
-                assert.ok(faker.random.number.called);
-                faker.random.number.restore();
+                assert.ok(faker.datatype.number.called);
+                faker.datatype.number.restore();
             }
         });
 
         it("returns latitude with min and max and default precision", function () {
             for (var i = 0; i < 100; i++) {
-                sinon.spy(faker.random, 'number');
+                sinon.spy(faker.datatype, 'number');
                 var latitude = faker.address.latitude(-5, 5);
                 assert.ok(typeof latitude === 'string');
                 assert.strictEqual(latitude.split('.')[1].length, 4, "The precision of latitude should be had of 4 digits");
                 var latitude_float = parseFloat(latitude);
                 assert.ok(latitude_float >= -5);
                 assert.ok(latitude_float <= 5);
-                assert.ok(faker.random.number.called);
-                faker.random.number.restore();
+                assert.ok(faker.datatype.number.called);
+                faker.datatype.number.restore();
             }
         });
 
         it("returns random latitude with custom precision", function () {
             for (var i = 0; i < 100; i++) {
-                sinon.spy(faker.random, 'number');
+                sinon.spy(faker.datatype, 'number');
                 var latitude = faker.address.latitude(undefined, undefined, 7);
                 assert.ok(typeof latitude === 'string');
                 assert.strictEqual(latitude.split('.')[1].length, 7, "The precision of latitude should be had of 7 digits");
                 var latitude_float = parseFloat(latitude);
                 assert.ok(latitude_float >= -180);
                 assert.ok(latitude_float <= 180);
-                assert.ok(faker.random.number.called);
-                faker.random.number.restore();
+                assert.ok(faker.datatype.number.called);
+                faker.datatype.number.restore();
             }
         });
     });
@@ -350,42 +350,42 @@ describe("address.js", function () {
     describe("longitude()", function () {
         it("returns random longitude", function () {
             for (var i = 0; i < 100; i++) {
-                sinon.spy(faker.random, 'number');
+                sinon.spy(faker.datatype, 'number');
                 var longitude = faker.address.longitude();
                 assert.ok(typeof longitude === 'string');
                 var longitude_float = parseFloat(longitude);
                 assert.ok(longitude_float >= -180.0);
                 assert.ok(longitude_float <= 180.0);
-                assert.ok(faker.random.number.called);
-                faker.random.number.restore();
+                assert.ok(faker.datatype.number.called);
+                faker.datatype.number.restore();
             }
         });
 
         it("returns random longitude with min and max and default precision", function () {
             for (var i = 0; i < 100; i++) {
-                sinon.spy(faker.random, 'number');
+                sinon.spy(faker.datatype, 'number');
                 var longitude = faker.address.longitude(100, -30);
                 assert.ok(typeof longitude === 'string');
                 assert.strictEqual(longitude.split('.')[1].length, 4, "The precision of longitude should be had of 4 digits");
                 var longitude_float = parseFloat(longitude);
                 assert.ok(longitude_float >= -30);
                 assert.ok(longitude_float <= 100);
-                assert.ok(faker.random.number.called);
-                faker.random.number.restore();
+                assert.ok(faker.datatype.number.called);
+                faker.datatype.number.restore();
             }
         });
 
         it("returns random longitude with custom precision", function () {
             for (var i = 0; i < 100; i++) {
-                sinon.spy(faker.random, 'number');
+                sinon.spy(faker.datatype, 'number');
                 var longitude = faker.address.longitude(undefined, undefined, 7);
                 assert.ok(typeof longitude === 'string');
                 assert.strictEqual(longitude.split('.')[1].length, 7, "The precision of longitude should be had of 7 digits");
                 var longitude_float = parseFloat(longitude);
                 assert.ok(longitude_float >= -180);
                 assert.ok(longitude_float <= 180);
-                assert.ok(faker.random.number.called);
-                faker.random.number.restore();
+                assert.ok(faker.datatype.number.called);
+                faker.datatype.number.restore();
             }
         });
     });
