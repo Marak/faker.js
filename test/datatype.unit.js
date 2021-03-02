@@ -173,6 +173,8 @@ describe("datatype.js", function () {
            assert.ok(today.valueOf() === date.valueOf());
            faker.datatype.number.restore();
        });
+
+       //@TODO make seeding work exactly, not only on Dates (not Times)
        it('check if date works with seeding', function (){
           faker.seed(100);
           var date = faker.datatype.date();
@@ -182,15 +184,44 @@ describe("datatype.js", function () {
        });
     });
 
+    describe('string', function() {
+        it('should generate a string value', function() {
+            var generateString = faker.datatype.string();
+            assert.ok(typeof generateString === 'string');
+            assert.ok(generateString.length === 10);
+        });
+
+        it('should generate a string value, checks seeding', function() {
+            faker.seed(100);
+            var generateString = faker.datatype.string();
+            assert.ok(generateString === 'S_:GHQo.!/');
+        });
+
+        it('returns empty string if negative length is passed', function() {
+            const negativeValue = faker.datatype.number({min: -1000, max: -1});
+            var generateString = faker.datatype.string(negativeValue);
+            assert.ok(generateString === '')
+            assert.ok(generateString.length === 0);
+        });
+
+        it('returns string with length of 2^20 if bigger length value is passed', function() {
+            const overMaxValue = Math.pow(2, 28);
+            var generateString = faker.datatype.string(overMaxValue);
+            assert.ok(generateString.length === (Math.pow(2,20)));
+        });
+
+
+    });
+
     describe('boolean', function() {
-        it('should generate a boolean value', function() {
+        it('generates a boolean value', function() {
             var bool = faker.datatype.boolean();
             assert.ok(typeof bool == 'boolean');
         });
     });
 
     describe('UUID', function() {
-        it('should generate a valid UUID', function() {
+        it('generates a valid UUID', function() {
             var UUID = faker.datatype.uuid();
             var RFC4122 = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
             assert.ok(RFC4122.test(UUID));
@@ -200,14 +231,23 @@ describe("datatype.js", function () {
     describe('hexaDecimal', function() {
         var hexaDecimal = faker.datatype.hexaDecimal;
 
-        it('should generate single hex character when no additional argument was provided', function() {
+        it('generates single hex character when no additional argument was provided', function() {
             var hex = hexaDecimal();
             assert.ok(hex.match(/^(0x)[0-9a-f]{1}$/i));
         });
 
-        it('should generate a random hex string', function() {
+        it('generates a random hex string', function() {
             var hex = hexaDecimal(5);
             assert.ok(hex.match(/^(0x)[0-9a-f]+$/i));
+        });
+    });
+
+    describe('json', function() {
+        it('generates a valid json object', function() {
+            const jsonObject = faker.datatype.json();
+            console.log(jsonObject);
+            assert.ok(typeof jsonObject == 'string');
+            assert.ok(JSON.parse(jsonObject));
         });
     });
 });
