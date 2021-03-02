@@ -80,30 +80,6 @@ describe("datatype.js", function () {
             assert.strictEqual(opts.max, max);
         });
 
-        it('should return deterministic results when seeded with integer', function() {
-            faker.seed(100);
-            var name = faker.name.findName();
-            assert.strictEqual(name, 'Eva Jenkins');
-        })
-
-        it('should return deterministic results when seeded with 0', function() {
-            faker.seed(0);
-            var name = faker.name.findName();
-            assert.strictEqual(name, 'Lola Sporer');
-        })
-
-        it('should return deterministic results when seeded with array - one element', function() {
-            faker.seed([10]);
-            var name = faker.name.findName();
-            assert.strictEqual(name, 'Duane Kub');
-        })
-
-        it('should return deterministic results when seeded with array - multiple elements', function() {
-            faker.seed([10, 100, 1000]);
-            var name = faker.name.findName();
-            assert.strictEqual(name, 'Alma Shanahan');
-        })
-
     });
 
     describe("float", function() {
@@ -183,6 +159,29 @@ describe("datatype.js", function () {
         });
     });
 
+    describe('date', function (){
+       it('check validity of date and if returned value is created by Date()', function (){
+           var date = faker.datatype.date();
+           assert.ok(typeof date == 'object');
+           assert.ok(!isNaN(date.getTime()));
+           assert.ok(Object.prototype.toString.call(date) === "[object Date]");
+       });
+       it('basic test with stubed value', function (){
+           var today = new Date();
+           sinon.stub(faker.datatype, 'number').returns(today);
+           var date = faker.datatype.date();
+           assert.ok(today.valueOf() === date.valueOf());
+           faker.datatype.number.restore();
+       });
+       it('check if date works with seeding', function (){
+          faker.seed(100);
+          var date = faker.datatype.date();
+          var dateVal = date.valueOf();
+          console.log(dateVal);
+          assert.ok(dateVal === 2520186296319)
+       });
+    });
+
     describe('boolean', function() {
         it('should generate a boolean value', function() {
             var bool = faker.datatype.boolean();
@@ -195,8 +194,8 @@ describe("datatype.js", function () {
             var UUID = faker.datatype.uuid();
             var RFC4122 = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
             assert.ok(RFC4122.test(UUID));
-        })
-    })
+        });
+    });
 
     describe('hexaDecimal', function() {
         var hexaDecimal = faker.datatype.hexaDecimal;
@@ -204,11 +203,11 @@ describe("datatype.js", function () {
         it('should generate single hex character when no additional argument was provided', function() {
             var hex = hexaDecimal();
             assert.ok(hex.match(/^(0x)[0-9a-f]{1}$/i));
-        })
+        });
 
         it('should generate a random hex string', function() {
             var hex = hexaDecimal(5);
             assert.ok(hex.match(/^(0x)[0-9a-f]+$/i));
-        })
-    })
-})
+        });
+    });
+});
