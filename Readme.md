@@ -51,6 +51,7 @@
   * city
   * cityPrefix
   * citySuffix
+  * cityName
   * streetName
   * streetAddress
   * streetSuffix
@@ -68,6 +69,21 @@
   * ordinalDirection
   * nearbyGPSCoordinate
   * timeZone
+* animal
+  * dog
+  * cat
+  * snake
+  * bear
+  * lion
+  * cetacean
+  * horse
+  * bird
+  * cow
+  * fish
+  * crocodilia
+  * insect
+  * rabbit
+  * type
 * commerce
   * color
   * department
@@ -246,6 +262,8 @@
 * time
   * recent
 * unique
+* user
+  * role
 * vehicle
   * vehicle
   * manufacturer
