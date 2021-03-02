@@ -10,47 +10,48 @@ if (typeof module !== 'undefined') {
 describe("random.js", function () {
   describe("number", function() {
     it("random.number() uses datatype module and prints deprecation warning", function() {
-      sinon.spy(console, 'log')
+      sinon.spy(console, 'log');
       sinon.spy(faker.datatype, 'number');
       faker.random.number();
       assert.ok(faker.datatype.number.called);
       assert.ok(console.log.calledWith('DeprecationWarning: Method is now located in faker.datatype.number'));
-      faker.datatype.number.restore()
+      faker.datatype.number.restore();
       console.log.restore();
     });
+
     it('should return deterministic results when seeded with integer', function() {
       faker.seed(100);
       var name = faker.name.findName();
       assert.strictEqual(name, 'Eva Jenkins');
-    })
+    });
 
     it('should return deterministic results when seeded with 0', function() {
       faker.seed(0);
       var name = faker.name.findName();
       assert.strictEqual(name, 'Lola Sporer');
-    })
+    });
 
     it('should return deterministic results when seeded with array - one element', function() {
       faker.seed([10]);
       var name = faker.name.findName();
       assert.strictEqual(name, 'Duane Kub');
-    })
+    });
 
     it('should return deterministic results when seeded with array - multiple elements', function() {
       faker.seed([10, 100, 1000]);
       var name = faker.name.findName();
       assert.strictEqual(name, 'Alma Shanahan');
-    })
+    });
   });
 
   describe("float", function() {
     it("random.float() uses datatype module and prints deprecation warning", function() {
-      sinon.spy(console, 'log')
+      sinon.spy(console, 'log');
       sinon.spy(faker.datatype, 'float');
       faker.random.float();
       assert.ok(faker.datatype.float.called);
       assert.ok(console.log.calledWith('DeprecationWarning: Method is now located in faker.datatype.float'));
-      faker.datatype.float.restore()
+      faker.datatype.float.restore();
       console.log.restore();
     });
   });
@@ -109,24 +110,24 @@ describe("random.js", function () {
 
   describe('UUID', function() {
     it("random.uuid() uses datatype module and prints deprecation warning", function() {
-      sinon.spy(console, 'log')
+      sinon.spy(console, 'log');
       sinon.spy(faker.datatype, 'uuid');
       faker.random.uuid();
       assert.ok(faker.datatype.uuid.called);
       assert.ok(console.log.calledWith('DeprecationWarning: Method is now located in faker.datatype.uuid'));
-      faker.datatype.uuid.restore()
+      faker.datatype.uuid.restore();
       console.log.restore();
     });
-  })
+  });
 
   describe('boolean', function() {
     it("random.boolean() uses datatype module and prints deprecation warning", function() {
-      sinon.spy(console, 'log')
+      sinon.spy(console, 'log');
       sinon.spy(faker.datatype, 'boolean');
       faker.random.boolean();
       assert.ok(faker.datatype.boolean.called);
       assert.ok(console.log.calledWith('DeprecationWarning: Method is now located in faker.datatype.boolean'));
-      faker.datatype.boolean.restore()
+      faker.datatype.boolean.restore();
       console.log.restore();
     });
   });
@@ -199,15 +200,15 @@ describe("random.js", function () {
 
   describe('hexaDecimal', function() {
     it("random.hexaDecimal() uses datatype module and prints deprecation warning", function() {
-      sinon.spy(console, 'log')
+      sinon.spy(console, 'log');
       sinon.spy(faker.datatype, 'hexaDecimal');
       faker.random.hexaDecimal();
       assert.ok(faker.datatype.hexaDecimal.called);
       assert.ok(console.log.calledWith('DeprecationWarning: Method is now located in faker.datatype.hexaDecimal'));
-      faker.datatype.hexaDecimal.restore()
+      faker.datatype.hexaDecimal.restore();
       console.log.restore();
     });
-  })
+  });
 
   describe("mersenne twister", function() {
     it("returns a random number without given min / max arguments", function() {
@@ -227,6 +228,6 @@ describe("random.js", function () {
         mersenne.seed_array('abc');
       }, Error);
     });
-  })
+  });
 
 });
