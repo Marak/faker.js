@@ -79,6 +79,17 @@ describe("random.js", function () {
       assert.strictEqual(opts.max, max);
     });
 
+    it("returns a random number with a number of digits", function() {
+      for(var digits = 1; digits < 15; digits++) {
+        const options = {digits: digits};
+        for(var i = 0; i < 10; i++) {
+          var randomNumber = faker.random.number(options);
+          // check digits length
+          assert.ok(randomNumber.toString().length === digits);
+        }
+      }
+     });
+
     it('should return deterministic results when seeded with integer', function() {
       faker.seed(100);
       var name = faker.name.findName();
