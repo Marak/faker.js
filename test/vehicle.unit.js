@@ -62,13 +62,13 @@ describe("vehicle.js", function () {
       });
   });
 
-    describe("vrm()", function () {
-        it("returns a random vrm", function () {
-            sinon.stub(faker.vehicle, 'vrm').returns('MF59EEW');
-            var vrm = faker.vehicle.vrm();
+  describe("vrm()", function () {
+      it("returns a random vrm", function () {
+          sinon.stub(faker.vehicle, 'vrm').returns('MF59EEW');
+          var vrm = faker.vehicle.vrm();
 
-            assert.equal(vrm, 'MF59EEW');
-            faker.vehicle.vrm.restore();
-        });
-    });
+          assert.equal(vrm, 'MF59EEW');
+          faker.vehicle.vrm.restore();
+      });
+  });
 });
