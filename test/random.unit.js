@@ -320,12 +320,12 @@ describe("random.js", function () {
 
     it('should generate single hex character when no additional argument was provided', function() {
       var hex = hexaDecimal();
-      assert.ok(hex.match(/^(0x)[0-9a-f]{1}$/i));
+      assert.ok(hex.match(/^(0x)[0-9a-f]{1}$/));
     })
 
     it('should generate a random hex string', function() {
       var hex = hexaDecimal(5);
-      assert.ok(hex.match(/^(0x)[0-9a-f]+$/i));
+      assert.ok(hex.match(/^(0x)[0-9a-f]{5}$/));
     })
   })
 
