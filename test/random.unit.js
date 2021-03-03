@@ -25,6 +25,11 @@ describe("random.js", function () {
       assert.ok(faker.random.number(options) === 0);
     });
 
+    it("returns a random number given no minimum and a negative number maximum", function() {
+      var options = { max: -10 };
+      assert.ok(faker.random.number(options) <= options.max);
+    });
+
     it("returns a random number given a negative number minimum and maximum value of 0", function() {
       var options = { min: -100, max: 0 };
       assert.ok(faker.random.number(options) <= options.max);
