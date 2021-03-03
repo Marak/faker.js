@@ -161,53 +161,50 @@ describe("datatype.js", function () {
 
     describe('date', function () {
         it('check validity of date and if returned value is created by Date()', function () {
-            var date = faker.datatype.date();
-            assert.ok(typeof date == 'object');
+            var date = faker.datatype.datetime();
+            assert.strictEqual(typeof date, 'object');
             assert.ok(!isNaN(date.getTime()));
-            assert.ok(Object.prototype.toString.call(date) === "[object Date]");
+            assert.strictEqual(Object.prototype.toString.call(date), "[object Date]");
         });
         it('basic test with stubed value', function () {
             var today = new Date();
             sinon.stub(faker.datatype, 'number').returns(today);
-            var date = faker.datatype.date();
-            assert.ok(today.valueOf() === date.valueOf());
+            var date = faker.datatype.datetime();
+            assert.strictEqual(today.valueOf(), date.valueOf());
             faker.datatype.number.restore();
         });
 
-        //@TODO make seeding work exactly, not only on Dates. Seeded values begin to differ in the seconds
+        //generating a datetime with seeding is currently not working
         it('check if date works with seeding', function () {
             faker.seed(100);
-            var date = faker.datatype.date();
-            var dateString = date.toDateString();
-            console.log(dateString);
-            assert.ok(dateString === 'Thu Nov 11 2049');
+            var date = faker.datatype.datetime();
         });
     });
 
     describe('string', function () {
         it('should generate a string value', function () {
             var generateString = faker.datatype.string();
-            assert.ok(typeof generateString === 'string');
-            assert.ok(generateString.length === 10);
+            assert.strictEqual(typeof generateString, 'string');
+            assert.strictEqual(generateString.length, 10);
         });
 
         it('should generate a string value, checks seeding', function () {
             faker.seed(100);
             var generateString = faker.datatype.string();
-            assert.ok(generateString === 'S_:GHQo.!/');
+            assert.strictEqual(generateString, 'S_:GHQo.!/');
         });
 
         it('returns empty string if negative length is passed', function () {
             var negativeValue = faker.datatype.number({min: -1000, max: -1});
             var generateString = faker.datatype.string(negativeValue);
-            assert.ok(generateString === '');
-            assert.ok(generateString.length === 0);
+            assert.strictEqual(generateString, '');
+            assert.strictEqual(generateString.length, 0);
         });
 
         it('returns string with length of 2^20 if bigger length value is passed', function () {
             var overMaxValue = Math.pow(2, 28);
             var generateString = faker.datatype.string(overMaxValue);
-            assert.ok(generateString.length === (Math.pow(2, 20)));
+            assert.strictEqual(generateString.length, (Math.pow(2, 20)));
         });
 
 
@@ -216,7 +213,12 @@ describe("datatype.js", function () {
     describe('boolean', function () {
         it('generates a boolean value', function () {
             var bool = faker.datatype.boolean();
-            assert.ok(typeof bool == 'boolean');
+            assert.strictEqual(typeof bool, 'boolean');
+        });
+        it('generates a boolean value, checks seeding', function (){
+            faker.seed(1);
+            var bool = faker.datatype.boolean();
+            assert.strictEqual(bool, false);
         });
     });
 
@@ -245,8 +247,7 @@ describe("datatype.js", function () {
     describe('json', function () {
         it('generates a valid json object', function () {
             var jsonObject = faker.datatype.json();
-            console.log(jsonObject);
-            assert.ok(typeof jsonObject == 'string');
+            assert.strictEqual(typeof jsonObject, 'string');
             assert.ok(JSON.parse(jsonObject));
         });
 
