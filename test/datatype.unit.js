@@ -159,7 +159,7 @@ describe("datatype.js", function () {
         });
     });
 
-    describe('date', function () {
+    describe('datetime', function () {
         it('check validity of date and if returned value is created by Date()', function () {
             var date = faker.datatype.datetime();
             assert.strictEqual(typeof date, 'object');
@@ -175,10 +175,6 @@ describe("datatype.js", function () {
         });
 
         //generating a datetime with seeding is currently not working
-        it('check if date works with seeding', function () {
-            faker.seed(100);
-            var date = faker.datatype.datetime();
-        });
     });
 
     describe('string', function () {
@@ -255,8 +251,7 @@ describe("datatype.js", function () {
             faker.seed(10);
             var jsonObject = faker.datatype.json();
             var parsedObject = JSON.parse(jsonObject);
-            console.log(jsonObject);
-            assert.ok(typeof jsonObject == 'string');
+            assert.strictEqual(typeof jsonObject, 'string');
             assert.strictEqual(parsedObject.foo, '<\"N[JfnOW5');
             assert.strictEqual(parsedObject.bar, 19806);
             assert.strictEqual(parsedObject.bike, 'g909).``yl');
