@@ -5,7 +5,9 @@ faker.locale = "fi";
 
 //console.log(faker.lorem.sentences())
 
-console.log(faker.name.findName())
+console.log(faker.name.findName());
+console.log(faker.music.genre());
+console.log(faker.music.instruments());
 return;
 //console.log(faker.address)
 console.log(faker.internet.email())
