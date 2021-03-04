@@ -16,7 +16,7 @@ describe("name.js", function () {
             sinon.stub(faker.name, 'firstName').returns('foo');
             var first_name = faker.name.firstName();
 
-            assert.equal(first_name, 'foo');
+            assert.strictEqual(first_name, 'foo');
 
             faker.name.firstName.restore();
         });
@@ -46,7 +46,7 @@ describe("name.js", function () {
 
             var last_name = faker.name.lastName();
 
-            assert.equal(last_name, 'foo');
+            assert.strictEqual(last_name, 'foo');
 
             faker.name.lastName.restore();
         });
@@ -59,7 +59,7 @@ describe("name.js", function () {
 
             var middle_name = faker.name.middleName();
 
-            assert.equal(middle_name, 'foo');
+            assert.strictEqual(middle_name, 'foo');
 
             faker.name.middleName.restore();
         });
@@ -85,13 +85,13 @@ describe("name.js", function () {
             it("returns male prefix", function () {
                 var middle_name = faker.name.middleName(0);
 
-                assert.equal(middle_name, 'Genaddiesvich')
+                assert.strictEqual(middle_name, 'Genaddiesvich')
             });
 
             it("returns female prefix", function () {
                 var middle_name = faker.name.middleName(1);
 
-                assert.equal(middle_name, 'Genaddievna');
+                assert.strictEqual(middle_name, 'Genaddievna');
             });
         });
     });
@@ -99,28 +99,28 @@ describe("name.js", function () {
 
     describe("findName()", function () {
         it("usually returns a first name and last name", function () {
-            sinon.stub(faker.random, 'number').returns(5);
+            sinon.stub(faker.datatype, 'number').returns(5);
             var name = faker.name.findName();
             assert.ok(name);
             var parts = name.split(' ');
 
             assert.strictEqual(parts.length, 2);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
         });
 
         it("occasionally returns a first name and last name with a prefix", function () {
-            sinon.stub(faker.random, 'number').returns(0);
+            sinon.stub(faker.datatype, 'number').returns(0);
             var name = faker.name.findName();
             var parts = name.split(' ');
 
             assert.ok(parts.length >= 3);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
         });
 
         it("occasionally returns a male full name with a prefix", function () {
-            sinon.stub(faker.random, 'number')
+            sinon.stub(faker.datatype, 'number')
                 .withArgs(8).returns(0) // with prefix
                 .withArgs(1).returns(0); // gender male
 
@@ -130,16 +130,16 @@ describe("name.js", function () {
 
             var name = faker.name.findName();
 
-            assert.equal(name, 'X Y Z');
+            assert.strictEqual(name, 'X Y Z');
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
             faker.name.prefix.restore();
             faker.name.firstName.restore();
             faker.name.lastName.restore();
         });
 
         it("occasionally returns a female full name with a prefix", function () {
-            sinon.stub(faker.random, 'number')
+            sinon.stub(faker.datatype, 'number')
                 .withArgs(8).returns(0) // with prefix
                 .withArgs(1).returns(1); // gender female
 
@@ -149,25 +149,25 @@ describe("name.js", function () {
 
             var name = faker.name.findName();
 
-            assert.equal(name, 'J K L');
+            assert.strictEqual(name, 'J K L');
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
             faker.name.prefix.restore();
             faker.name.firstName.restore();
             faker.name.lastName.restore();
         });
 
         it("occasionally returns a first name and last name with a suffix", function () {
-            sinon.stub(faker.random, 'number').returns(1);
+            sinon.stub(faker.datatype, 'number').returns(1);
             sinon.stub(faker.name, 'suffix').returns('Jr.');
             var name = faker.name.findName();
             var parts = name.split(' ');
 
             assert.ok(parts.length >= 3);
-            assert.equal(parts[parts.length-1], 'Jr.');
+            assert.strictEqual(parts[parts.length-1], 'Jr.');
 
             faker.name.suffix.restore();
-            faker.random.number.restore();
+            faker.datatype.number.restore();
         });
 
         it("needs to work with specific locales and respect the fallbacks", function () {
@@ -183,7 +183,7 @@ describe("name.js", function () {
 
           var title = faker.name.title();
 
-          assert.equal(title, 'Lead Solutions Supervisor');
+          assert.strictEqual(title, 'Lead Solutions Supervisor');
 
           faker.name.title.restore();
         });
@@ -231,13 +231,13 @@ describe("name.js", function () {
 
             it("returns male prefix", function () {
                 var prefix = faker.name.prefix(0);
-                assert.equal(prefix, 'Mp')
+                assert.strictEqual(prefix, 'Mp')
             });
 
             it("returns female prefix", function () {
                 var prefix = faker.name.prefix(1);
 
-                assert.equal(prefix, 'Fp');
+                assert.strictEqual(prefix, 'Fp');
             });
 
             it("returns either prefix", function () {
@@ -267,7 +267,7 @@ describe("name.js", function () {
             it("returns a prefix", function () {
                 var prefix = faker.name.prefix();
 
-                assert.equal(prefix, 'P');
+                assert.strictEqual(prefix, 'P');
             });
         });
     });

@@ -8,3 +8,5 @@ examples/
 meteor/
 test/
 logo.png
+reports/
+.nyc_output/
