@@ -234,19 +234,19 @@ describe("datatype.js", function () {
             assert.ok(hex.match(/^(0x)[0-9a-f]{1}$/i));
         });
 
-        it('should generate a random hex string with prefix', function() {
+        it('generates a random hex string with prefix', function() {
             var hex = hexaDecimal(5);
             assert.ok(hex.match(/^(0x)[0-9a-f]{5}$/i));
             hex = hexaDecimal(5, true);
             assert.ok(hex.match(/^(0x)[0-9a-f]{5}$/i));
         });
 
-        it('should generate a random hex string with no prefix', function() {
+        it('generates a random hex string with no prefix', function() {
             var hex = hexaDecimal(5, false);
             assert.ok(hex.match(/^[0-9a-f]{5}$/i));
         });
 
-        it('should generate a random hex string with lowercase letters and numbers only', function() {
+        it('generates a random hex string with lowercase letters and numbers only', function() {
             var hex = hexaDecimal(5000, false);
             assert.ok(hex.match(/^[0-9a-f]{5000}$/i));
         });
@@ -299,3 +299,4 @@ describe("datatype.js", function () {
     });
 
 });
+
