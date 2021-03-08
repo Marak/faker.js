@@ -236,7 +236,8 @@ describe("datatype.js", function () {
 
         it('generates a random hex string with prefix', function() {
             var hex = hexaDecimal(5);
-            assert.ok(hex.match(/^(0x)[0-9a-f]{5}$/i));
+            assert.ok(hex.match(/^(0x)[0-9a-f]{5}$/));
+
             hex = hexaDecimal(5, true);
             assert.ok(hex.match(/^(0x)[0-9a-f]{5}$/i));
         });
@@ -299,4 +300,3 @@ describe("datatype.js", function () {
     });
 
 });
-
