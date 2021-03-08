@@ -239,7 +239,8 @@ describe("datatype.js", function () {
             assert.ok(hex.match(/^(0x)[0-9a-f]{5}$/));
 
             hex = hexaDecimal(5, true);
-            assert.ok(hex.match(/^(0x)[0-9a-f]{5}$/i));
+            assert.ok(hex.match(/^(0x)[0-9a-f]{5}$/));
+
         });
 
         it('generates a random hex string with no prefix', function() {
