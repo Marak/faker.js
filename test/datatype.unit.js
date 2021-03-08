@@ -251,7 +251,8 @@ describe("datatype.js", function () {
 
         it('generates a random hex string with lowercase letters and numbers only', function() {
             var hex = hexaDecimal(5000, false);
-            assert.ok(hex.match(/^[0-9a-f]{5000}$/i));
+            assert.ok(hex.match(/^[0-9a-f]{5000}$/));
+
         });
     });
 
