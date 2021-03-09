@@ -9,34 +9,34 @@ describe("company.js", function () {
 
         it("sometimes returns three last names", function () {
             sinon.spy(faker.name, 'lastName');
-            sinon.stub(faker.random, 'number').returns(2);
+            sinon.stub(faker.datatype, 'number').returns(2);
             var name = faker.company.companyName();
             var parts = name.split(' ');
 
             assert.strictEqual(parts.length, 4); // account for word 'and'
             assert.ok(faker.name.lastName.calledThrice);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
             faker.name.lastName.restore();
         });
 
         it("sometimes returns two last names separated by a hyphen", function () {
             sinon.spy(faker.name, 'lastName');
-            sinon.stub(faker.random, 'number').returns(1);
+            sinon.stub(faker.datatype, 'number').returns(1);
             var name = faker.company.companyName();
             var parts = name.split('-');
 
             assert.ok(parts.length >= 2);
             assert.ok(faker.name.lastName.calledTwice);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
             faker.name.lastName.restore();
         });
 
         it("sometimes returns a last name with a company suffix", function () {
             sinon.spy(faker.company, 'companySuffix');
             sinon.spy(faker.name, 'lastName');
-            sinon.stub(faker.random, 'number').returns(0);
+            sinon.stub(faker.datatype, 'number').returns(0);
             var name = faker.company.companyName();
             var parts = name.split(' ');
 
@@ -44,7 +44,7 @@ describe("company.js", function () {
             assert.ok(faker.name.lastName.calledOnce);
             assert.ok(faker.company.companySuffix.calledOnce);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
             faker.name.lastName.restore();
             faker.company.companySuffix.restore();
         });

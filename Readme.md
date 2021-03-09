@@ -14,6 +14,14 @@
 
 [https://rawgit.com/Marak/faker.js/master/examples/browser/index.html](https://rawgit.com/Marak/faker.js/master/examples/browser/index.html)
 
+### Faker Cloud
+
+Don't have a local development setup ready? 
+
+Try our hosted version of Faker at [https://fakercloud.com](https://fakercloud.com)
+
+https://github.com/faker/faker-cloud
+
 ## Usage
 
 ### Browser

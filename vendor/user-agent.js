@@ -38,7 +38,7 @@ exports.generate = function generate(faker) {
         if (typeof b === 'number' && typeof a === 'number') {
 
             // 9/2018 - Added faker random to ensure mersenne and seed
-            return faker.random.number({ min: a, max: b});
+            return faker.datatype.number({ min: a, max: b});
 
         }
 

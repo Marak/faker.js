@@ -31,7 +31,7 @@ describe("git.js", function() {
       sinon.spy(faker.internet, 'email');
       sinon.spy(faker.name, 'firstName');
       sinon.spy(faker.name, 'lastName');
-      sinon.spy(faker.random, 'number');
+      sinon.spy(faker.datatype, 'number');
     });
 
     afterEach(function() {
@@ -40,13 +40,13 @@ describe("git.js", function() {
       faker.internet.email.restore();
       faker.name.firstName.restore();
       faker.name.lastName.restore();
-      faker.random.number.restore();
+      faker.datatype.number.restore();
     });
 
     it("returns merge entry at random", function() {
       faker.git.commitEntry();
 
-      assert.ok(faker.random.number.called);
+      assert.ok(faker.datatype.number.called);
     });
 
     it("returns a commit entry with git commit message and sha", function() {

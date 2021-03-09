@@ -71,4 +71,14 @@ describe("vehicle.js", function () {
             faker.vehicle.vrm.restore();
         });
     });
+
+  describe("bicycle()", function () {
+    it("returns a random type of bicycle", function () {
+      sinon.stub(faker.vehicle, 'bicycle').returns('Adventure Road Bicycle');
+      var bicycle = faker.vehicle.bicycle();
+
+      assert.equal(bicycle, 'Adventure Road Bicycle');
+      faker.vehicle.bicycle.restore();
+    });
+  });
 });

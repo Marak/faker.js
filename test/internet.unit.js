@@ -43,19 +43,19 @@ describe("internet.js", function () {
 
     describe("userName()", function () {
         it("occasionally returns a single firstName", function () {
-            sinon.stub(faker.random, 'number').returns(0);
+            sinon.stub(faker.datatype, 'number').returns(0);
             sinon.spy(faker.name, 'firstName');
             var username = faker.internet.userName();
 
             assert.ok(username);
             assert.ok(faker.name.firstName.called);
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
             faker.name.firstName.restore();
         });
 
         it("occasionally returns a firstName with a period or hyphen and a lastName", function () {
-            sinon.stub(faker.random, 'number').returns(1);
+            sinon.stub(faker.datatype, 'number').returns(1);
             sinon.spy(faker.name, 'firstName');
             sinon.spy(faker.name, 'lastName');
             sinon.spy(faker.random, 'arrayElement');
@@ -66,7 +66,7 @@ describe("internet.js", function () {
             assert.ok(faker.name.lastName.called);
             assert.ok(faker.random.arrayElement.calledWith(['.', '_']));
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
             faker.name.firstName.restore();
             faker.name.lastName.restore();
             faker.random.arrayElement.restore();
@@ -116,21 +116,21 @@ describe("internet.js", function () {
         });
 
         it('should occasionally return http', function () {
-            sinon.stub(faker.random, 'number').returns(0);
+            sinon.stub(faker.datatype, 'number').returns(0);
             var protocol = faker.internet.protocol();
             assert.ok(protocol);
             assert.strictEqual(protocol, 'http');
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
         });
 
         it('should occasionally return https', function () {
-            sinon.stub(faker.random, 'number').returns(1);
+            sinon.stub(faker.datatype, 'number').returns(1);
             var protocol = faker.internet.protocol();
             assert.ok(protocol);
             assert.strictEqual(protocol, 'https');
 
-            faker.random.number.restore();
+            faker.datatype.number.restore();
         });
     });
 

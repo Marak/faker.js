@@ -5,7 +5,7 @@
 var faker = require('../../index');
 var fs = require('fs');
 // produce array with random number of empty elements 
-const arr = (maxNumberOfElements) => new Array(faker.random.number({min: 1, max: maxNumberOfElements})).fill()
+const arr = (maxNumberOfElements) => new Array(faker.datatype.number({min: 1, max: maxNumberOfElements})).fill()
 
 const locales = ["nl","es","de","fr","en_AU"]
 const company = 
@@ -18,7 +18,7 @@ const company =
                                                                  return { "name"     : faker.fake("{{name.firstName}} {{name.lastName}}")
                                                                         , "job"      : faker.name.jobTitle()
                                                                         , "hiredate" : faker.date.past(12).toISOString().split('T')[0]
-                                                                        , "salary"   : faker.random.number(700, 9000)
+                                                                        , "salary"   : faker.datatype.number(700, 9000)
                                                                         }
                                                                })
                                                }
