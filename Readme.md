@@ -76,6 +76,21 @@ https://github.com/faker/faker-cloud
   * ordinalDirection
   * nearbyGPSCoordinate
   * timeZone
+* animal
+  * dog
+  * cat
+  * snake
+  * bear
+  * lion
+  * cetacean
+  * horse
+  * bird
+  * cow
+  * fish
+  * crocodilia
+  * insect
+  * rabbit
+  * type
 * commerce
   * color
   * department
@@ -208,6 +223,8 @@ https://github.com/faker/faker-cloud
   * lines
 * music
   * genre
+  * artist
+  * song
 * name
   * firstName
   * lastName
