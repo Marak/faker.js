@@ -335,6 +335,11 @@ faker.locale = "de";
  * sk
  * sv
  * tr
+ * th - name only
+ * kr - name only
+ * jp_kanji - name only
+ * jp_hiragana - name only
+ * jp_katakana - name only
  * uk
  * vi
  * zh_CN
