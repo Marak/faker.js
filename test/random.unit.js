@@ -106,6 +106,41 @@ describe("random.js", function () {
         this[element] = true;
       }, {});
     });
+
+    it('picks items in a random order', function(){
+      // This test checks if the random picks have a correct average after repeated picks from a strictly monotonously increasing number array
+      // how far the average is allowed to be from the color average (e.g. +-2)
+      const safeZone = 2;
+      const numbers = 256;
+      const iterations = 2 ** 16;
+      const itemsToPick = 6;
+
+      const array = Array
+          .from({ length: numbers })
+          .map((_, i) => i);
+      
+      const elements = [];
+
+      for (let i = 0; i < iterations; i++) {
+          elements.push(faker.random.arrayElements(array, itemsToPick));
+      }
+
+      // sum all array values together into a flat array of all their sums
+      const sums = elements.reduce((all, values) => {
+          values.forEach((value, i) => all[i] += value);
+          return all;
+      }, new Array(itemsToPick).fill(0));
+
+      sums.forEach((sum, i) => {
+          const halfNumbers = numbers / 2;
+          // we have to remove i as arrayElements reduces the amount of possible items for each subsequent pick
+          const sumAvg = sum / (iterations - i);
+
+          // check if half - safeZone < sumAvg < half + safeZone
+          assert.ok(sumAvg < (halfNumbers + safeZone), `${sumAvg} < ${halfNumbers + safeZone}`);
+          assert.ok(sumAvg > (halfNumbers - safeZone), `${sumAvg} > ${halfNumbers - safeZone}`);
+      });
+    });
   });
 
   describe('UUID', function() {
