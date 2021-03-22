@@ -170,7 +170,7 @@ describe("address.js", function () {
         context("when useFulladdress is true", function () {
             it("adds a secondary address to the result", function () {
                 faker.address.streetAddress(true);
-        
+
                 assert.ok(faker.address.secondaryAddress.called);
             });
         });
@@ -232,7 +232,7 @@ describe("address.js", function () {
             assert.strictEqual(countryCode.length, 3, "The countryCode should be had 3 characters");
             faker.address.countryCode.restore();
         });
-        
+
     });
 
     describe("state()", function () {
@@ -285,6 +285,19 @@ describe("address.js", function () {
           assert.ok(zipCode3 >= 98001);
           assert.ok(zipCode3 <= 99403);
         });
+
+        it("returns zipCode with length of 5", function () {
+            faker.locale = "en_US";
+            var states = ["PR", "RI", "MA"];
+
+            var zipCode1 = faker.address.zipCodeByState(states[0]);
+            assert.ok(zipCode1.length === 5);
+            var zipCode2 = faker.address.zipCodeByState(states[1]);
+            assert.ok(zipCode2.length === 5);
+            var zipCode3 = faker.address.zipCodeByState(states[2]);
+            assert.ok(zipCode3.length === 5);
+          });
+
 
         it("returns undefined if state is invalid", function () {
             var state = "XX";
