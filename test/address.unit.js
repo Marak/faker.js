@@ -167,6 +167,13 @@ describe("address.js", function () {
             faker.datatype.number.restore();
         });
 
+        it("formats using the correct locale format", function() {
+          faker.locale = 'de';
+
+          var street_address = faker.address.streetAddress();
+          assert.ok(street_address.match(/^\d+/) === null);
+        });
+
         context("when useFulladdress is true", function () {
             it("adds a secondary address to the result", function () {
                 faker.address.streetAddress(true);
