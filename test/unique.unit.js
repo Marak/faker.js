@@ -8,7 +8,7 @@ describe("unique.js", function () {
   describe("exec", function () {
     it("is able to call a function with no arguments and return a result", function () {
       var result = faker.unique.exec(faker.internet.email);
-      assert.strictEqual(typeof result, "string");
+      assert.strictEqual(typeof result, 'string');
     });
 
     it("is able to call a function with arguments and return a result", function () {
@@ -71,12 +71,11 @@ describe("unique.js", function () {
         scope: 'fakerInternetProtocol'
       });
       faker.unique.clear('fakerInternetProtocol');
-        var result = faker.unique.exec(faker.internet.protocol, [], {
-          exclude: ['https'],
-          scope: 'fakerInternetProtocol'
-        });
-        assert.strictEqual(result, 'http');
+      var result = faker.unique.exec(faker.internet.protocol, [], {
+        exclude: ['https'],
+        scope: 'fakerInternetProtocol'
       });
+      assert.strictEqual(result, 'http');
     });    
   });
 });
