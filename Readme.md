@@ -14,6 +14,14 @@
 
 [https://rawgit.com/Marak/faker.js/master/examples/browser/index.html](https://rawgit.com/Marak/faker.js/master/examples/browser/index.html)
 
+### Faker Cloud
+
+Don't have a local development setup ready? 
+
+Try our hosted version of Faker at [https://fakercloud.com/api](https://fakercloud.com/api)
+
+https://github.com/faker/faker-cloud
+
 ## Usage
 
 ### Browser
@@ -51,6 +59,7 @@
   * city
   * cityPrefix
   * citySuffix
+  * cityName
   * streetName
   * streetAddress
   * streetSuffix
@@ -68,6 +77,21 @@
   * ordinalDirection
   * nearbyGPSCoordinate
   * timeZone
+* animal
+  * dog
+  * cat
+  * snake
+  * bear
+  * lion
+  * cetacean
+  * horse
+  * bird
+  * cow
+  * fish
+  * crocodilia
+  * insect
+  * rabbit
+  * type
 * commerce
   * color
   * department
@@ -94,10 +118,21 @@
   * type
   * collation
   * engine
+* datatype
+  * number
+  * float
+  * datetime
+  * string
+  * uuid
+  * boolean
+  * hexaDecimal
+  * json
+  * array
 * date
   * past
   * future
   * between
+  * betweens
   * recent
   * soon
   * month
@@ -175,12 +210,14 @@
   * exampleEmail
   * userName
   * protocol
+  * httpMethod
   * url
   * domainName
   * domainSuffix
   * domainWord
   * ip
   * ipv6
+  * port
   * userAgent
   * color
   * mac
@@ -195,6 +232,10 @@
   * paragraphs
   * text
   * lines
+* mersenne
+  * rand
+  * seed
+  * seed_array
 * music
   * genre
 * name
@@ -253,6 +294,9 @@
   * fuel
   * vin
   * color
+  * vrm
+  * bicycle
+
 
 ### Faker.fake()
 
@@ -306,6 +350,8 @@ faker.locale = "de";
  * fr_CA
  * fr_CH
  * ge
+ * hy
+ * hr
  * id_ID
  * it
  * ja
@@ -348,12 +394,12 @@ If you want consistent results, you can set your own seed:
 ```js
 faker.seed(123);
 
-var firstRandom = faker.random.number();
+var firstRandom = faker.datatype.number();
 
 // Setting the seed again resets the sequence.
 faker.seed(123);
 
-var secondRandom = faker.random.number();
+var secondRandom = faker.datatype.number();
 
 console.log(firstRandom === secondRandom);
 ```

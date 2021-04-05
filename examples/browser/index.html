@@ -48,7 +48,11 @@
                         <td align="right"><input class="fakerButton" type="button" value="' + module + "." + method +'" id="' + inputID + '"/></td>';
 
                       // get the default value
-                      var val = faker[module][method]();
+                      var val = '';
+                      try {
+                        val = faker[module][method]();
+                      } catch (err) {
+                      }
 
                       // switch input type based on default string / object value being returned
                       if (typeof val === "object") {
@@ -72,7 +76,12 @@
                 var arr = inputID.split('_');
                 var module = arr[1];
                 var method = arr[2];
-                var val = faker[module][method]();
+                var val = '';
+                try {
+                  val = faker[module][method]();
+                } catch (err) {
+                  
+                }
                 if (typeof val === "object") {
                   val = JSON.stringify(val, true, 2);
                 }

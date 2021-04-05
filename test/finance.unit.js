@@ -85,7 +85,7 @@ describe('finance.js', function () {
 
         it("should set a specified length", function () {
 
-            var expected = faker.random.number(20);
+            var expected = faker.datatype.number(20);
 
             expected = (expected == 0 || !expected || typeof expected == 'undefined') ? 4 : expected;
 
@@ -138,7 +138,7 @@ describe('finance.js', function () {
 
         it("should work when random variables are passed into the arguments", function () {
 
-            var length = faker.random.number(20);
+            var length = faker.datatype.number(20);
             var ellipsis = (length % 2 === 0) ? true : false;
             var parens = !ellipsis;
 
@@ -172,7 +172,7 @@ describe('finance.js', function () {
             assert.ok(amount);
             assert.strictEqual(amount , '100.0', "the amount should be equal 100.0");
         });
-        
+
         //TODO: add support for more currency and decimal options
         it("should not include a currency symbol by default", function () {
 
@@ -221,6 +221,26 @@ describe('finance.js', function () {
 
             assert.ok(amount);
             assert.strictEqual(typeOfAmount , "string", "the amount type should be number");
+        });
+
+        [false, undefined].forEach(function (autoFormat){
+            it(`should return unformatted if autoformat is ${autoFormat}`, function() {
+
+                const number = 6000;
+                const amount = faker.finance.amount(number, number, 0, undefined, autoFormat);
+
+                assert.strictEqual(amount, number.toString());
+            });
+        });
+
+        it("should return the number formatted on the current locale", function() {
+
+            const number = 6000, decimalPlaces = 2;
+            const expected = number.toLocaleString(undefined, {minimumFractionDigits: decimalPlaces});
+
+            const amount = faker.finance.amount(number, number, decimalPlaces, undefined, true);
+
+            assert.strictEqual(amount, expected);
         });
 
     });
@@ -375,10 +395,19 @@ describe('finance.js', function () {
     });
 
     describe("transactionDescription()", function() {
-			it("returns a random transaction description", function() {
-				var transactionDescription = faker.finance.transactionDescription();
+        beforeEach(function () {
+            sinon.spy(faker.helpers, 'createTransaction');
+        });
 
-				assert.ok(transactionDescription);
-			})
-    })
+        afterEach(function () {
+            faker.helpers.createTransaction.restore();
+        });
+
+        it("returns a random transaction description", function() {
+            var transactionDescription = faker.finance.transactionDescription();
+
+            assert.ok(transactionDescription);
+            assert.ok(faker.helpers.createTransaction.calledOnce);
+        });
+    });
 });
