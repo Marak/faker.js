@@ -7,9 +7,9 @@ if (typeof module !== 'undefined') {
 describe("animal.js", function() {
 
   describe("dog()", function() {
-      it("returns random value from dog array", function() {
-          var dog = faker.animal.dog();
-          assert.ok(faker.definitions.animal.dog.indexOf(dog) !== -1);
-      });
+    it("returns random value from dog array", function() {
+      var dog = faker.animal.dog();
+      assert.ok(faker.definitions.animal.dog.indexOf(dog) !== -1);
+    });
   });
 }); 

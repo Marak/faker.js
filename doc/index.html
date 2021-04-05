@@ -33,14 +33,14 @@
 			<li class="dropdown">
 				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="faker.html">faker</a></li><li><a href="faker.address.html">faker.address</a></li><li><a href="faker.commerce.html">faker.commerce</a></li><li><a href="faker.company.html">faker.company</a></li><li><a href="faker.database.html">faker.database</a></li><li><a href="faker.date.html">faker.date</a></li><li><a href="faker.finance.html">faker.finance</a></li><li><a href="faker.git.html">faker.git</a></li><li><a href="faker.hacker.html">faker.hacker</a></li><li><a href="faker.helpers.html">faker.helpers</a></li><li><a href="faker.image.html">faker.image</a></li><li><a href="faker.image.lorempicsum.html">faker.image.lorempicsum</a></li><li><a href="faker.image.lorempixel.html">faker.image.lorempixel</a></li><li><a href="faker.image.unsplash.html">faker.image.unsplash</a></li><li><a href="faker.internet.html">faker.internet</a></li><li><a href="faker.lorem.html">faker.lorem</a></li><li><a href="faker.music.html">faker.music</a></li><li><a href="faker.name.html">faker.name</a></li><li><a href="faker.phone.html">faker.phone</a></li><li><a href="faker.random.html">faker.random</a></li><li><a href="faker.system.html">faker.system</a></li><li><a href="faker.time.html">faker.time</a></li><li><a href="faker.unique.html">faker.unique</a></li><li><a href="faker.vehicle.html">faker.vehicle</a></li>
+					<li><a href="faker.html">faker</a></li><li><a href="faker.address.html">faker.address</a></li><li><a href="faker.animal.html">faker.animal</a></li><li><a href="faker.commerce.html">faker.commerce</a></li><li><a href="faker.company.html">faker.company</a></li><li><a href="faker.database.html">faker.database</a></li><li><a href="faker.datatype.html">faker.datatype</a></li><li><a href="faker.date.html">faker.date</a></li><li><a href="faker.finance.html">faker.finance</a></li><li><a href="faker.git.html">faker.git</a></li><li><a href="faker.hacker.html">faker.hacker</a></li><li><a href="faker.helpers.html">faker.helpers</a></li><li><a href="faker.image.html">faker.image</a></li><li><a href="faker.image.lorempicsum.html">faker.image.lorempicsum</a></li><li><a href="faker.image.lorempixel.html">faker.image.lorempixel</a></li><li><a href="faker.image.unsplash.html">faker.image.unsplash</a></li><li><a href="faker.internet.html">faker.internet</a></li><li><a href="faker.lorem.html">faker.lorem</a></li><li><a href="faker.music.html">faker.music</a></li><li><a href="faker.name.html">faker.name</a></li><li><a href="faker.phone.html">faker.phone</a></li><li><a href="faker.random.html">faker.random</a></li><li><a href="faker.system.html">faker.system</a></li><li><a href="faker.time.html">faker.time</a></li><li><a href="faker.unique.html">faker.unique</a></li><li><a href="faker.vehicle.html">faker.vehicle</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#unique">unique</a></li>
+					<li><a href="global.html#arrayRemove">arrayRemove</a></li><li><a href="global.html#unique">unique</a></li>
 				</ul>
 			</li>
 			
@@ -102,6 +102,10 @@
 <a href="https://gitter.im/Faker-js/community"><img src="https://badges.gitter.im/marak/faker.js.png" alt="Gitter chat"></a></p>
 <h2>Demo</h2>
 <p><a href="https://rawgit.com/Marak/faker.js/master/examples/browser/index.html">https://rawgit.com/Marak/faker.js/master/examples/browser/index.html</a></p>
+<h3>Faker Cloud</h3>
+<p>Don't have a local development setup ready?</p>
+<p>Try our hosted version of Faker at <a href="https://fakercloud.com/api">https://fakercloud.com/api</a></p>
+<p>https://github.com/faker/faker-cloud</p>
 <h2>Usage</h2>
 <h3>Browser</h3>
 <pre class="prettyprint source lang-html"><code>    &lt;script src = &quot;faker.js&quot; type = &quot;text/javascript&quot;>&lt;/script>
@@ -130,6 +134,7 @@
 <li>city</li>
 <li>cityPrefix</li>
 <li>citySuffix</li>
+<li>cityName</li>
 <li>streetName</li>
 <li>streetAddress</li>
 <li>streetSuffix</li>
@@ -147,6 +152,24 @@
 <li>ordinalDirection</li>
 <li>nearbyGPSCoordinate</li>
 <li>timeZone</li>
+</ul>
+</li>
+<li>animal
+<ul>
+<li>dog</li>
+<li>cat</li>
+<li>snake</li>
+<li>bear</li>
+<li>lion</li>
+<li>cetacean</li>
+<li>horse</li>
+<li>bird</li>
+<li>cow</li>
+<li>fish</li>
+<li>crocodilia</li>
+<li>insect</li>
+<li>rabbit</li>
+<li>type</li>
 </ul>
 </li>
 <li>commerce
@@ -184,11 +207,25 @@
 <li>engine</li>
 </ul>
 </li>
+<li>datatype
+<ul>
+<li>number</li>
+<li>float</li>
+<li>datetime</li>
+<li>string</li>
+<li>uuid</li>
+<li>boolean</li>
+<li>hexaDecimal</li>
+<li>json</li>
+<li>array</li>
+</ul>
+</li>
 <li>date
 <ul>
 <li>past</li>
 <li>future</li>
 <li>between</li>
+<li>betweens</li>
 <li>recent</li>
 <li>soon</li>
 <li>month</li>
@@ -284,12 +321,14 @@
 <li>exampleEmail</li>
 <li>userName</li>
 <li>protocol</li>
+<li>httpMethod</li>
 <li>url</li>
 <li>domainName</li>
 <li>domainSuffix</li>
 <li>domainWord</li>
 <li>ip</li>
 <li>ipv6</li>
+<li>port</li>
 <li>userAgent</li>
 <li>color</li>
 <li>mac</li>
@@ -307,6 +346,13 @@
 <li>paragraphs</li>
 <li>text</li>
 <li>lines</li>
+</ul>
+</li>
+<li>mersenne
+<ul>
+<li>rand</li>
+<li>seed</li>
+<li>seed_array</li>
 </ul>
 </li>
 <li>music
@@ -384,6 +430,8 @@
 <li>fuel</li>
 <li>vin</li>
 <li>color</li>
+<li>vrm</li>
+<li>bicycle</li>
 </ul>
 </li>
 </ul>
@@ -426,6 +474,8 @@ faker.locale = &quot;de&quot;;
 <li>fr_CA</li>
 <li>fr_CH</li>
 <li>ge</li>
+<li>hy</li>
+<li>hr</li>
 <li>id_ID</li>
 <li>it</li>
 <li>ja</li>
@@ -458,12 +508,12 @@ var faker = require('faker/locale/de');
 <p>If you want consistent results, you can set your own seed:</p>
 <pre class="prettyprint source lang-js"><code>faker.seed(123);
 
-var firstRandom = faker.random.number();
+var firstRandom = faker.datatype.number();
 
 // Setting the seed again resets the sequence.
 faker.seed(123);
 
-var secondRandom = faker.random.number();
+var secondRandom = faker.datatype.number();
 
 console.log(firstRandom === secondRandom);
 </code></pre>
@@ -624,7 +674,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a>
 	
-		on 2021-02-10T14:58:18-05:00
+		on 2021-03-30T13:03:12-04:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
