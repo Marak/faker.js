@@ -164,14 +164,14 @@ describe("random.js", function () {
     });
 
     it('should be able to ban some characters', function() {
-      var alphaText = alpha(5,{bannedChars:['a', 'p']});
+      var alphaText = alpha({count:5, bannedChars:['a', 'p']});
       assert.ok(alphaText.length === 5);
-      assert.ok(alphaText.match(/[b-oq-z]/));
+      assert.doesNotMatch(alphaText, /[ap]/)
     });
     it('should be able handle mistake in banned characters array', function() {
-      var alphaText = alpha(5,{bannedChars:['a', 'a', 'p']});
+      var alphaText = alpha({count:5, bannedChars:['a', 'a', 'p']});
       assert.ok(alphaText.length === 5);
-      assert.ok(alphaText.match(/[b-oq-z]/));
+      assert.doesNotMatch(alphaText, /[ap]/)
     });
   });
 
