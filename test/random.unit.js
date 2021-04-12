@@ -106,6 +106,25 @@ describe("random.js", function () {
         this[element] = true;
       }, {});
     });
+
+    it('returns a empty array when we pass empty array in arguments', function() {
+      var testArray = []
+      var subset = faker.random.arrayElements(testArray)
+
+      // Check length
+      assert.ok(subset.length === 0)
+
+      // Check elements
+      subset.forEach(function(element) {
+        assert.ok(testArray.indexOf(element) > -1);
+      });
+
+      // Check uniqueness
+      subset.forEach(function(element) {
+        assert.ok(!this.hasOwnProperty(element));
+        this[element] = true;
+      }, {});
+    })
   });
 
   describe('UUID', function() {
