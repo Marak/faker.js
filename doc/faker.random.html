@@ -33,14 +33,14 @@
 			<li class="dropdown">
 				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="faker.html">faker</a></li><li><a href="faker.address.html">faker.address</a></li><li><a href="faker.commerce.html">faker.commerce</a></li><li><a href="faker.company.html">faker.company</a></li><li><a href="faker.database.html">faker.database</a></li><li><a href="faker.date.html">faker.date</a></li><li><a href="faker.finance.html">faker.finance</a></li><li><a href="faker.git.html">faker.git</a></li><li><a href="faker.hacker.html">faker.hacker</a></li><li><a href="faker.helpers.html">faker.helpers</a></li><li><a href="faker.image.html">faker.image</a></li><li><a href="faker.image.lorempicsum.html">faker.image.lorempicsum</a></li><li><a href="faker.image.lorempixel.html">faker.image.lorempixel</a></li><li><a href="faker.image.unsplash.html">faker.image.unsplash</a></li><li><a href="faker.internet.html">faker.internet</a></li><li><a href="faker.lorem.html">faker.lorem</a></li><li><a href="faker.name.html">faker.name</a></li><li><a href="faker.phone.html">faker.phone</a></li><li><a href="faker.random.html">faker.random</a></li><li><a href="faker.system.html">faker.system</a></li><li><a href="faker.time.html">faker.time</a></li><li><a href="faker.unique.html">faker.unique</a></li><li><a href="faker.vehicle.html">faker.vehicle</a></li>
+					<li><a href="faker.html">faker</a></li><li><a href="faker.address.html">faker.address</a></li><li><a href="faker.animal.html">faker.animal</a></li><li><a href="faker.commerce.html">faker.commerce</a></li><li><a href="faker.company.html">faker.company</a></li><li><a href="faker.database.html">faker.database</a></li><li><a href="faker.datatype.html">faker.datatype</a></li><li><a href="faker.date.html">faker.date</a></li><li><a href="faker.finance.html">faker.finance</a></li><li><a href="faker.git.html">faker.git</a></li><li><a href="faker.hacker.html">faker.hacker</a></li><li><a href="faker.helpers.html">faker.helpers</a></li><li><a href="faker.image.html">faker.image</a></li><li><a href="faker.image.lorempicsum.html">faker.image.lorempicsum</a></li><li><a href="faker.image.lorempixel.html">faker.image.lorempixel</a></li><li><a href="faker.image.unsplash.html">faker.image.unsplash</a></li><li><a href="faker.internet.html">faker.internet</a></li><li><a href="faker.lorem.html">faker.lorem</a></li><li><a href="faker.music.html">faker.music</a></li><li><a href="faker.name.html">faker.name</a></li><li><a href="faker.phone.html">faker.phone</a></li><li><a href="faker.random.html">faker.random</a></li><li><a href="faker.system.html">faker.system</a></li><li><a href="faker.time.html">faker.time</a></li><li><a href="faker.unique.html">faker.unique</a></li><li><a href="faker.vehicle.html">faker.vehicle</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#unique">unique</a></li>
+					<li><a href="global.html#arrayRemove">arrayRemove</a></li><li><a href="global.html#unique">unique</a></li>
 				</ul>
 			</li>
 			
@@ -215,7 +215,7 @@
 
             
 
-            <td class="description last"><p>// defaults to { count: 1, upcase: false }</p></td>
+            <td class="description last"><p>// defaults to { count: 1, upcase: false, bannedChars: [] }</p></td>
         </tr>
 
     
@@ -343,7 +343,7 @@
 
             
 
-            <td class="description last"><p>// defaults to { count: 1, upcase: false }</p></td>
+            <td class="description last"><p>// defaults to { count: 1, upcase: false, bannedChars: [] }</p></td>
         </tr>
 
     
@@ -471,7 +471,9 @@
 
             
 
-            <td class="description last"><p>defaults to 1</p></td>
+            <td class="description last"><p>defaults to 1
+{mixed} options // defaults to { bannedChars: [] }
+options.bannedChars - array of characters which should be banned in new string</p></td>
         </tr>
 
     
@@ -599,7 +601,9 @@
 
             
 
-            <td class="description last"><p>defaults to 1</p></td>
+            <td class="description last"><p>defaults to 1
+{mixed} options // defaults to { bannedChars: [] }
+options.bannedChars - array of characters which should be banned in new string</p></td>
         </tr>
 
     
@@ -1390,10 +1394,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>returns a single random floating-point number based on a max number or range</p>
-    </div>
-    
 
     
 
@@ -1471,6 +1471,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>returns a single random floating-point number based on a max number or range</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -1518,10 +1527,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>returns a single random floating-point number based on a max number or range</p>
-    </div>
-    
 
     
 
@@ -1599,6 +1604,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>returns a single random floating-point number based on a max number or range</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -1645,10 +1659,6 @@
 </dt>
 <dd>
 
-    
-    <div class="description">
-        <p>hexaDecimal</p>
-    </div>
     
 
     
@@ -1727,6 +1737,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>hexaDecimal</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -1773,10 +1792,6 @@
 </dt>
 <dd>
 
-    
-    <div class="description">
-        <p>hexaDecimal</p>
-    </div>
     
 
     
@@ -1855,6 +1870,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>hexaDecimal</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -2214,10 +2238,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>returns a single random number based on a max number or range</p>
-    </div>
-    
 
     
 
@@ -2295,6 +2315,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>returns a single random number based on a max number or range</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -2342,10 +2371,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>returns a single random number based on a max number or range</p>
-    </div>
-    
 
     
 
@@ -2423,6 +2448,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>returns a single random number based on a max number or range</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -2471,7 +2505,7 @@
 
     
     <div class="description">
-        <p>takes an object and returns the randomly key or value</p>
+        <p>takes an object and returns a random key or value</p>
     </div>
     
 
@@ -2623,7 +2657,7 @@
 
     
     <div class="description">
-        <p>takes an object and returns the randomly key or value</p>
+        <p>takes an object and returns a random key or value</p>
     </div>
     
 
@@ -2774,10 +2808,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>uuid</p>
-    </div>
-    
 
     
 
@@ -2805,6 +2835,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>uuid</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -2852,10 +2891,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>uuid</p>
-    </div>
-    
 
     
 
@@ -2883,6 +2918,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>uuid</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -3587,7 +3631,7 @@
 
             
 
-            <td class="description last"><p>// defaults to { count: 1, upcase: false }</p></td>
+            <td class="description last"><p>// defaults to { count: 1, upcase: false, bannedChars: [] }</p></td>
         </tr>
 
     
@@ -3715,7 +3759,7 @@
 
             
 
-            <td class="description last"><p>// defaults to { count: 1, upcase: false }</p></td>
+            <td class="description last"><p>// defaults to { count: 1, upcase: false, bannedChars: [] }</p></td>
         </tr>
 
     
@@ -3843,7 +3887,9 @@
 
             
 
-            <td class="description last"><p>defaults to 1</p></td>
+            <td class="description last"><p>defaults to 1
+{mixed} options // defaults to { bannedChars: [] }
+options.bannedChars - array of characters which should be banned in new string</p></td>
         </tr>
 
     
@@ -3971,7 +4017,9 @@
 
             
 
-            <td class="description last"><p>defaults to 1</p></td>
+            <td class="description last"><p>defaults to 1
+{mixed} options // defaults to { bannedChars: [] }
+options.bannedChars - array of characters which should be banned in new string</p></td>
         </tr>
 
     
@@ -4762,10 +4810,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>returns a single random floating-point number based on a max number or range</p>
-    </div>
-    
 
     
 
@@ -4843,6 +4887,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>returns a single random floating-point number based on a max number or range</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -4890,10 +4943,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>returns a single random floating-point number based on a max number or range</p>
-    </div>
-    
 
     
 
@@ -4971,6 +5020,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>returns a single random floating-point number based on a max number or range</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -5017,10 +5075,6 @@
 </dt>
 <dd>
 
-    
-    <div class="description">
-        <p>hexaDecimal</p>
-    </div>
     
 
     
@@ -5099,6 +5153,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>hexaDecimal</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -5145,10 +5208,6 @@
 </dt>
 <dd>
 
-    
-    <div class="description">
-        <p>hexaDecimal</p>
-    </div>
     
 
     
@@ -5227,6 +5286,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>hexaDecimal</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -5586,10 +5654,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>returns a single random number based on a max number or range</p>
-    </div>
-    
 
     
 
@@ -5667,6 +5731,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>returns a single random number based on a max number or range</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -5714,10 +5787,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>returns a single random number based on a max number or range</p>
-    </div>
-    
 
     
 
@@ -5795,6 +5864,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>returns a single random number based on a max number or range</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -5843,7 +5921,7 @@
 
     
     <div class="description">
-        <p>takes an object and returns the randomly key or value</p>
+        <p>takes an object and returns a random key or value</p>
     </div>
     
 
@@ -5995,7 +6073,7 @@
 
     
     <div class="description">
-        <p>takes an object and returns the randomly key or value</p>
+        <p>takes an object and returns a random key or value</p>
     </div>
     
 
@@ -6146,10 +6224,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>uuid</p>
-    </div>
-    
 
     
 
@@ -6177,6 +6251,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>uuid</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -6224,10 +6307,6 @@
 <dd>
 
     
-    <div class="description">
-        <p>uuid</p>
-    </div>
-    
 
     
 
@@ -6255,6 +6334,15 @@
     
 
 	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd>
+        <ul class="dummy">
+            <li>uuid</li>
+        </ul>
+    </dd>
+    
+    
 
 	
 
@@ -6851,9 +6939,9 @@
 
 
 <span class="jsdoc-message">
-	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.5</a>
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a>
 	
-		on 2020-08-26T18:35:43-04:00
+		on 2021-03-30T13:03:12-04:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

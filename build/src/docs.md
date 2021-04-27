@@ -8,10 +8,19 @@
 
 [![OpenCollective](https://opencollective.com/fakerjs/backers/badge.svg)](#backers)
 [![OpenCollective](https://opencollective.com/fakerjs/sponsors/badge.svg)](#sponsors)
+[![Gitter chat](https://badges.gitter.im/marak/faker.js.png)](https://gitter.im/Faker-js/community)
 
 ## Demo
 
 [https://rawgit.com/Marak/faker.js/master/examples/browser/index.html](https://rawgit.com/Marak/faker.js/master/examples/browser/index.html)
+
+### Faker Cloud
+
+Don't have a local development setup ready? 
+
+Try our hosted version of Faker at [https://fakercloud.com/api](https://fakercloud.com/api)
+
+https://github.com/faker/faker-cloud
 
 ## Usage
 
@@ -98,12 +107,12 @@ If you want consistent results, you can set your own seed:
 ```js
 faker.seed(123);
 
-var firstRandom = faker.random.number();
+var firstRandom = faker.datatype.number();
 
 // Setting the seed again resets the sequence.
 faker.seed(123);
 
-var secondRandom = faker.random.number();
+var secondRandom = faker.datatype.number();
 
 console.log(firstRandom === secondRandom);
 ```

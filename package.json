@@ -1,7 +1,7 @@
 {
   "name": "faker",
   "description": "Generate massive amounts of fake contextual data",
-  "version": "5.1.0",
+  "version": "5.5.3",
   "contributors": [
     "Marak Squires <marak.squires@gmail.com>"
   ],
@@ -13,7 +13,7 @@
     "browser": "./node_modules/.bin/gulp browser",
     "jsdoc": "./node_modules/.bin/gulp jsdoc",
     "readme": "./node_modules/.bin/gulp readme",
-    "lint": "node_modules/.bin/jshint ./lib --config ./.jshintrc",
+    "lint": "node_modules/.bin/eslint ./lib/animal.js",
     "test": "node_modules/.bin/mocha test/*.*.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
@@ -51,9 +51,10 @@
     "gulp-mustache": "^5.0.0",
     "gulp-rename": "^2.0.0",
     "gulp-uglify": "^3.0.2",
+    "eslint": "^6.5.1",
     "ink-docstrap": "1.1.4",
     "jsdoc": "^3.4.0",
-    "jshint": "0.9.0",
+    "lint-staged": "^9.4.2",
     "lodash": "^4.6.1",
     "mocha": "^8.1.1",
     "node-minify": "*",

@@ -9,7 +9,7 @@ var functionHelpers = {};
 module.exports = functionHelpers;
 
 
-var IGNORED_MODULES = ['locales', 'locale', 'localeFallback', 'definitions', 'fake', 'helpers'];
+var IGNORED_MODULES = ['locales', 'locale', 'localeFallback', 'definitions', 'fake', 'helpers', 'mersenne'];
 var IGNORED_METHODS = {
     system: ['directoryPath', 'filePath'] // these are TODOs
 };

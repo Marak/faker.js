@@ -16,7 +16,7 @@ describe('finance.js', function () {
             var expected = 8;
             var actual = account.length;
 
-            assert.equal(actual, expected, 'The expected default account length is ' + expected + ' but it was ' + actual);
+            assert.strictEqual(actual, expected, 'The expected default account length is ' + expected + ' but it was ' + actual);
 
         });
 
@@ -28,7 +28,7 @@ describe('finance.js', function () {
 
             var actual = account.length;
 
-            assert.equal(actual, expected, 'The expected default account length is ' + expected + ' but it was ' + actual);
+            assert.strictEqual(actual, expected, 'The expected default account length is ' + expected + ' but it was ' + actual);
 
         });
 
@@ -40,7 +40,7 @@ describe('finance.js', function () {
 
             var actual = account.length;
 
-            assert.equal(actual, expected, 'The expected default account length is ' + expected + ' but it was ' + actual);
+            assert.strictEqual(actual, expected, 'The expected default account length is ' + expected + ' but it was ' + actual);
 
         });
 
@@ -79,13 +79,13 @@ describe('finance.js', function () {
 
             var actual = mask.length;
 
-            assert.equal(actual, expected, 'The expected default mask length is ' + expected + ' but it was ' + actual);
+            assert.strictEqual(actual, expected, 'The expected default mask length is ' + expected + ' but it was ' + actual);
 
         });
 
         it("should set a specified length", function () {
 
-            var expected = faker.random.number(20);
+            var expected = faker.datatype.number(20);
 
             expected = (expected == 0 || !expected || typeof expected == 'undefined') ? 4 : expected;
 
@@ -93,7 +93,7 @@ describe('finance.js', function () {
 
             var actual = mask.length; //picks 4 if the random number generator picks 0
 
-            assert.equal(actual, expected, 'The expected default mask length is ' + expected + ' but it was ' + actual);
+            assert.strictEqual(actual, expected, 'The expected default mask length is ' + expected + ' but it was ' + actual);
 
         });
 
@@ -101,11 +101,11 @@ describe('finance.js', function () {
 
             var expected = 4;
 
-            var mask = faker.finance.mask(0, false, false);
+            faker.finance.mask(0, false, false);
 
             var actual = 4; //picks 4 if the random number generator picks 0
 
-            assert.equal(actual, expected, 'The expected default mask length is ' + expected + ' but it was ' + actual);
+            assert.strictEqual(actual, expected, 'The expected default mask length is ' + expected + ' but it was ' + actual);
 
         });
 
@@ -119,7 +119,7 @@ describe('finance.js', function () {
             var regexp = new RegExp(/(\(\d{4}?\))/);
             var actual = regexp.test(mask);
 
-            assert.equal(actual, expected, 'The expected match for parentheses is ' + expected + ' but it was ' + actual);
+            assert.strictEqual(actual, expected, 'The expected match for parentheses is ' + expected + ' but it was ' + actual);
 
         });
 
@@ -132,13 +132,13 @@ describe('finance.js', function () {
             var regexp = new RegExp(/(\.\.\.\d{4})/);
             var actual = regexp.test(mask);
 
-            assert.equal(actual, expected, 'The expected match for parentheses is ' + expected + ' but it was ' + actual);
+            assert.strictEqual(actual, expected, 'The expected match for parentheses is ' + expected + ' but it was ' + actual);
 
         });
 
         it("should work when random variables are passed into the arguments", function () {
 
-            var length = faker.random.number(20);
+            var length = faker.datatype.number(20);
             var ellipsis = (length % 2 === 0) ? true : false;
             var parens = !ellipsis;
 
@@ -156,8 +156,8 @@ describe('finance.js', function () {
             var amount = faker.finance.amount();
 
             assert.ok(amount);
-            assert.equal((amount > 0), true, "the amount should be greater than 0");
-            assert.equal((amount < 1001), true, "the amount should be greater than 0");
+            assert.strictEqual((amount > 0), true, "the amount should be greater than 0");
+            assert.strictEqual((amount < 1001), true, "the amount should be greater than 0");
 
         });
 
@@ -172,7 +172,7 @@ describe('finance.js', function () {
             assert.ok(amount);
             assert.strictEqual(amount , '100.0', "the amount should be equal 100.0");
         });
-        
+
         //TODO: add support for more currency and decimal options
         it("should not include a currency symbol by default", function () {
 
@@ -183,7 +183,7 @@ describe('finance.js', function () {
             var expected = true;
             var actual = regexp.test(amount);
 
-            assert.equal(actual, expected, 'The expected match should not include a currency symbol');
+            assert.strictEqual(actual, expected, 'The expected match should not include a currency symbol');
         });
 
 
@@ -192,8 +192,8 @@ describe('finance.js', function () {
             var amount = faker.finance.amount(-200, -1);
 
             assert.ok(amount);
-            assert.equal((amount < 0), true, "the amount should be greater than 0");
-            assert.equal((amount > -201), true, "the amount should be greater than 0");
+            assert.strictEqual((amount < 0), true, "the amount should be greater than 0");
+            assert.strictEqual((amount > -201), true, "the amount should be greater than 0");
         });
 
 
@@ -221,6 +221,26 @@ describe('finance.js', function () {
 
             assert.ok(amount);
             assert.strictEqual(typeOfAmount , "string", "the amount type should be number");
+        });
+
+        [false, undefined].forEach(function (autoFormat){
+            it(`should return unformatted if autoformat is ${autoFormat}`, function() {
+
+                const number = 6000;
+                const amount = faker.finance.amount(number, number, 0, undefined, autoFormat);
+
+                assert.strictEqual(amount, number.toString());
+            });
+        });
+
+        it("should return the number formatted on the current locale", function() {
+
+            const number = 6000, decimalPlaces = 2;
+            const expected = number.toLocaleString(undefined, {minimumFractionDigits: decimalPlaces});
+
+            const amount = faker.finance.amount(number, number, decimalPlaces, undefined, true);
+
+            assert.strictEqual(amount, expected);
         });
 
     });
@@ -259,7 +279,7 @@ describe('finance.js', function () {
         it("returns a random litecoin address", function(){
             var litecoinAddress = faker.finance.litecoinAddress();
 
-            assert.ok(litecoinAddress.match(/^[LM3][a-km-zA-HJ-NP-Z1-9]{26,33}$/));
+          assert.ok(litecoinAddress.match(/^[LM3][1-9a-km-zA-HJ-NP-Z]{25,32}$/));
         });
     });
 
@@ -349,7 +369,18 @@ describe('finance.js', function () {
             var iban = faker.finance.iban();
             var bban = iban.substring(4) + iban.substring(0, 4);
 
+            assert.strictEqual(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
+        });
+        it("returns a specific and formally correct IBAN number", function () {
+            var iban = faker.finance.iban(false, "DE");
+            var bban = iban.substring(4) + iban.substring(0, 4);
+            var countryCode = iban.substring(0, 2);
+
+            assert.equal(countryCode, "DE");
             assert.equal(ibanLib.mod97(ibanLib.toDigitString(bban)), 1, "the result should be equal to 1");
+        });
+        it("throws an error if the passed country code is not supported", function () {
+            assert.throws(function() { faker.finance.iban(false, 'AA');}, /Country code AA not supported/);
         });
     });
 
@@ -364,10 +395,19 @@ describe('finance.js', function () {
     });
 
     describe("transactionDescription()", function() {
-			it("returns a random transaction description", function() {
-				var transactionDescription = faker.finance.transactionDescription();
+        beforeEach(function () {
+            sinon.spy(faker.helpers, 'createTransaction');
+        });
 
-				assert.ok(transactionDescription);
-			})
-    })
+        afterEach(function () {
+            faker.helpers.createTransaction.restore();
+        });
+
+        it("returns a random transaction description", function() {
+            var transactionDescription = faker.finance.transactionDescription();
+
+            assert.ok(transactionDescription);
+            assert.ok(faker.helpers.createTransaction.calledOnce);
+        });
+    });
 });
