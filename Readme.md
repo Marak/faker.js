@@ -309,12 +309,14 @@ Setting a new locale is simple:
 faker.locale = "de";
 ```
 
+ * af_ZA
  * az
  * ar
  * cz
  * de
  * de_AT
  * de_CH
+ * el
  * en
  * en_AU
  * en_AU_ocker
@@ -339,6 +341,7 @@ faker.locale = "de";
  * it
  * ja
  * ko
+ * lv
  * nb_NO
  * ne
  * nl
@@ -355,6 +358,7 @@ faker.locale = "de";
  * vi
  * zh_CN
  * zh_TW
+ * zu_ZA
 
 
 ### Individual Localization Packages
