@@ -164,14 +164,14 @@ describe("random.js", function () {
     });
 
     it('should be able to ban some characters', function() {
-      var alphaText = alpha(5,{bannedChars:['a', 'p']});
+      var alphaText = alpha({count:5, bannedChars:['a', 'p']});
       assert.ok(alphaText.length === 5);
-      assert.ok(alphaText.match(/[b-oq-z]/));
+      assert.doesNotMatch(alphaText, /[ap]/)
     });
     it('should be able handle mistake in banned characters array', function() {
-      var alphaText = alpha(5,{bannedChars:['a', 'a', 'p']});
+      var alphaText = alpha({count:5, bannedChars:['a', 'a', 'p']});
       assert.ok(alphaText.length === 5);
-      assert.ok(alphaText.match(/[b-oq-z]/));
+      assert.doesNotMatch(alphaText, /[ap]/)
     });
   });
 
@@ -189,12 +189,32 @@ describe("random.js", function () {
     it('should be able to ban some characters', function() {
       var alphaText = alphaNumeric(5,{bannedChars:['a','p']});
       assert.ok(alphaText.length === 5);
-      assert.ok(alphaText.match(/[b-oq-z]/));
+      assert.doesNotMatch(alphaText, /[ap]/)
     });
     it('should be able handle mistake in banned characters array', function() {
       var alphaText = alphaNumeric(5,{bannedChars:['a','p','a']});
       assert.ok(alphaText.length === 5);
-      assert.ok(alphaText.match(/[b-oq-z]/));
+      assert.doesNotMatch(alphaText, /[apa]/)
+    });
+    it('should return both alpha and numeric characters by default', function() {
+      var alphaText = alphaNumeric(10);
+      assert.ok(alphaText.length === 10);
+      assert.ok(alphaText.match(/^[a-z0-9]+$/));
+    });
+    it('should be able to remove alpha characters', function() {
+      var numericText = alphaNumeric(10,{alpha:false});
+      assert.ok(numericText.length === 10);
+      assert.match(numericText,/^[0-9]+$/)
+    });
+    it('should be able to remove numeric characters', function() {
+      var alphaText = alphaNumeric(10,{numeric:false});
+      assert.ok(alphaText.length === 10);
+      assert.match(alphaText, /^[a-z]+$/)
+    });
+    it('should return an empty string if both alpha and numeric are removed', function() {
+      var alphaText = alphaNumeric(10,{numeric:false, alpha:false});
+      console.log(alphaText)
+      assert.ok(alphaText.length === 0);
     });
   });
 
