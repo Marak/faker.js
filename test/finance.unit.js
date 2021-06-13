@@ -7,6 +7,7 @@ if (typeof module !== 'undefined') {
 faker.seed(1234);
 
 describe('finance.js', function () {
+
     describe('account( length )', function () {
 
         it('should supply a default length if no length is passed', function () {
