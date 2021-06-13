@@ -262,6 +262,47 @@ describe('finance.js', function () {
         });
     });
 
+    describe("currency()", function () {
+        it("should return a random currency object with code, name and symbol", function () {
+            var currency = faker.finance.currency();
+            assert.ok(currency.hasOwnProperty('name'));
+            assert.ok(typeof currency.name === 'string');
+            assert.ok(currency.hasOwnProperty('code'));
+            assert.ok(typeof currency.code === 'string');
+            assert.ok(currency.hasOwnProperty('symbol'));
+            assert.ok(typeof currency.symbol === 'string');
+        });
+
+        it("should return a random currency object with symbol value", function () {
+            var currency = faker.finance.currency();
+            assert.ok(currency.symbol !== '');
+        });
+    });
+
+    describe("currencyName()", function () {
+        it("should return a random currency name", function () {
+            var currencyName = faker.finance.currencyName();
+            assert.ok(typeof currencyName === 'string');
+        });
+        it("should return a currency name for a given code", function () {
+            var currencyCode = 'EUR';
+            var currencyName = faker.finance.currencyName(currencyCode);
+            assert.ok(currencyName === 'Euro');
+        });
+    });
+
+    describe("currencySymbol()", function () {
+        it("should return a random currency symbol", function () {
+            var currencySymbol = faker.finance.currencySymbol();
+            assert.ok(typeof currencySymbol === 'string');
+        });
+        it("should return a currency name for a given code", function () {
+            var currencyCode = 'EUR';
+            var currencySymbol = faker.finance.currencySymbol(currencyCode);
+            assert.ok(currencySymbol === '€');
+        });
+    });
+
     describe("bitcoinAddress()", function(){
         it("returns a random bitcoin address", function(){
             var bitcoinAddress = faker.finance.bitcoinAddress();
