@@ -58,6 +58,54 @@ describe("helpers.js", function () {
     });
   });
 
+  describe("uniqueArray()", function () {
+    it("custom array returns unique array", function () {
+      var input = ["a", "a", "a", "a,", "a", "a", "a", "a", "b"];
+      var length = 2;
+      var unique = faker.helpers.uniqueArray(input, length);
+      assert.strictEqual(unique.length, length);
+      assert.strictEqual(new Set(unique).size, length);
+    });
+
+    it("definition array returns unique array", function () {
+      var length = faker.datatype.number({ min: 1, max: 6 });
+      var unique = faker.helpers.uniqueArray(faker.definitions.hacker.noun, length);
+      assert.strictEqual(unique.length, length);
+      assert.strictEqual(new Set(unique).size, length);
+    });
+
+    it("function returns unique array", function () {
+      var length = faker.datatype.number({ min: 1, max: 6 });
+      var unique = faker.helpers.uniqueArray(faker.lorem.word, length);
+      assert.strictEqual(unique.length, length);
+      assert.strictEqual(new Set(unique).size, length);
+    });
+
+    it("empty array returns empty array", function () {
+      var input = [];
+      var length = faker.datatype.number({ min: 1, max: 6 });
+      var unique = faker.helpers.uniqueArray(input, length);
+      assert.strictEqual(unique.length, input.length);
+      assert.strictEqual(new Set(unique).size, input.length);
+    });
+
+    it("length longer than source returns max length", function () {
+      var input = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
+      var length = input.length + 1;
+      var unique = faker.helpers.uniqueArray(input, length);
+      assert.strictEqual(unique.length, input.length);
+      assert.strictEqual(new Set(unique).size, input.length);
+    });
+
+    it("works as expected when seeded", function () {
+      var input = ["a", "a", "a", "a", "a", "f", "g", "h", "i", "j"];
+      var length = 5;
+      faker.seed(100);
+      var unique = faker.helpers.uniqueArray(input, length);
+      assert.deepStrictEqual(unique, ["g", "a", "i", "f", "j"]);
+    });
+  });
+
   describe("slugify()", function () {
     it("removes unwanted characters from URI string", function () {
       assert.strictEqual(faker.helpers.slugify("Aiden.Harªann"), "Aiden.Harann");
