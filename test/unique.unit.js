@@ -6,7 +6,6 @@ if (typeof module !== 'undefined') {
 
 describe("unique.js", function () {
   describe("unique()", function () {
-
     it("is able to call a function with no arguments and return a result", function () {
       var result = faker.unique(faker.internet.email);
       assert.strictEqual(typeof result, 'string');
@@ -50,5 +49,13 @@ describe("unique.js", function () {
       assert.ok(result.match(/\@c/));
     });
 
+    it("is able to clean found items after an specific value", function () {
+      result = faker.unique(faker.internet.protocol, [], {
+        maxRetries: 9999,
+        exclude: ["https"],
+        cleanWhenFound: 1
+      });
+      assert.strictEqual(result, 'http');
+    });
   });
 });
