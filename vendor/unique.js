@@ -30,6 +30,10 @@ unique.errorMessage = function (now, code, opts) {
   throw new Error(code + ' for uniqueness check \n\nMay not be able to generate any more unique values with current settings. \nTry adjusting maxTime or maxRetries parameters for faker.unique()')
 };
 
+unique.reset = function() {
+  found = {};
+}
+
 unique.exec = function (method, args, opts) {
   //console.log(currentIterations)
 
