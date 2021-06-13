@@ -269,6 +269,8 @@ https://github.com/faker/faker-cloud
 * time
   * recent
 * unique
+  * clear
+  * exec
 * vehicle
   * vehicle
   * manufacturer

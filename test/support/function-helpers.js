@@ -11,7 +11,8 @@ module.exports = functionHelpers;
 
 var IGNORED_MODULES = ['locales', 'locale', 'localeFallback', 'definitions', 'fake', 'helpers', 'mersenne'];
 var IGNORED_METHODS = {
-    system: ['directoryPath', 'filePath'] // these are TODOs
+  unique: ["exec", "clear"],
+  system: ["directoryPath", "filePath"] // these are TODOs
 };
 
 function isTestableModule(mod) {
@@ -42,9 +43,10 @@ functionHelpers.modulesList = function modulesList () {
   var modules = Object.keys(faker)
       .filter(isTestableModule)
       .reduce(function(result, mod) {
-          result[mod] = Object.keys(faker[mod]).filter(both(isMethodOf(mod), isTestableMethod(mod)));
-          return result;
+        result[mod] = Object.keys(faker[mod]).filter(both(isMethodOf(mod), isTestableMethod(mod))
+        );
+        return result;
       }, {});
-      
+
   return modules;
 }
