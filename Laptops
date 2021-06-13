@@ -1,0 +1,127 @@
+/**
+ *
+ * @namespace faker.Laptops
+ */
+var Laptop = function(faker) {
+    var self = this;
+    var fake = faker.fake;
+
+    /**
+     * Laptop
+     *
+     * @method faker.Laptop.Laptop
+     */
+    self.Laptop = function() {
+        return fake('{{Laptop.manufacturer}} {{Laptop.model}}');
+    };
+
+    self.Laptop.schema = {
+        "description": "Generates a random Laptop.",
+        "sampleResults": ["HP World", "DEll Italy", "Apple MAC"]
+    };
+
+    /**
+     * manufacturer
+     *
+     * @method faker.Laptop.manufacturer
+     */
+    self.manufacturer = function() {
+        return faker.random.arrayElement(faker.definitions.Laptop.manufacturer);
+    };
+
+    self.manufacturer.schema = {
+        "description": "Generates a manufacturer name.",
+        "sampleResults": ["HP Notebook", "DELL inspiron", "MAC V12"]
+    };
+
+
+    /**
+     * model
+     *
+     * @method faker.Laptop.model
+     */
+    self.model = function() {
+        return faker.random.arrayElement(faker.definitions.Laptop.model);
+    };
+
+    self.model.schema = {
+        "description": "Generates a Laptop model.",
+        "sampleResults": ["ENOTEBOOK SERIES", "INSPIRON SERIES", "YOGASS"]
+    };
+
+    /**
+     * type
+     *
+     * @method faker.Laptop.type
+     */
+    self.type = function() {
+        return faker.random.arrayElement(faker.definitions.Laptop.type);
+    };
+
+    self.type.schema = {
+        "description": "Generates a Laptop type.",
+        "sampleResults": ["4GB/1TB", "6GB/1TB", "8GB/1TB", "10GB/1TB"]
+    };
+
+    /**
+     * fuel
+     *
+     * 
+     */
+
+};
+
+/**
+ * vin
+ *
+ * @method faker.Laptop.vin
+ */
+self.vin = function() {
+    return (
+        faker.random.alphaNumeric(10) +
+        faker.random.alpha({ count: 1, upcase: true }) +
+        faker.random.alphaNumeric(1) +
+        faker.random.number({ min: 10000, max: 100000 }) // return five digit #
+    ).toUpperCase();
+};
+
+self.vin.schema = {
+    "description": "Generates a valid PRODUCT NUMBER.",
+    "sampleResults": ["YV1MH682762184654", "3C7WRMBJ2EG208836"]
+};
+
+/**
+ * color
+ *
+ * @method faker.Laptop.color
+ */
+self.color = function() {
+    return fake('{{commerce.color}}');
+};
+
+self.color.schema = {
+    "description": "Generates a color",
+    "sampleResults": ["red", "white", "black"]
+};
+
+/**
+ * vrm
+ *
+ * @method faker.Laptop.vrm
+ */
+self.vrm = function() {
+    return (
+        faker.random.alpha({ count: 2, upcase: true }) +
+        faker.random.number({ min: 0, max: 9 }) +
+        faker.random.number({ min: 0, max: 9 }) +
+        faker.random.alpha({ count: 3, upcase: true })
+    ).toUpperCase();
+};
+
+self.vrm.schema = {
+    "description": "Generates a Laptop vrm",
+    "sampleResults": ["MF56UPA", "GL19AAQ", "SF20TTA"]
+};
+};
+
+module["exports"] = Laptop;
