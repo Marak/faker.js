@@ -81,4 +81,34 @@ describe("vehicle.js", function () {
       faker.vehicle.bicycle.restore();
     });
   });
+
+  describe("motorcycle.model()", function () {
+    it("returns a random motorcycle model", function () {
+      sinon.stub(faker.vehicle.motorcycle, 'model').returns("Thunderbolt");
+      var motorcycle = faker.vehicle.motorcycle.model();
+
+      assert.strictEqual(motorcycle, "Thunderbolt");
+      faker.vehicle.motorcycle.model.restore();
+    });
+  });
+
+  describe("motorcycle.type()", function () {
+    it("returns a random motorcycle type", function () {
+      sinon.stub(faker.vehicle.motorcycle, 'type').returns("Custom");
+      var motorcycle = faker.vehicle.motorcycle.type();
+
+      assert.strictEqual(motorcycle, "Custom");
+      faker.vehicle.motorcycle.type.restore();
+    });
+  });
+
+  describe("motorcycle.manufacturer()", function () {
+    it("returns a random motorcycle manufacturer", function () {
+      sinon.stub(faker.vehicle.motorcycle, 'manufacturer').returns("Yamaha");
+      var motorcycle = faker.vehicle.motorcycle.manufacturer();
+
+      assert.strictEqual(motorcycle, "Yamaha");
+      faker.vehicle.motorcycle.manufacturer.restore();
+    });
+  });
 });
