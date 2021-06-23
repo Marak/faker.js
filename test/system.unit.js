@@ -20,7 +20,16 @@ describe("system.js", function () {
       sinon.stub(faker.random, 'words').returns('24/7');
       var filePath = faker.system.filePath();
       assert.strictEqual(filePath.indexOf('/'), 0, 'generated filePath should start with /');
-    
+
+      faker.random.words.restore();
+    });
+
+    it("checks if file full path has extension", function () {
+      sinon.stub(faker.random, 'words').returns('24/7');
+      var filePath = faker.system.filePath();
+      var re = /\.[0-9a-z]{1,5}$/i;
+      assert.match(filePath, re, 'generated filePath should have file extension');
+
       faker.random.words.restore();
     });
   });
@@ -30,6 +39,15 @@ describe("system.js", function () {
       sinon.stub(faker.random, 'words').returns('24/7');
       var fileName = faker.system.fileName();
       assert.strictEqual(fileName.indexOf('/'), -1, 'generated fileNames should not have path seperators');
+
+      faker.random.words.restore();
+    });
+
+    it("checks if filename has extension", function () {
+      sinon.stub(faker.random, 'words').returns('24/7');
+      var fileName = faker.system.fileName();
+      var re = /\.[0-9a-z]{1,5}$/i;
+      assert.match(fileName, re, 'generated fileName should have file extension');
 
       faker.random.words.restore();
     });
